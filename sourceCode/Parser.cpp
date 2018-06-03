@@ -938,7 +938,7 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 			for(; pos < article.size(); pos++){
 				if(check(article, pos, "@@")){
 					emptyBuffer(buffer, output);
-					std::string text = escapeHtml(article.substr(escapeStart, pos - escapeStart));
+					std::string text = article.substr(escapeStart, pos - escapeStart);
 					output.push_back(Token(Token::Type::PlainText, "escapeWhiteSpace", "", text));
 					pos += 2;
 					break;
