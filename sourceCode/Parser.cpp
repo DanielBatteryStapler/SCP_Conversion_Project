@@ -397,7 +397,14 @@ void Statement::toRawHtml(std::string& output, ParserConvertData& convertData){
 		}
 		break; 
 	case Type::Text:
-		output += escapeHtml(extraDataA);
+		if(extraDataB == "escapeWhiteSpace"){
+			std::string temp = escapeHtml(extraDataA);
+			replaceAll(temp, " ", "&nbsp;");
+			output += temp;
+		}
+		else{
+			output += escapeHtml(extraDataA);
+		}
 		break; 
 	case Type::ColorText:
 		std::transform(extraDataA.begin(), extraDataA.end(), extraDataA.begin(), ::tolower);
@@ -932,8 +939,7 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 				if(check(article, pos, "@@")){
 					emptyBuffer(buffer, output);
 					std::string text = escapeHtml(article.substr(escapeStart, pos - escapeStart));
-					replaceAll(text, " ", "&nbsp;");
-					output.push_back(Token(Token::Type::SectionComplete, "html", "", text));
+					output.push_back(Token(Token::Type::PlainText, "escapeWhiteSpace", "", text));
 					pos += 2;
 					break;
 				}
@@ -1577,6 +1583,7 @@ Statement Parser::statementizeArticle(std::vector<Token>& tokenizeArticle, std::
 				Statement t;
 				t.type = Statement::Type::Text;
 				t.extraDataA = i->data;
+				t.extraDataB = i->sectionType;//pass over any special tags that could be in the text, 99% of the time this is empty
 				top->statements.push_back(t);
 			}
 		}

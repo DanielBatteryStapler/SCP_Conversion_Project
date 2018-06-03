@@ -46,9 +46,6 @@
 		<Unit filename="Scraper.cpp" />
 		<Unit filename="Scraper.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="pagesWithErrors.txt">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
