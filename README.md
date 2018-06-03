@@ -12,12 +12,12 @@ I will try to update this in a somewhat regular fashion.
 
 ## Pages with Errors
 There are two categories of errors that a page can have:
-1. They have messed up formatting or are just missing content, these should be reported on this github
+1. They have messed up formatting or are just missing content, these should be reported on this github and I will try to fix as many of them as I can
 1. They are completely missing from the zip file entirely, these are already known, and I need help with them
 
-Due to how my code works, it is more strict on syntax correctness than WikiDot, which is not a problem because the majority of articles are correctly formatted. But, some articles have formatting syntax inside of them that is incorrect, even according to WikiDot, but WikiDot is much more forgiving about this and will render them mostly correct anyways. My code cannot replicate this behavior due to the fact that the syntax is technically wrong and WikiDot's behavior is inconsistent. I have a solution for this, though, but I cannot do it myself. In the "pagesWithErrors.txt" file, I have made a list of all of the pages that have actual syntactic errors with a short description of what the error is. If somebody could fix the errors in these pages and let me know, I can redownload them, create the PDFs, for them and then the ZIP file can finally become complete. If you are able to help, but you cannot understand where or what the error is because my description in not understandable, just message me and I can give a full explination of what the problem is — some of my descriptions are a bit less than helpful.
+Due to how my code works, it is more strict on syntax correctness than WikiDot, which is not a problem because the majority of articles are correctly formatted. But, some articles have formatting syntax inside of them that is incorrect, even according to WikiDot, but WikiDot is much more forgiving about this and will render them mostly correct anyways. My code cannot replicate this behavior due to the fact that the syntax is technically wrong and WikiDot's behavior is inconsistent. I have a solution for this though, but I cannot do it myself. In the "pagesWithErrors.txt" file, I have made a list of all of the pages that have actual syntactic errors with a short description of what the error is. If somebody could fix the errors in these pages on the wiki itself and let me know, I can redownload them, create the PDFs for them, and then the ZIP file can finally become complete. If you are able to help, but you cannot understand where or what the error is because my description in not understandable, just message me and I can give a full explanation of what the problem is — some of my descriptions are a bit less than helpful.
 
-Basically, somebody who is able to help out with fixing pages errors should read the "pagesWithError.txt" file and fix all of the errors because I am unable to.
+Basically, somebody who is able to help out with fixing page errors on the wiki should read the "pagesWithError.txt" file and fix all of the errors because I am unable to.
 
 --------------
 
