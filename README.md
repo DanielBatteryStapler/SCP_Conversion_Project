@@ -1,23 +1,23 @@
-# The SCP Conversion Project
-*This is completely unofficial and has not been approved or backed by the SCP Wiki or its staff*
-
-The SCP Conversion Project, which so-far only has one member, is dedicated to converting and providing the SCP Wiki (http://www.scp-wiki.net/) in different formats, which currently consist of PDF and a simplified version of the original HTML. This project has the secondary goal of preparing for the event that Wikidot is lost by archiving all of the original article source-code and images and providing tools that can be used to convert what the authors have written into what the readers see without relying on Wikidot or any Wikidot code so that writting can continue even with the loss of Wikidot.
-
-## The PDFs
+## Download PDFs
 If you just want a quick download of the entire site in pdf form, you can find the full folder on my Google Drive(you can just download the folder as a ZIP file): https://drive.google.com/drive/folders/1nC8dAtsHCApuD23sDExwot_QM4lKUqQL?usp=sharing
 
 Last Updated At: 01-06-2018 02:51:18 UTC
 
-I will try to update this in a somewhat regular fashion.
+If there is a specific article that needs to be added, updated, or an error needs to be fixed, please message me.
+
+# The SCP Conversion Project
+*This is completely unofficial and has not been approved or backed by the SCP Wiki or its staff*
+
+The SCP Conversion Project, which is right now nobody but me, is dedicated to converting and providing the SCP Wiki (http://www.scp-wiki.net/) in different formats, which currently consists of PDF. This project has the secondary goal of preparing for the event that Wikidot is lost by archiving all of the original article source-code and images and providing tools that can be used to convert what the authors have written into what the readers see without relying on Wikidot or any Wikidot code so that writting can continue even with the loss of Wikidot.
 
 ## Pages with Errors
 There are two categories of errors that a page can have:
-1. They have messed up formatting or are just missing content, these should be reported on this github and I will try to fix as many of them as I can
-1. They are completely missing from the zip file entirely, these are already known, and I need help with them
+1. They have messed up formatting or are just missing content, these should be reported to me so I can fix them
+1. They are completely missing from the zip file entirely, I already have a list of these, but I need help with them
 
 Due to how my code works, it is more strict on syntax correctness than WikiDot, which is not a problem because the majority of articles are correctly formatted. But, some articles have formatting syntax inside of them that is incorrect, even according to WikiDot, but WikiDot is much more forgiving about this and will render them mostly correct anyways. My code cannot replicate this behavior due to the fact that the syntax is technically wrong and WikiDot's behavior is inconsistent. I have a solution for this though, but I cannot do it myself. In the "pagesWithErrors.txt" file, I have made a list of all of the pages that have actual syntactic errors with a short description of what the error is. If somebody could fix the errors in these pages on the wiki itself and let me know, I can redownload them, create the PDFs for them, and then the folder can finally become complete. If you are able to help, but you cannot understand where or what the error is because my description in not understandable, just message me and I can give a full explanation of what the problem is — some of my descriptions are a bit less than helpful.
 
-Basically, somebody who is able to help out with fixing page errors on the wiki should read the "pagesWithError.txt" file and fix all of the errors because I am unable to.
+Basically, somebody who is able to fix page errors on the wiki should read the "pagesWithError.txt" file and fix all of the errors because I am unable to do so.
 
 --------------
 
