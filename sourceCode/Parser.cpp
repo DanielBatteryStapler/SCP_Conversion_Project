@@ -445,7 +445,7 @@ void Statement::toRawHtml(std::string& output, ParserConvertData& convertData){
 			i->toRawHtml(output, convertData);
 		}
 		if(extraDataA == "~"){
-			output += "</th>";
+			output += "</td>";
 		}
 		else{
 			output += "</td>";
