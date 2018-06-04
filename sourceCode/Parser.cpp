@@ -436,7 +436,7 @@ void Statement::toRawHtml(std::string& output, ParserConvertData& convertData){
 			output += "<td class='TableElementCenterAlign' " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + "'")) + ">";
 		}
 		else if(extraDataA == ""){
-			output += "<td " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + ")")) + "'>";
+			output += "<td " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + "'")) + ">";
 		}
 		else{
 			throw std::runtime_error("Error on table formatting");
@@ -608,7 +608,11 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 				continue;
 			}
 		}
-		if(check(article, pos, " _ ") || check(article, pos, " _\n")){
+		if(check(article, pos, "_\n")){
+			pos += 2;
+			continue;
+		}
+		if(check(article, pos, " _ ")){
 			isStrikeThrough = false;
 			isBold = false;
 			isUnderLine = false;
@@ -677,6 +681,10 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 					if(check(article, i + pos, "\n")){
 						break;
 					}
+					if(check(article, i + pos, "_\n")){
+						i++;
+						continue;
+					}
 					if(check(article, i + pos, "**")){
 						isBoldToken = true;
 						break;
@@ -701,6 +709,10 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 				for(int i = 2; i < pos + article.size(); i++){
 					if(check(article, i + pos, "\n")){
 						break;
+					}
+					if(check(article, i + pos, "_\n")){
+						i++;
+						continue;
 					}
 					if(check(article, i + pos, "__")){
 						isUnderLineToken = true;
@@ -732,6 +744,10 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 				for(int i = 2; i < pos + article.size(); i++){
 					if(check(article, i + pos, "\n")){
 						break;
+					}
+					if(check(article, i + pos, "_\n")){
+						i++;
+						continue;
 					}
 					if(check(article, i + pos, " -- ")){
 						i += 3;
@@ -958,9 +974,13 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 			std::string internal;
 			for(; endPos < article.size(); endPos++){
 				if(check(article, endPos, "##")){
-					internal = article.substr(pos, pos - endPos);
+					internal = article.substr(pos, endPos - pos);
 					pos = endPos + 2;
 					break;
+				}
+				if(check(article, endPos, "_\n")){
+					endPos++;
+					continue;
 				}
 				if(check(article, endPos, "\n")){
 					buffer += "##";
@@ -972,6 +992,7 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 				std::size_t endLinkPos = internal.find("|");
 				std::string color = internal.substr(0, endLinkPos);
 				std::string text = internal.substr(endLinkPos + 1, internal.size() - endLinkPos - 1);
+				output.push_back(Token(Token::Type::ColorText, color, "", text));
 			}
 			continue;
 		}
@@ -1472,12 +1493,12 @@ Statement Parser::statementizeArticle(std::vector<Token>& tokenizeArticle, std::
 	for(auto i = tokenizeArticle.begin(); i != tokenizeArticle.end(); i++){
 		top = &statementStack.back();
 		
-		/*
+		#ifdef DEBUG
 		std::cout << "\n\n\n\n============\nCurrentNewLines:" << newLines << ", StackSize:" << statementStack.size() << "\nCurrent Token:";
 		printToken(*i);
 		std::cout << "\nCurrent Top:";
 		top->print();
-		//*/
+		#endif //DEBUG
 		
 		if(i->type == Token::Type::NewLine){
 			newLines++;
