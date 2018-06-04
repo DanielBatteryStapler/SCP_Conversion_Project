@@ -156,7 +156,7 @@ namespace{
 void Statement::toRawHtml(std::string& output, ParserConvertData& convertData){
 	switch(type){
 	case Type::Article:
-		output += "<h1>" + escapeHtml(extraDataA) + "</h1><hr>";
+		output += "<h1>" + extraDataA + "</h1><hr>";
 		for(auto i = statements.begin(); i != statements.end(); i++){
 			i->toRawHtml(output, convertData);
 		}
