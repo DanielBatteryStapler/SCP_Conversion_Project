@@ -424,16 +424,16 @@ void Statement::toRawHtml(std::string& output, ParserConvertData& convertData){
 		break;
 	case Type::TableElement:
 		if(extraDataA == "~"){
-			output += "<th " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + ")")) + "'>";
+			output += "<td " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + "'")) + ">";
 		}
 		else if(extraDataA == "<"){
-			output += "<td class='TableElementLeftAlign' " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + ")")) + "'>";
+			output += "<td class='TableElementLeftAlign' " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + "'")) + ">";
 		}
 		else if(extraDataA == ">"){
-			output += "<td class='TableElementRightAlign' " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + ")")) + "'>";
+			output += "<td class='TableElementRightAlign' " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + "'")) + ">";
 		}
 		else if(extraDataA == "="){
-			output += "<td class='TableElementCenterAlign' " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + ")")) + "'>";
+			output += "<td class='TableElementCenterAlign' " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + "'")) + ">";
 		}
 		else if(extraDataA == ""){
 			output += "<td " + ((extraDataB == "1")?(std::string()):("colspan='" + extraDataB + ")")) + "'>";
