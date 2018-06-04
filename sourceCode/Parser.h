@@ -8,7 +8,7 @@
 #include "Helpers.h"
 
 struct Token{
-	enum class Type{SectionStart, SectionEnd, SectionComplete, PrefixFormat, FormatMarker, PlainText, ColorText, NewLine};
+	enum class Type{SectionStart, SectionEnd, SectionComplete, PrefixFormat, FormatMarker, PlainText, NewLine};
 	Type type;
 	std::string sectionType;
 	std::string sectionName;
@@ -27,8 +27,8 @@ public:
 	
 	enum class Type{Article, TabSection, Collapsible, Quote, Div, Footnote, CenterAlign, JustifyAlign, RightAlign, LeftAlign,
 							Header, FootnoteBlock, HtmlBlock, ImageBlock, Image, PageDivider, PageClearer, Paragraph, TabView, OrderedList, BulletList, Table, TableRow,
-								ListElement, TableElement, Span, Size, Italic, Bold, Underline, Strikethrough, Monospaced, Superscript, Subscript,
-									Error, Text, ColorText, LineBreak, HyperLink, Code, User};
+								ListElement, TableElement, Span, Color, Size, Italic, Bold, Underline, Strikethrough, Monospaced, Superscript, Subscript,
+									Error, Text, LineBreak, HyperLink, Code, User};
 	Type type;
 	
 	std::string extraDataA;//ImageUrl, section titles, linkURL, size

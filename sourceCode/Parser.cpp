@@ -89,9 +89,6 @@ void Statement::print(int tab){
 	case Type::Text:
 		std::cout << "Text: \"" << extraDataA << "\"\n";
 		break;
-	case Type::ColorText:
-		std::cout << "Color: " << extraDataA << " | " << extraDataB << "\n";
-		break;
 	case Type::ListElement:
 		std::cout << "ListElement:\n";
 		break;
@@ -103,6 +100,9 @@ void Statement::print(int tab){
 		break;
 	case Type::Span:
 		std::cout << "Span:\n";
+		break;
+	case Type::Color:
+		std::cout << "Color: " << extraDataA << "\n";
 		break;
 	case Type::Size:
 		std::cout << "Size: " << extraDataA << "\n";
@@ -406,15 +406,6 @@ void Statement::toRawHtml(std::string& output, ParserConvertData& convertData){
 			output += escapeHtml(extraDataA);
 		}
 		break; 
-	case Type::ColorText:
-		std::transform(extraDataA.begin(), extraDataA.end(), extraDataA.begin(), ::tolower);
-		if(extraDataA == "purple" || extraDataA == "silver" || extraDataA.size() != 6){
-			output += "<span style='color:" + extraDataA + ";'>" + escapeHtml(extraDataB) + "</span>";
-		}
-		else{
-			output += "<span style='color:#" + extraDataA + ";'>" + escapeHtml(extraDataB) + "</span>";
-		}
-		break;
 	case Type::ListElement:
 		output += "<li>";
 		for(auto i = statements.begin(); i != statements.end(); i++){
@@ -457,6 +448,19 @@ void Statement::toRawHtml(std::string& output, ParserConvertData& convertData){
 		break;
 	case Type::Span:
 		output += "<span " + extraDataA + ">";
+		for(auto i = statements.begin(); i != statements.end(); i++){
+			i->toRawHtml(output, convertData);
+		}
+		output += "</span>";
+		break;
+	case Type::Color:
+		std::transform(extraDataA.begin(), extraDataA.end(), extraDataA.begin(), ::tolower);
+		if(extraDataA == "purple" || extraDataA == "silver" || extraDataA.size() != 6){
+			output += "<span style='color:" + extraDataA + ";'>";
+		}
+		else{
+			output += "<span style='color:#" + extraDataA + ";'>";
+		}
 		for(auto i = statements.begin(); i != statements.end(); i++){
 			i->toRawHtml(output, convertData);
 		}
@@ -589,6 +593,7 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 	bool isStrikeThrough = false;
 	bool isBold = false;
 	bool isUnderLine = false;
+	bool isColored = false;
 	
 	for(; pos < article.size();){
 		isNewLine = false;
@@ -600,6 +605,7 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 			isStrikeThrough = false;
 			isBold = false;
 			isUnderLine = false;
+			isColored = false;
 			emptyBuffer(buffer, output);
 			output.push_back(Token(Token::Type::NewLine, "", "", ""));
 			isNewLine = true;
@@ -610,12 +616,15 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 		}
 		if(check(article, pos, "_\n")){
 			pos += 2;
+			emptyBuffer(buffer, output);
+			output.push_back(Token(Token::Type::NewLine, "", "", ""));
 			continue;
 		}
 		if(check(article, pos, " _ ")){
 			isStrikeThrough = false;
 			isBold = false;
 			isUnderLine = false;
+			isColored = false;
 			emptyBuffer(buffer, output);
 			output.push_back(Token(Token::Type::NewLine, "", "", ""));
 			isNewLine = true;
@@ -768,6 +777,45 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 			}
 			buffer += u8"—";
 			pos += 2;
+			continue;
+		}
+		
+		if(check(article, pos, "##")){
+			if(isColored){
+				emptyBuffer(buffer, output);
+				pos += 2;
+				output.push_back(Token(Token::Type::FormatMarker, "color", "", ""));
+				isColored = false;
+			}
+			else{
+				pos += 2;
+				std::size_t endPos = pos;
+				std::string internal;
+				for(; endPos < article.size(); endPos++){
+					if(check(article, endPos, "##")){
+						internal = article.substr(pos, endPos - pos);
+						break;
+					}
+					if(check(article, endPos, "_\n")){
+						endPos++;
+						continue;
+					}
+					if(check(article, endPos, "\n")){
+						break;
+					}
+				}
+				if(internal != ""){
+					emptyBuffer(buffer, output);
+					std::size_t endColorPos = internal.find("|");
+					std::string color = internal.substr(0, endColorPos);
+					output.push_back(Token(Token::Type::FormatMarker, "color", "", color));
+					pos += endColorPos + 1;
+					isColored = true;
+				}
+				else{
+					buffer += "##";
+				}
+			}
 			continue;
 		}
 		
@@ -964,35 +1012,6 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 					pos = escapeStart;
 					break;
 				}
-			}
-			continue;
-		}
-		
-		if(check(article, pos, "##")){
-			pos += 2;
-			std::size_t endPos = pos;
-			std::string internal;
-			for(; endPos < article.size(); endPos++){
-				if(check(article, endPos, "##")){
-					internal = article.substr(pos, endPos - pos);
-					pos = endPos + 2;
-					break;
-				}
-				if(check(article, endPos, "_\n")){
-					endPos++;
-					continue;
-				}
-				if(check(article, endPos, "\n")){
-					buffer += "##";
-					break;
-				}
-			}
-			if(internal != ""){
-				emptyBuffer(buffer, output);
-				std::size_t endLinkPos = internal.find("|");
-				std::string color = internal.substr(0, endLinkPos);
-				std::string text = internal.substr(endLinkPos + 1, internal.size() - endLinkPos - 1);
-				output.push_back(Token(Token::Type::ColorText, color, "", text));
 			}
 			continue;
 		}
@@ -1266,6 +1285,7 @@ std::vector<Token> Parser::tokenizeArticle(std::string& article){
 	}
 	
 	emptyBuffer(buffer, output);
+	
 	return output;
 }
 
@@ -1297,9 +1317,6 @@ void Parser::printToken(Token token){
 		break;
 	case Token::Type::PlainText:
 		std::cout << "PlainText: ";
-		break;
-	case Token::Type::ColorText:
-		std::cout << "ColorText: ";
 		break;
 	default:
 		throw std::runtime_error("Attempted To Print Invalid Token");
@@ -1334,6 +1351,7 @@ namespace{
 		case Statement::Type::TableRow:
 		case Statement::Type::ListElement:
 		case Statement::Type::Span:
+		case Statement::Type::Color:
 		case Statement::Type::Size:
 		case Statement::Type::Italic:
 		case Statement::Type::Bold:
@@ -1374,6 +1392,7 @@ namespace{
 		case Statement::Type::ListElement:
 		case Statement::Type::TableElement:
 		case Statement::Type::Span:
+		case Statement::Type::Color:
 		case Statement::Type::Size:
 		case Statement::Type::Italic:
 		case Statement::Type::Bold:
@@ -1414,6 +1433,7 @@ namespace{
 			return false;
 			break;
 		case Statement::Type::Span:
+		case Statement::Type::Color:
 		case Statement::Type::Size:
 		case Statement::Type::Italic:
 		case Statement::Type::Bold:
@@ -1565,7 +1585,7 @@ Statement Parser::statementizeArticle(std::vector<Token>& tokenizeArticle, std::
 			}
 			
 			if(newLines == 1){
-				if((top->type == Statement::Type::Paragraph || top->type == Statement::Type::TableElement) && ((i->type == Token::Type::SectionComplete && i->sectionType == "hyperLink") || i->type == Token::Type::PlainText || i->type == Token::Type::ColorText || i->type == Token::Type::FormatMarker)){
+				if((top->type == Statement::Type::Paragraph || top->type == Statement::Type::TableElement) && ((i->type == Token::Type::SectionComplete && i->sectionType == "hyperLink") || i->type == Token::Type::PlainText || i->type == Token::Type::FormatMarker)){
 						//only add a LineBreak if the token being added can exist inside of the paragraph the LineBreak is being added to
 					Statement newLine;
 					newLine.type = Statement::Type::LineBreak;
@@ -1608,14 +1628,6 @@ Statement Parser::statementizeArticle(std::vector<Token>& tokenizeArticle, std::
 				top->statements.push_back(t);
 			}
 		}
-		else if(i->type == Token::Type::ColorText){
-			makeInsertText(statementStack, top, carryOverStatements);
-			Statement t;
-			t.type = Statement::Type::ColorText;
-			t.extraDataA = i->sectionType;
-			t.extraDataB = i->data;
-			top->statements.push_back(t);
-		}
 		else if(i->type == Token::Type::PrefixFormat && i->sectionType == "listBullet"){
 			if(top->type == Statement::Type::BulletList){
 				Statement l;
@@ -1650,6 +1662,10 @@ Statement Parser::statementizeArticle(std::vector<Token>& tokenizeArticle, std::
 		}
 		else if(i->type == Token::Type::PrefixFormat && i->sectionType == "tableMarker"){
 			carryOverCarryOverStatements(statementStack, top, carryOverStatements);
+			if(top->type == Statement::Type::Table && newLines >= 2){
+				popStack(statementStack, top);
+			}
+			
 			if(top->type == Statement::Type::Table){
 				Statement r;
 				r.type = Statement::Type::TableRow;
@@ -1749,11 +1765,15 @@ Statement Parser::statementizeArticle(std::vector<Token>& tokenizeArticle, std::
 				f.type = Statement::Type::Size;
 				f.extraDataA = i->data;
 			}
+			else if(i->sectionType == "color"){
+				f.type = Statement::Type::Color;
+				f.extraDataA = i->data;
+			}
 			else{
 				throw std::runtime_error("Invalid format marker '" + i->sectionType + "'");
 			}
 			
-			if(f.type != Statement::Type::Size){
+			if(f.type != Statement::Type::Size && f.type != Statement::Type::Color){
 				if(top->type == f.type){
 					popStack(statementStack, top);
 				}
@@ -1766,7 +1786,7 @@ Statement Parser::statementizeArticle(std::vector<Token>& tokenizeArticle, std::
 					popStack(statementStack, top);
 				}
 				else if(f.extraDataA == ""){
-					throw std::runtime_error("Attempted to add a size modifier with an empty size tag");
+					throw std::runtime_error("Attempted to add a size or color modifier with no size or color data");
 				}
 				else{
 					statementStack.push_back(f);
