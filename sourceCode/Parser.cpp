@@ -2215,7 +2215,7 @@ std::string Parser::convertToHtml(Statement& article, bool makePrinterFriendly, 
 	".TableElementRightAlign{text-align:right;}"
 	".TableElementCenterAlign{text-align:center;}"
 	//for collapsibles
-	".CollapsibleContainer{}"
+	".CollapsibleContainer{clear:both;}"
 	".CollapsibleContent{display:none;}"
 	".CollapsibleHiddenText{cursor:pointer;}"
 	".CollapsibleHiddenText:hover{text-decoration:underline;}"
