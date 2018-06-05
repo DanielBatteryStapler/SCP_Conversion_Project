@@ -2180,7 +2180,7 @@ std::string Parser::convertToHtml(Statement& article, bool makePrinterFriendly, 
 	"h5{margin-bottom:0.5rem;font-size:0.8rem;}"
 	"h6{margin-bottom:0.5rem;font-size:0.7rem;}"
 	
-	"body{width:50rem;margin:auto;font-family:sans-serif;}"
+	"body{width:50rem;margin:auto;font-family:'DejaVu Sans', sans-serif;}"
 	"p{line-height:1.25;}"
 	"li{line-height:1.25;}"
 	
@@ -2205,7 +2205,7 @@ std::string Parser::convertToHtml(Statement& article, bool makePrinterFriendly, 
 	".ImageBlock{text-align:center;display:block;width:300px;float:right;clear:right;margin:1rem 1rem 1rem 1rem;border-style:solid;border-color:black;border-width:1px;}"
 	"blockquote>.ImageBlock{margin:1rem 3rem 1rem 1rem;}"
 	".ImageBlock>img{display:block;width:100%;padding:0px;}"
-	".ImageBlock>.ImageBlockCaption{display:block;box-sizing:border-box;width:100%;border-style:solid;border-color:black;border-width:0px;border-top-width:1px;padding:0.2rem;font-size:0.9rem;}"
+	".ImageBlock>.ImageBlockCaption{display:block;background-color:white;box-sizing:border-box;width:100%;border-style:solid;border-color:black;border-width:0px;border-top-width:1px;padding:0.2rem;font-size:0.9rem;}"
 	//tables
 	"table{border-collapse:collapse;margin:0.5rem;empty-cells:show;}"
 	"tr{border-collapse:collapse;}"
