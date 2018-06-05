@@ -34,7 +34,7 @@ ScpScraper/
   websitePages/
     /*everything downloaded will be put here*/
 ```
-The "wkhtmltopdf" executable can be obtained on it's website https://wkhtmltopdf.org/
+The "wkhtmltopdf" executable can be obtained on its website https://wkhtmltopdf.org/
 
 The "ScpScraper" program (specifically the "performFullToolChain" option) works by:
 1. (the "downloadPage" option only does this step) Downloading the WikiDot source code to an article, making a folder to put it in, and saving it in that folder (e.g. "websitePages/scp-262/scp-262.wikidotSource")
