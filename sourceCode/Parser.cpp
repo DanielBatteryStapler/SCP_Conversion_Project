@@ -2180,7 +2180,7 @@ std::string Parser::convertToHtml(Statement& article, bool makePrinterFriendly, 
 	"h5{margin-bottom:0.5rem;font-size:0.8rem;}"
 	"h6{margin-bottom:0.5rem;font-size:0.7rem;}"
 	
-	"body{width:50rem;margin:auto;font-family:'DejaVu Sans', sans-serif;}"
+	"body{width:50rem;margin:auto;font-family:'Liberation Sans', sans-serif;}"
 	"p{line-height:1.25;}"
 	"li{line-height:1.25;}"
 	
@@ -2191,7 +2191,7 @@ std::string Parser::convertToHtml(Statement& article, bool makePrinterFriendly, 
 	".JustifyAlign{text-align:justify;}"
 	".RightAlign{text-align:right;}"
 	".LeftAlign{text-align:left;}"
-	".Monospaced{font-family:'Terminus', monospace;font-size:inherit;}"
+	".Monospaced{font-family:'Liberation Mono', monospace;font-size:inherit;}"
 	".Underline{text-decoration:underline;}"
 	".Strikethrough{text-decoration:line-through;}"
 	//normal images
