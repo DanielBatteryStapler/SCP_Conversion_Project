@@ -174,16 +174,18 @@ void Scraper::convertPageSourceToHtml(std::string page, std::string output, bool
 		pageSource = ss.str();
 	}
 	std::string pageTitle;
+	std::string fullPageUrl;
 	{//get additional page info from the SCP_Conversion_Project_Page_Info_Header
 		std::string pageInfoHeader;
 		getData(pageSource, "<SCP_Conversion_Project_Page_Info_Header>", "</SCP_Conversion_Project_Page_Info_Header>", 0, pageInfoHeader);
 		
 		getData(pageInfoHeader, "<Page_Title>", "</Page_Title>", 0, pageTitle);
+		getData(pageInfoHeader, "<Full_Page_URL>", "</Full_Page_URL>", 0, fullPageUrl);
 	}
 	std::vector<Token> tokenizedArticle = Parser::tokenizeArticle(pageSource);
 	Statement statementizedArticle = Parser::statementizeArticle(tokenizedArticle, pageTitle);
 	
-	std::string pageHtml = Parser::convertToHtml(statementizedArticle, printFriendly, downloadImages, "http://scp-wiki.wdfiles.com/local--files/" + page + "/", "websitePages/" + page + "/");
+	std::string pageHtml = Parser::convertToHtml(statementizedArticle, printFriendly, (fullPageUrl=="local")?false:downloadImages, "http://scp-wiki.wdfiles.com/local--files/" + page + "/", "websitePages/" + page + "/");
 	{
 		std::ofstream file("websitePages/" + page + "/" + output);
 		file << pageHtml;

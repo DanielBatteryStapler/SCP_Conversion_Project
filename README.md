@@ -1,9 +1,11 @@
 ## Download PDFs
-If you just want a quick download of the entire site in pdf form, you can find the full folder on my Google Drive(you can just download the folder as a ZIP file): https://drive.google.com/drive/folders/1nC8dAtsHCApuD23sDExwot_QM4lKUqQL?usp=sharing
+If you just want a quick download of the entire site in pdf form, you can find the full folder and zip file on my Google Drive: https://drive.google.com/drive/folders/1nC8dAtsHCApuD23sDExwot_QM4lKUqQL?usp=sharing
 
-Last Updated At: 01-06-2018 02:51:18 UTC
+Last Updated At: 05-06-2018
 
 If there is a specific article that needs to be added, updated, or an error needs to be fixed, please message me.
+
+![Sample Output of SCP-262](sampleOutput.png)
 
 # The SCP Conversion Project
 *This is completely unofficial and has not been approved or backed by the SCP Wiki or its staff*
