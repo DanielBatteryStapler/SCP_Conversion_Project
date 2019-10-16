@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ScpArchive" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/ScpArchive" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="--runTests" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="./" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/ScpArchive" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="./" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=c++17" />
+			<Add directory="/usr/local/include/bsoncxx/v_noabi" />
+			<Add directory="/usr/local/include/mongocxx/v_noabi" />
+		</Compiler>
+		<Linker>
+			<Add option="-lboost_system" />
+			<Add option="-lboost_filesystem" />
+			<Add option="$\(pkg-config --cflags --libs libmongocxx\)" />
+		</Linker>
+		<Unit filename="DataLayout.md">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="ScpArchive/Database/Database.cpp" />
+		<Unit filename="ScpArchive/Database/Database.hpp" />
+		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />
+		<Unit filename="ScpArchive/Tests/AutomatedTester.hpp" />
+		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.cpp" />
+		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.hpp" />
+		<Unit filename="ScpArchive/Tests/Tests.cpp" />
+		<Unit filename="ScpArchive/Tests/Tests.hpp" />
+		<Unit filename="ScpArchive/main.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
