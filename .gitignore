@@ -31,7 +31,6 @@
 *.out
 *.app
 
-# codeblocks executables
-*/bin/*
-*.depend
-*.layout
+src/*/bin/*/*
+src/*/*.depend
+src/*/*.layout
