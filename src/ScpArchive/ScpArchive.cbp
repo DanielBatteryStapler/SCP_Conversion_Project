@@ -15,6 +15,7 @@
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="./" />
+					<Add directory="ScpArchive/Tests/Database" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -25,6 +26,7 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="./" />
+					<Add directory="ScpArchive/Tests/Database" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -42,15 +44,18 @@
 			<Add option="-lboost_filesystem" />
 			<Add option="$\(pkg-config --cflags --libs libmongocxx\)" />
 		</Linker>
-		<Unit filename="DataLayout.md">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="ScpArchive/Database/Database.cpp" />
 		<Unit filename="ScpArchive/Database/Database.hpp" />
+		<Unit filename="ScpArchive/Database/Importer.cpp" />
+		<Unit filename="ScpArchive/Database/Importer.hpp" />
+		<Unit filename="ScpArchive/Database/Json.cpp" />
+		<Unit filename="ScpArchive/Database/Json.hpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.hpp" />
 		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.cpp" />
 		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.hpp" />
+		<Unit filename="ScpArchive/Tests/Database/JsonTests.cpp" />
+		<Unit filename="ScpArchive/Tests/Database/JsonTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Tests.cpp" />
 		<Unit filename="ScpArchive/Tests/Tests.hpp" />
 		<Unit filename="ScpArchive/main.cpp" />

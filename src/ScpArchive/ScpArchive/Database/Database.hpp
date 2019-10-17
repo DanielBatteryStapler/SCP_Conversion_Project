@@ -5,21 +5,22 @@
 #include <optional>
 
 #include <mongocxx/client.hpp>
-#include <bsoncxx/types.hpp>
-#include <bsoncxx/json.hpp>
+#include <bsoncxx/oid.hpp>
+
+#include <optional>
 
 class Database{
 	public:
 		using ID = bsoncxx::oid;
-		using DateTime = bsoncxx::types::b_date;
+		using TimeStamp = int64_t;
 		
 		struct PageRevision{
 			std::string title;
-			std::string sourceCode;
-			struct MetaData{
-				
-			} metaData;
+			std::optional<ID> authorId;
+			TimeStamp timeStamp;
 			std::string changeMessage;
+			std::string changeType;
+			std::string sourceCode;
 		};
 		
 	private:
@@ -31,8 +32,11 @@ class Database{
 		
 		const std::string revisionCol = "revisions";
 		const std::string revisionColTitle = "title";
-		const std::string revisionColSourceCode = "sourceCode";
+		const std::string revisionColAuthorId = "authorId";
+		const std::string revisionColTimeStamp = "timeStamp";
 		const std::string revisionColChangeMessage = "changeMessage";
+		const std::string revisionColChangeType = "changeType";
+		const std::string revisionColSourceCode = "sourceCode";
 		
 		Database() = default;
 	public:
