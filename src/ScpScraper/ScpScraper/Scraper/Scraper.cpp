@@ -20,10 +20,6 @@ namespace Scraper{
 		const std::string userAgent = "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36";
 		const std::string token7 = "666656";
 		const std::string noRedirect = "/noredirect/true";
-		
-		nlohmann::json xmlToJson(std::string xml){
-			return nlohmann::json::parse(xml2json(xml.c_str()));
-		}
 	}
 	
 	nlohmann::json performAjaxRequest(std::string moduleName, std::map<std::string, std::string> parameters){
