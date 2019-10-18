@@ -8,10 +8,13 @@
 
 #include <sstream>
 #include <list>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <chrono>
 
 #include <boost/filesystem.hpp>
 
-#include <xml2json-master/include/xml2json.hpp>
 #include "entities/Entites.hpp"
 
 namespace Scraper{
@@ -114,20 +117,72 @@ namespace Scraper{
 		return output;
 	}
 	
+	namespace{
+		std::mutex threadLock;
+		void executeCollectionOnThreads(std::vector<std::string> collection, int threadCount, std::function<void(std::string)> func){
+			std::vector<std::thread> threads;
+			
+			int collectionSize = collection.size();
+			
+			const auto getNext = [&collection](bool& stopFlag)->std::string{
+				std::string next;
+				{
+					std::lock_guard<std::mutex> lock(threadLock);
+					if(collection.size() == 0){
+						stopFlag = true;
+					}
+					else{
+						stopFlag = false;
+						next = collection.back();
+						collection.pop_back();
+					}
+				}
+				return next;
+			};
+			
+			std::atomic<int> count{0};
+			for(int i = 0; i < threadCount; i++){
+				threads.push_back(std::thread([&count, func, getNext](){
+					while(true){
+						bool stopFlag;
+						std::string next = getNext(stopFlag);
+						if(stopFlag){
+							break;
+						}
+						func(next);
+						++count;
+					}
+				}));
+			}
+			while(true){
+				int num = count;
+				std::cout << num << "/" << collectionSize << "   " << (static_cast<double>(num) / collectionSize * 100) << "% complete\n";
+				if(num == collectionSize){
+					break;
+				}
+				std::this_thread::sleep_for(std::chrono::seconds(5));
+			}
+			for(auto& thread : threads){
+				thread.join();
+			}
+		}
+	}
+	
 	void downloadPageList(std::string pagesFolder, std::string pageListFile){
 		std::vector<std::string> pageList = loadJsonFromFile(pageListFile);
 		std::cout << "Archiving " << pageList.size() << " pages...\n";
-		for(int i = 0; i < pageList.size(); i++){
+		
+		executeCollectionOnThreads(pageList, 16, [pagesFolder](std::string page){
 			try{
-				downloadFullPageArchive(pagesFolder, pageList[i]);
-				std::cout << i + 1 << "/" << pageList.size() << "   " << (static_cast<double>(i + 1) / pageList.size() * 100) << "% complete\n";
+				downloadFullPageArchive(pagesFolder, page);
 			}
 			catch(std::exception& e){
-				std::string error = "Error when processing page " + pageList[i] + "\n";
+				std::lock_guard<std::mutex> lock(threadLock);
+				std::string error = "Error when processing page " + page + " e.what()" + e.what() + "\n";
 				std::cout << error;
 				std::ofstream("errors.txt", std::ios_base::app) << error;
 			}
-		}
+		});
 	}
 	
 	void downloadFullPageArchive(std::string pagesFolder, std::string pageName){
@@ -137,6 +192,10 @@ namespace Scraper{
 		
 		std::string pageFolder = pagesFolder + pageId + "/";
 		std::string filesFolder = pageFolder + "files/";
+		
+		if(boost::filesystem::equivalent(boost::filesystem::path(pageFolder), boost::filesystem::path(pagesFolder))){
+			throw std::runtime_error("Path error on page " + pageName);
+		}
 		
 		//make sure there isn't any stale data already in the directory
 		boost::filesystem::remove_all(pageFolder);
@@ -187,8 +246,6 @@ namespace Scraper{
 		request.setOpt(ws);
 		request.perform();
 		std::string data = os.str();
-		
-		std::ofstream("raw.html") << data;
 		
 		std::string pageId;
 		getData(data, "WIKIREQUEST.info.pageId = ", ";", 0, pageId);
@@ -288,7 +345,7 @@ namespace Scraper{
 				std::string revisionId;
 				getData(revisionData, "showVersion(", ")", 0, revisionId);
 				
-				std::cout << "\r\t\t\tGetting Revision #" << output.size() << "..." << std::flush;
+				std::cout << "\t\t\tGetting Revision #" << output.size() << "...\n";
 				
 				nlohmann::json revision = getRevisionData(revisionId);
 				
@@ -308,7 +365,7 @@ namespace Scraper{
 		
 		std::reverse(output.begin(), output.end());//reverse the order so the page revisions go from oldest to newest
 		
-		std::cout << "\r\t\t\tGot " << output.size() << " Revisions           \n"; 
+		std::cout << "\t\t\tGot " << output.size() << " Revisions           \n"; 
 		
 		return output;
 	}

@@ -24,14 +24,9 @@ int main(int argc, char** argv){
 		Scraper::downloadFullThreadArchive(threadsFolder, "76692");
 		Scraper::downloadThreadList(threadsFolder, dataFolder + "testThreads.json");
 		*/
-		Scraper::downloadFullPageArchive(pagesFolder, "cephalopodstevenson-artwork");
+		//Scraper::downloadFullPageArchive(pagesFolder, "cephalopodstevenson-artwork");
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--archive"){
-		
-		//boost::filesystem::remove_all(pagesFolder);
-		//boost::filesystem::create_directory(pagesFolder);
-		//boost::filesystem::remove_all(threadsFolder);
-		//boost::filesystem::create_directory(threadsFolder);
 		
 		//saveJsonToFile(pageList, Scraper::getFullPageList());
 		//saveJsonToFile(forumCategories, Scraper::getForumCategories());
