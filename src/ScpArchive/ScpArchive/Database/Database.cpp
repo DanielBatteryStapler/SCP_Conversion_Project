@@ -29,17 +29,23 @@ void Database::wipeDatabaseFromMongo(std::unique_ptr<Database>&& db){
 }
 
 void Database::cleanAndInitDatabase(){
-	std::vector<std::string> collections = database.list_collection_names();
-	for(std::string name : collections){
-		database[name].drop();
+	nlohmann::json collections = fromBson(database.run_command(toBson({{"listCollections", 1}, {"nameOnly", true}})))["cursor"]["firstBatch"];
+	for(auto& name : collections){
+        database[name["name"].get<std::string>()].drop();
 	}
 	
-	//database[pagesCol].create_index(bbb::make_document(bbb::kvp(pagesColName, 1)), bbb::make_document(bbb::kvp("unique", 1)));
 	database[pagesCol].create_index(toBson({{pagesColName, 1}}), toBson({{"unique", 1}}));
 }
 
 int64_t Database::getNumberOfPages(){
-	return database[pagesCol].count_documents({});
+	mongocxx::pipeline p{};
+	p.match(toBson({}));
+	p.group(toBson({{"_id", 0}, {"n", {{"$sum", 1}}}}));
+	auto cursor = database[pagesCol].aggregate(p);
+	if(cursor.begin() == cursor.end()){
+        return 0;
+	}
+	return fromBson(*cursor.begin())["n"].get<int>();
 }
 
 std::optional<Database::ID> Database::createPage(std::string name){
@@ -63,8 +69,6 @@ std::optional<Database::ID> Database::createPage(std::string name){
 		return {};
 	}
 }
-
-#include <iostream>
 
 std::optional<Database::ID> Database::getPageId(std::string name){
 	auto result = database[pagesCol].find(toBson({{pagesColName, name}}));

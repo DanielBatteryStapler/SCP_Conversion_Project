@@ -28,6 +28,22 @@ namespace Tests{
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
 		
+		tester.add("testDatabaseClean", [](){
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			
+			db->cleanAndInitDatabase();
+			
+			assertTrue(db->getPageId("testPageA") == std::nullopt);
+			Database::ID id = *db->createPage("testPageA");
+			assertEquals(id, *db->getPageId("testPageA"));
+			
+			db->cleanAndInitDatabase();
+			
+			assertTrue(db->getPageId("testPageA") == std::nullopt);
+			
+			Database::wipeDatabaseFromMongo(std::move(db));
+		});
+		
 		tester.add("testDatabasePageCount", [](){
 			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
 			

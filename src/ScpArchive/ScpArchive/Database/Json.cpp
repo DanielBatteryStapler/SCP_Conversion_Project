@@ -13,7 +13,7 @@ namespace Json{
 				case bsoncxx::type::k_double:
 					return ele.get_double().value;
 				case bsoncxx::type::k_utf8:
-					return ele.get_utf8().value;
+					return std::string(ele.get_utf8().value);
 				case bsoncxx::type::k_document:
 					return fromBson(ele.get_document().value);
 				case bsoncxx::type::k_array:
