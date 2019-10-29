@@ -11,7 +11,7 @@ namespace bbb = bsoncxx::builder::basic;
 
 namespace Tests{
 	void addJsonTests(Tester& tester){
-		tester.add("Bson->Json", [](){
+		tester.add("Json::fromBson", [](){
 			assertTrue(nlohmann::json({{"basic", "value"}}) == Json::fromBson(bbb::make_document(bbb::kvp("basic", "value"))));
 			assertTrue(nlohmann::json({{"num", 420}}) == Json::fromBson(bbb::make_document(bbb::kvp("num", 420))));
 			assertTrue(nlohmann::json({{"basic", "value"}, {"num", 420}}) == Json::fromBson(bbb::make_document(bbb::kvp("basic", "value"), bbb::kvp("num", 420))));
@@ -20,10 +20,12 @@ namespace Tests{
 			== Json::fromBson(bbb::make_document(bbb::kvp("basic", "value"), bbb::kvp("nested", bbb::make_document(bbb::kvp("value", 500))))));
 			assertTrue(nlohmann::json({{"array", {"a", "b", false, 45}}}) == Json::fromBson(bbb::make_document(bbb::kvp("array", bbb::make_array("a", "b", false, 45)))));
 			
+			assertTrue(nlohmann::json({{"emptyArray", nlohmann::json::array()}}) == Json::fromBson(bbb::make_document(bbb::kvp("emptyArray", bbb::make_array()))));
+			
 			assertTrue(nlohmann::json({{"basicId", Json::oid(bsoncxx::oid{"5da7d276b5f02a16362f2c73"})}}) == Json::fromBson(bbb::make_document(bbb::kvp("basicId", bsoncxx::oid{"5da7d276b5f02a16362f2c73"}))));
 		});
 		
-		tester.add("Json->Bson", [](){
+		tester.add("Json::toBson", [](){
 			assertTrue(Json::toBson({{"basic", "value"}}).view() == bbb::make_document(bbb::kvp("basic", "value")));
 			assertTrue(Json::toBson({{"num", 420}}).view() == bbb::make_document(bbb::kvp("num", 420l)));
 			assertTrue(Json::toBson({{"basic", "value"}, {"num", 420}}).view() == bbb::make_document(bbb::kvp("basic", "value"), bbb::kvp("num", 420l)));

@@ -16,11 +16,18 @@ class Database{
 		
 		struct PageRevision{
 			std::string title;
-			std::optional<ID> authorId;
+			std::optional<Database::ID> authorId;
 			TimeStamp timeStamp;
 			std::string changeMessage;
 			std::string changeType;
 			std::string sourceCode;
+		};
+		
+		struct PageFile{
+			std::string name;
+			std::string description;
+			TimeStamp timeStamp;
+			std::optional<Database::ID> authorId;
 		};
 		
 	private:
@@ -28,15 +35,36 @@ class Database{
 		
 		const std::string pagesCol = "pages";
 		const std::string pagesColName = "name";//this one is an index
+		const std::string pagesColParent = "parent";
+		const std::string pagesColDiscussion = "discussion";
+		const std::string pagesColTags = "tags";
 		const std::string pagesColRevisions = "revisions";
+		const std::string pagesColFiles = "files";
 		
-		const std::string revisionCol = "revisions";
-		const std::string revisionColTitle = "title";
-		const std::string revisionColAuthorId = "authorId";
-		const std::string revisionColTimeStamp = "timeStamp";
-		const std::string revisionColChangeMessage = "changeMessage";
-		const std::string revisionColChangeType = "changeType";
-		const std::string revisionColSourceCode = "sourceCode";
+		const std::string revisionsCol = "revisions";
+		const std::string revisionsColTitle = "title";
+		const std::string revisionsColAuthorId = "authorId";
+		const std::string revisionsColTimeStamp = "timeStamp";
+		const std::string revisionsColChangeMessage = "changeMessage";
+		const std::string revisionsColChangeType = "changeType";
+		const std::string revisionsColSourceCode = "sourceCode";
+		
+		const std::string pageFilesCol = "pageFiles";
+		const std::string pageFilesColPageId = "pageId";
+		const std::string pageFilesColName = "name";//compound index with pageId
+		const std::string pageFilesColDescription = "description";
+		const std::string pageFilesColTimeStamp = "timeStamp";
+		const std::string pageFilesColAuthorId = "authorId";
+		
+		///not yet implemented
+		const std::string forumGroupsCol = "forumGroups";
+		const std::string forumGroupsColTitle = "title";
+		const std::string forumGroupsColDescription = "description";
+		const std::string forumGroupsColCategories = "categories";
+		
+		const std::string forumCategoriesCol = "forumCategories";
+		const std::string forumCategoriesColTitle = "title";
+		const std::string forumCategoriesColDescription = "description";
 		
 		Database() = default;
 	public:
@@ -52,10 +80,22 @@ class Database{
 		std::optional<Database::ID> createPage(std::string name);
 		std::optional<Database::ID> getPageId(std::string name);
 		
+		std::optional<Database::ID> getPageDiscussion(Database::ID id);
+		void setPageDiscussion(Database::ID id, std::optional<Database::ID> discussion);
+		std::optional<Database::ID> getPageParent(Database::ID id);
+		void setPageParent(Database::ID id, std::optional<Database::ID> parent);
+		std::vector<std::string> getPageTags(Database::ID id);
+		void setPageTags(Database::ID id, std::vector<std::string> tags);
+		
 		Database::ID createPageRevision(Database::ID page, Database::PageRevision revision);
 		Database::PageRevision getPageRevision(Database::ID revision);
 		Database::PageRevision getLatestPageRevision(Database::ID page);
 		std::vector<Database::ID> getPageRevisions(Database::ID page);
+		
+		std::optional<Database::ID> createPageFile(Database::ID page, Database::PageFile file);
+		std::optional<Database::ID> getPageFileId(Database::ID page, std::string name);
+		Database::PageFile getPageFile(Database::ID file);
+		std::vector<Database::ID> getPageFiles(Database::ID page);
 		
 	private:
 		mongocxx::client dbClient;

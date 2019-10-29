@@ -27,6 +27,7 @@
 
 ## files:
 - _id: <fileId>
+- pageId: <parentPageId>
 - name: <fileName>
 - description: <fileDescription>
 - timeStamp: <timeStamp>

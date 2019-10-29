@@ -53,7 +53,7 @@ namespace Tests{
     }
     
     void addTesterTests(Tester& tester){
-        tester.add("testExceptionInverter", [](){
+        tester.add("Tests::shouldThrowException", [](){
             shouldThrowException([](){shouldThrowException([](){});});
             try{
                 shouldThrowException([](){});

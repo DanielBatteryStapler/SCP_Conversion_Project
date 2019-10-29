@@ -54,6 +54,8 @@
 		<Unit filename="ScpArchive/Tests/AutomatedTester.hpp" />
 		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.cpp" />
 		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.hpp" />
+		<Unit filename="ScpArchive/Tests/Database/ImporterTests.cpp" />
+		<Unit filename="ScpArchive/Tests/Database/ImporterTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Database/JsonTests.cpp" />
 		<Unit filename="ScpArchive/Tests/Database/JsonTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Tests.cpp" />
