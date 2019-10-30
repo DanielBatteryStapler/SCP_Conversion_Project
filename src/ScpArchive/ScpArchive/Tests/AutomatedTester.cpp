@@ -63,5 +63,25 @@ namespace Tests{
             }
             throw std::runtime_error("Expected \"shouldThrowException\" to throw an exception, but it didn't");
         });
+        
+        tester.add("Tests::assertEquals", [](){
+			assertEquals(1, 1);
+			assertEquals("hello", "hello");
+			assertEqualsVec<int>({}, {});
+			assertEqualsVec<int>({1, 2, 3}, {1, 2, 3});
+			
+			shouldThrowException([](){
+				assertEquals(1, 2);
+			});
+			shouldThrowException([](){
+				assertEquals("hello", "bye");
+			});
+			shouldThrowException([](){
+				assertEqualsVec<int>({1, 2}, {1, 2, 3});
+			});
+			shouldThrowException([](){
+				assertEqualsVec<int>({1, 2}, {2, 1});
+			});
+        });
     }
 }

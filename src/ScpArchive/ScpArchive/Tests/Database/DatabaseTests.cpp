@@ -98,11 +98,11 @@ namespace Tests{
 			db->cleanAndInitDatabase();
 			
             auto pageA = db->createPage("A");
-            assertEquals(0, db->getPageTags(*pageA).size());
+            assertEqualsVec({}, db->getPageTags(*pageA));
             db->setPageTags(*pageA, {"hello", "tags"});
-            assertEquals(2, db->getPageTags(*pageA).size());
+            assertEqualsVec({"hello", "tags"}, db->getPageTags(*pageA));
             db->setPageTags(*pageA, {"yeet"});
-            assertEquals(1, db->getPageTags(*pageA).size());
+            assertEqualsVec({"yeet"}, db->getPageTags(*pageA));
 			
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
@@ -134,23 +134,19 @@ namespace Tests{
 			
 			Database::ID pageId = *db->createPage("testPageA");
 			
-			assertEquals(0u, db->getPageRevisions(pageId).size());
+			assertEqualsVec({}, db->getPageRevisions(pageId));
 			
 			Database::PageRevision rev;
 			rev.title = "testRevA";
 			
 			Database::ID revId = db->createPageRevision(pageId, rev);
 			
-			auto revs = db->getPageRevisions(pageId);
-			assertEquals(1u, revs.size());
-			assertEquals(revId, revs[0]);
+			assertEqualsVec({revId}, db->getPageRevisions(pageId));
 			
 			rev.title = "testRevB";
-			revId = db->createPageRevision(pageId, rev);
+			Database::ID revIdb = db->createPageRevision(pageId, rev);
 			
-			revs = db->getPageRevisions(pageId);
-			assertEquals(2u, revs.size());
-			assertEquals(revId, revs[1]);
+			assertEqualsVec({revId, revIdb}, db->getPageRevisions(pageId));
 			
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
@@ -191,24 +187,123 @@ namespace Tests{
 			assertTrue(std::nullopt == db->getPageFileId(pageId, "nonexistantFile"));
 			assertTrue(std::nullopt == db->createPageFile(pageId, file));//duplicate file
 			
-			assertEquals(1, db->getPageFiles(pageId).size());
+			assertEqualsVec({fileId}, db->getPageFiles(pageId));
 			
 			Database::PageFile fileB;
 			fileB.name = "testFileB";
 			Database::ID fileIdB = *db->createPageFile(pageId, fileB);
 			
-			assertEquals(2, db->getPageFiles(pageId).size());
-			auto arr = db->getPageFiles(pageId);
-			assertEquals(fileId, arr[0]);
-			assertEquals(fileIdB, arr[1]);
+			assertEqualsVec({fileId, fileIdB}, db->getPageFiles(pageId));
 			
 			Database::ID pageIdB = *db->createPage("testPageB");
 			
 			db->createPageFile(pageIdB, file);
 			
-			assertEquals(2, db->getPageFiles(pageId).size());
+			assertEqualsVec({fileId, fileIdB}, db->getPageFiles(pageId));
+			
+			Database::wipeDatabaseFromMongo(std::move(db));
+		});
+		
+		tester.add("Database::createForumGroup", [](){
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			
+			db->cleanAndInitDatabase();
+			
+			assertEqualsVec({}, db->getForumGroups());
+			
+			Database::ForumGroup groupA;
+			groupA.title = "Title A";
+			groupA.description = "description A";
+			
+			Database::ID groupAId = db->createForumGroup(groupA);
+			assertEqualsVec({groupAId}, db->getForumGroups());
+			
+			Database::ForumGroup groupB;
+			groupB.title = "Title B";
+			groupB.description = "description B";
+			
+			Database::ID groupBId = db->createForumGroup(groupB);
+			assertEqualsVec({groupAId, groupBId}, db->getForumGroups());
+			
+			assertEquals(groupA.title, db->getForumGroup(groupAId).title);
+			assertEquals(groupA.description, db->getForumGroup(groupAId).description);
+			
+			assertEquals(groupB.title, db->getForumGroup(groupBId).title);
+			assertEquals(groupB.description, db->getForumGroup(groupBId).description);
+			
+			Database::wipeDatabaseFromMongo(std::move(db));
+		});
+		
+		tester.add("Database::createForumCategory", [](){
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			
+			db->cleanAndInitDatabase();
+			
+			Database::ForumGroup groupA;
+			groupA.title = "Title A";
+			groupA.description = "description A";
+			
+			Database::ID groupAId = db->createForumGroup(groupA);
+			
+			Database::ForumGroup groupB;
+			groupB.title = "Title B";
+			groupB.description = "description B";
+			
+			Database::ID groupBId = db->createForumGroup(groupB);
+			
+			assertEqualsVec({}, db->getForumCategories(groupAId));
+			assertEqualsVec({}, db->getForumCategories(groupBId));
+			
+			Database::ForumCategory categoryA;
+			categoryA.title = "Category Title A";
+			categoryA.description = "Category Description A";
+			
+			Database::ID categoryAId = db->createForumCategory(groupAId, categoryA);
+			
+			assertEqualsVec({categoryAId}, db->getForumCategories(groupAId));
+			assertEqualsVec({}, db->getForumCategories(groupBId));
+			
+			Database::ForumCategory categoryB;
+			categoryB.title = "Category Title B";
+			categoryB.description = "Category Description B";
+			
+			Database::ID categoryBId = db->createForumCategory(groupAId, categoryB);
+			
+			Database::ForumCategory categoryC;
+			categoryC.title = "Category Title C";
+			categoryC.description = "Category Description C";
+			
+			Database::ID categoryCId = db->createForumCategory(groupBId, categoryC);
+			
+			assertEqualsVec({categoryAId, categoryBId}, db->getForumCategories(groupAId));
+			assertEqualsVec({categoryCId}, db->getForumCategories(groupBId));
+			
+			assertEquals(categoryA.title, db->getForumCategory(categoryAId).title);
+			assertEquals(categoryA.description, db->getForumCategory(categoryAId).description);
+			
+			assertEquals(categoryB.title, db->getForumCategory(categoryBId).title);
+			assertEquals(categoryB.description, db->getForumCategory(categoryBId).description);
+			
+			assertEquals(categoryC.title, db->getForumCategory(categoryCId).title);
+			assertEquals(categoryC.description, db->getForumCategory(categoryCId).description);
 			
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

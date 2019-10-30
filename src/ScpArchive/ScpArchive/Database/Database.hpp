@@ -30,6 +30,16 @@ class Database{
 			std::optional<Database::ID> authorId;
 		};
 		
+		struct ForumGroup{
+			std::string title;
+			std::string description;
+		};
+		
+		struct ForumCategory{
+			std::string title;
+			std::string description;
+		};
+		
 	private:
 		const std::string colId = "_id";//this one is always an index
 		
@@ -96,6 +106,14 @@ class Database{
 		std::optional<Database::ID> getPageFileId(Database::ID page, std::string name);
 		Database::PageFile getPageFile(Database::ID file);
 		std::vector<Database::ID> getPageFiles(Database::ID page);
+		
+		Database::ID createForumGroup(Database::ForumGroup group);
+		Database::ForumGroup getForumGroup(Database::ID group);
+		std::vector<Database::ID> getForumGroups();
+		
+		Database::ID createForumCategory(Database::ID group, Database::ForumCategory category);
+		Database::ForumCategory getForumCategory(Database::ID category);
+		std::vector<Database::ID> getForumCategories(Database::ID group);
 		
 	private:
 		mongocxx::client dbClient;

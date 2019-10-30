@@ -231,8 +231,6 @@ std::optional<Database::ID> Database::createPageFile(Database::ID page, Database
 	}
 }
 
-#include <iostream>
-
 std::optional<Database::ID> Database::getPageFileId(Database::ID page, std::string name){
 	auto result = database[pageFilesCol].find_one(toBson({{pageFilesColPageId, oid(page)}, {pageFilesColName, name}}));
 	
@@ -263,6 +261,84 @@ Database::PageFile Database::getPageFile(Database::ID file){
 std::vector<Database::ID> Database::getPageFiles(Database::ID page){
 	auto result = database[pagesCol].find(toBson({{colId, oid(page)}}));
 	auto arr = fromBson(*result.begin())[pagesColFiles];
+	
+	std::vector<Database::ID> output;
+	for(auto i : arr){
+		output.push_back(getOid(i));
+	}
+	
+	return output;
+}
+
+Database::ID Database::createForumGroup(Database::ForumGroup group){
+	auto result = 
+	database[forumGroupsCol].insert_one(toBson(
+		{
+			{forumGroupsColTitle, group.title},
+			{forumGroupsColDescription, group.description},
+			{forumGroupsColCategories, 
+				nlohmann::json::array()
+			}
+		}
+	));
+	
+	return result->inserted_id().get_oid().value;
+}
+
+Database::ForumGroup Database::getForumGroup(Database::ID group){
+	Database::ForumGroup output;
+	
+	auto result = database[forumGroupsCol].find(toBson({{colId, oid(group)}}));
+	auto doc = fromBson(*result.begin());
+	
+	output.title = doc[forumGroupsColTitle].get<std::string>();
+	output.description = doc[forumGroupsColDescription].get<std::string>();
+	
+	return output;
+}
+
+std::vector<Database::ID> Database::getForumGroups(){
+	auto result = database[forumGroupsCol].find(toBson({}));
+	
+	std::vector<Database::ID> output;
+	for(auto i : result){
+		output.push_back(getOid(fromBson(i)[colId]));
+	}
+	
+	return output;
+}
+
+Database::ID Database::createForumCategory(Database::ID group, Database::ForumCategory category){
+	auto result = 
+	database[forumCategoriesCol].insert_one(toBson(
+		{
+			{forumCategoriesColTitle, category.title},
+			{forumCategoriesColDescription, category.description}
+		}
+	));
+	
+	Database::ID categoryId = result->inserted_id().get_oid().value;
+	
+	database[forumGroupsCol].update_one(toBson({{colId, oid(group)}}), toBson({{"$push", {{forumGroupsColCategories, oid(categoryId)}}}}));
+	
+	return categoryId;
+}
+
+Database::ForumCategory Database::getForumCategory(Database::ID category){
+	Database::ForumCategory output;
+	
+	auto result = database[forumCategoriesCol].find(toBson({{colId, oid(category)}}));
+	auto doc = fromBson(*result.begin());
+	
+	output.title = doc[forumCategoriesColTitle].get<std::string>();
+	output.description = doc[forumCategoriesColDescription].get<std::string>();
+	
+	return output;
+}
+
+std::vector<Database::ID> Database::getForumCategories(Database::ID group){
+	auto result = database[forumGroupsCol].find(toBson({{colId, oid(group)}}));
+	auto arr = fromBson(*result.begin())[forumGroupsColCategories];
 	
 	std::vector<Database::ID> output;
 	for(auto i : arr){

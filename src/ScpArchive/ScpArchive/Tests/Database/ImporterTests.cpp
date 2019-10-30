@@ -7,6 +7,40 @@
 
 namespace Tests{
 	namespace{
+		const nlohmann::json testForumGroups = {
+			{
+				{"title", "Test Group A"},
+				{"description", "Group A Description"},
+				{"categories", 
+					{
+						{
+							{"id", "category-id-a"},
+							{"title", "Test Category A"}, 
+							{"description", "Category A Description"}
+						},
+						{
+							{"id", "category-id-b"},
+							{"title", "Test Category B"}, 
+							{"description", "Category B Description"}
+						}
+					}
+				}
+			},
+			{
+				{"title", "Test Group B"},
+				{"description", "Group B Description"},
+				{"categories", 
+					{
+						{
+							{"id", "category-id-c"},
+							{"title", "Test Category C"}, 
+							{"description", "Category C Description"}
+						}
+					}
+				}
+			}
+		};
+		
 		const nlohmann::json testPageA = {
 			{"id", "testPageARawID"},
 			{"name", "test-page-a"},
@@ -81,6 +115,35 @@ namespace Tests{
 	}
 
 	void addImporterTests(Tester& tester){
+		tester.add("Importer::importForumGroups", [](){
+			Importer::ImportMap map;
+			
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			db->cleanAndInitDatabase();
+			
+			importForumGroups(db.get(), map, testForumGroups);
+			
+			std::vector<Database::ID> groups = db->getForumGroups();
+			assertEquals(testForumGroups.size(), groups.size());
+			for(int i = 0; i < groups.size(); i++){
+                nlohmann::json exGroup = testForumGroups[i];
+                Database::ForumGroup acGroup = db->getForumGroup(groups[i]);
+                assertEquals(exGroup["title"].get<std::string>(), acGroup.title);
+                assertEquals(exGroup["description"].get<std::string>(), acGroup.description);
+                
+                std::vector<Database::ID> categories = db->getForumCategories(groups[i]);
+                assertEquals(exGroup["categories"].size(), categories.size());
+                for(int y = 0; y < categories.size(); y++){
+                    nlohmann::json exCategory = exGroup["categories"][y];
+                    Database::ForumCategory acCategory = db->getForumCategory(categories[y]);
+                    assertEquals(exCategory["title"].get<std::string>(), acCategory.title);
+                    assertEquals(exCategory["description"].get<std::string>(), acCategory.description);
+                }
+			}
+			
+			Database::wipeDatabaseFromMongo(std::move(db));
+		});
+		
 		tester.add("Importer::importBasicPageData", [](){
 			Importer::ImportMap map;
 			

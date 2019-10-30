@@ -52,18 +52,32 @@ namespace Importer{
         return getMapDetail(raw, categoryMap);
     }
 	
-	void importThreadGroups(Database* database, ImportMap& map, nlohmann::json threadGroups){
-		
-	}
-	
-	void importThread(Database* database, ImportMap& map, nlohmann::json threadData){
-		
-	}
-	
 	namespace{
 		uint64_t getTimeStamp(nlohmann::json time){
 			return std::stoll(time.get<std::string>());
 		}
+	}
+	
+	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups){
+		for(nlohmann::json jGroup : forumGroups){
+            Database::ForumGroup group;
+            group.title = jGroup["title"].get<std::string>();
+            group.description = jGroup["description"].get<std::string>();
+            
+            Database::ID groupId = database->createForumGroup(group);
+            for(nlohmann::json jCategory : jGroup["categories"]){
+                Database::ForumCategory category;
+                category.title = jCategory["title"].get<std::string>();
+                category.description = jCategory["description"].get<std::string>();
+                
+                Database::ID categoryId = database->createForumCategory(groupId, category);
+                map.setCategoryMap(jCategory["id"].get<std::string>(), categoryId);
+            }
+		}
+	}
+	
+	void importThread(Database* database, ImportMap& map, nlohmann::json threadData){
+		
 	}
 	
 	void importBasicPageData(Database* database, ImportMap& map, nlohmann::json pageData){

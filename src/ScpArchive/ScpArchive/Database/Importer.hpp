@@ -31,7 +31,7 @@ namespace Importer{
     
 	void importFullArchive(Database* database, std::string archiveDirectory);
 	
-	void importThreadGroups(Database* database, ImportMap& map, nlohmann::json threadGroups);
+	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups);
 	void importThread(Database* database, ImportMap& map, nlohmann::json threadData);
 	
 	void importBasicPageData(Database* database, ImportMap& map, nlohmann::json pageData);

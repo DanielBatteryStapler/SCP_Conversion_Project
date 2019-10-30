@@ -32,6 +32,42 @@ namespace Tests{
 			throw std::runtime_error(ss.str());
 		}
 	}
+	
+	template<typename A>
+    inline void assertEqualsVec(std::vector<A> expected, std::vector<A> actual){
+		bool areEqual = true;
+		if(expected.size() == actual.size()){
+			for(int i = 0; i < expected.size(); i++){
+				if(!(expected[i] == actual[i])){
+					areEqual = false;
+					break;
+				}
+			}
+		}
+		else{
+			areEqual = false;
+		}
+		if(!areEqual){
+			std::stringstream ss;
+			ss << "Assert Fail, expected the following std::vectors to be equal:\n"
+			<< "\tExpected: {";
+			for(int i = 0; i < expected.size(); i++){
+				ss << expected[i];
+				if(i != expected.size() - 1){
+					ss << ", ";
+				}
+			}
+			ss << "}\n\tActual:   {";
+			for(int i = 0; i < actual.size(); i++){
+				ss << actual[i];
+				if(i != actual.size() - 1){
+					ss << ", ";
+				}
+			}
+			ss << "}\n";
+			throw std::runtime_error(ss.str());
+		}
+	}
     
     void addTesterTests(Tester& tester);
 }
