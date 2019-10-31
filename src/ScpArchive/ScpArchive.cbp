@@ -16,6 +16,7 @@
 					<Add option="-g" />
 					<Add directory="./" />
 					<Add directory="ScpArchive/Tests/Database" />
+					<Add directory="ScpArchive/Website" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -27,6 +28,7 @@
 					<Add option="-O2" />
 					<Add directory="./" />
 					<Add directory="ScpArchive/Tests/Database" />
+					<Add directory="ScpArchive/Website" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -50,6 +52,8 @@
 		<Unit filename="ScpArchive/Database/Importer.hpp" />
 		<Unit filename="ScpArchive/Database/Json.cpp" />
 		<Unit filename="ScpArchive/Database/Json.hpp" />
+		<Unit filename="ScpArchive/Parser/MarkupOutStream.cpp" />
+		<Unit filename="ScpArchive/Parser/MarkupOutStream.hpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.hpp" />
 		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.cpp" />
@@ -58,6 +62,8 @@
 		<Unit filename="ScpArchive/Tests/Database/ImporterTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Database/JsonTests.cpp" />
 		<Unit filename="ScpArchive/Tests/Database/JsonTests.hpp" />
+		<Unit filename="ScpArchive/Tests/Parser/MarkupOutStreamTests.cpp" />
+		<Unit filename="ScpArchive/Tests/Parser/MarkupOutStreamTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Tests.cpp" />
 		<Unit filename="ScpArchive/Tests/Tests.hpp" />
 		<Unit filename="ScpArchive/main.cpp" />
