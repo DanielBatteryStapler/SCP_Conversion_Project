@@ -26,7 +26,7 @@ void Gateway::run(std::string socket, std::function<void(Gateway::ThreadContext)
 	unsigned int numberOfGatewayThreads = Config::getNumberOfThreadsForGateway();
 	
 	std::vector<std::thread> threadPool;
-	for(int i = 0; i < numberOfGatewayThreads; i++){
+	for(unsigned int i = 0; i < numberOfGatewayThreads; i++){
         ThreadContext threadContext;
         threadContext.threadIndex = i;
         threadContext.domainName = domain;
@@ -35,7 +35,7 @@ void Gateway::run(std::string socket, std::function<void(Gateway::ThreadContext)
         threadPool.push_back(std::thread(threadFunc, threadContext));
 	}
 	
-	for(int i = 0; i < threadPool.size(); i++){
+	for(unsigned int i = 0; i < numberOfGatewayThreads; i++){
         threadPool[i].join();
 	}
 }
@@ -89,5 +89,8 @@ std::string Gateway::FcgiInputWrapper::getenv(const char* varName){
 	}
 }
 
+std::string Gateway::RequestContext::getUriString(){
+	return fcgiInputWrapper.getenv("DOCUMENT_URI");
+}
 
 

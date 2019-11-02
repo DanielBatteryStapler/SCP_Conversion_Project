@@ -37,7 +37,7 @@ namespace Tests{
     inline void assertEqualsVec(std::vector<A> expected, std::vector<A> actual){
 		bool areEqual = true;
 		if(expected.size() == actual.size()){
-			for(int i = 0; i < expected.size(); i++){
+			for(std::size_t i = 0; i < expected.size(); i++){
 				if(!(expected[i] == actual[i])){
 					areEqual = false;
 					break;
@@ -51,14 +51,14 @@ namespace Tests{
 			std::stringstream ss;
 			ss << "Assert Fail, expected the following std::vectors to be equal:\n"
 			<< "\tExpected: {";
-			for(int i = 0; i < expected.size(); i++){
+			for(std::size_t i = 0; i < expected.size(); i++){
 				ss << expected[i];
 				if(i != expected.size() - 1){
 					ss << ", ";
 				}
 			}
 			ss << "}\n\tActual:   {";
-			for(int i = 0; i < actual.size(); i++){
+			for(std::size_t i = 0; i < actual.size(); i++){
 				ss << actual[i];
 				if(i != actual.size() - 1){
 					ss << ", ";

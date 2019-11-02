@@ -4,7 +4,7 @@
 #include "Database/DatabaseTests.hpp"
 #include "Database/JsonTests.hpp"
 
-#include "Parser/MarkupOutStreamTests.hpp"
+#include "HTTP/MarkupOutStreamTests.hpp"
 
 namespace Tests{
 	void runAllTests(){

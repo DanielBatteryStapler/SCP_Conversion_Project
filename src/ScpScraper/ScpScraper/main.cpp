@@ -24,7 +24,7 @@ int main(int argc, char** argv){
 		Scraper::downloadFullThreadArchive(threadsFolder, "76692");
 		Scraper::downloadThreadList(threadsFolder, dataFolder + "testThreads.json");
 		*/
-		//Scraper::downloadFullPageArchive(pagesFolder, "cephalopodstevenson-artwork");
+		Scraper::downloadFullPageArchive(pagesFolder, "cone");
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--archive"){
 		

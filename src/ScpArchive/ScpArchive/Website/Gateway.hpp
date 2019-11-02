@@ -15,7 +15,7 @@
 #include <cgicc/CgiEnvironment.h>
 #include <cgicc/CgiUtils.h>
 
-#include "../Parser/MarkupOutStream.hpp"
+#include "../HTTP/MarkupOutStream.hpp"
 
 class Gateway{
 	private:
@@ -29,6 +29,8 @@ class Gateway{
 			friend class Gateway;
 			
 			public:
+				std::string getUriString();
+				
 				bool shouldShutdown;
 				std::unique_ptr<cgicc::Cgicc> cgi;
 				const cgicc::CgiEnvironment* env;

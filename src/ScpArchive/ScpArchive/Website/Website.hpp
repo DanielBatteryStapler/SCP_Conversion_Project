@@ -12,6 +12,7 @@ class Website{
 		
 	private:
 		static void threadProcess(Gateway::ThreadContext threadContext);
+		static std::vector<std::string> splitUri(std::string uri);
 };
 
 #endif // WEBSITE_HPP

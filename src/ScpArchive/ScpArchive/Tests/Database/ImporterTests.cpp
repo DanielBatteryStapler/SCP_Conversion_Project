@@ -127,7 +127,7 @@ namespace Tests{
 			
 			std::vector<Database::ID> groups = db->getForumGroups();
 			assertEquals(testForumGroups.size(), groups.size());
-			for(int i = 0; i < groups.size(); i++){
+			for(std::size_t i = 0; i < groups.size(); i++){
                 nlohmann::json exGroup = testForumGroups[i];
                 Database::ForumGroup acGroup = db->getForumGroup(groups[i]);
                 assertEquals(exGroup["title"].get<std::string>(), acGroup.title);
@@ -135,7 +135,7 @@ namespace Tests{
                 
                 std::vector<Database::ID> categories = db->getForumCategories(groups[i]);
                 assertEquals(exGroup["categories"].size(), categories.size());
-                for(int y = 0; y < categories.size(); y++){
+                for(std::size_t y = 0; y < categories.size(); y++){
                     nlohmann::json exCategory = exGroup["categories"][y];
                     Database::ForumCategory acCategory = db->getForumCategory(categories[y]);
                     assertEquals(exCategory["title"].get<std::string>(), acCategory.title);
@@ -163,7 +163,7 @@ namespace Tests{
 				std::vector<std::string> actualTags = database->getPageTags(pageId);
 				
 				assertEquals(expectedTags.size(), actualTags.size());
-				for(int i = 0; i < expectedTags.size(); i++){
+				for(std::size_t i = 0; i < expectedTags.size(); i++){
 					assertEquals(expectedTags[i], actualTags[i]);
 				}
 			}
@@ -173,7 +173,7 @@ namespace Tests{
 				std::vector<Database::ID> pageRevisions = database->getPageRevisions(pageId);
 				
 				assertEquals(testPageA["revisions"].size(), pageRevisions.size());
-				for(int i = 0; i < pageRevisions.size(); i++){
+				for(std::size_t i = 0; i < pageRevisions.size(); i++){
 					nlohmann::json exRev = testPageA["revisions"][i];
 					Database::PageRevision acRev = database->getPageRevision(pageRevisions[i]);
 					
@@ -189,7 +189,7 @@ namespace Tests{
 				std::vector<Database::ID> pageFiles = database->getPageFiles(pageId);
 				
 				assertEquals(testPageA["files"].size(), pageFiles.size());
-				for(int i = 0; i < pageFiles.size(); i++){
+				for(std::size_t i = 0; i < pageFiles.size(); i++){
 					nlohmann::json exFile = testPageA["files"][i];
 					Database::PageFile acFile = database->getPageFile(pageFiles[i]);
 					

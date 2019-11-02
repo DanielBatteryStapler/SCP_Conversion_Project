@@ -2,6 +2,8 @@
 
 #include "../Config.hpp"
 
+#include <sstream>
+
 void Website::run(){
 	std::string domainName = Config::getWebsiteDomainName();
 	std::string socket = Config::getFastCGISocket();
@@ -22,7 +24,18 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 			return;
 		}
 		else{
-			std::cout << "Got Request!\n";
+			std::vector<std::string> uri = splitUri(context.getUriString());
+			
+			std::cout << "Request for URI = [";
+			for(std::size_t i = 0; i < uri.size(); i++){
+				std::cout << uri[i];
+				if(i < uri.size() - 1){
+					std::cout << ", ";
+				}
+			}
+			std::cout << "]\n";
+			
+			
 			
 			context.out << "HTTP/1.1 200 OK\r\n"_AM
 			<< "Content-Type: text/html\r\n\r\n"_AM
@@ -31,4 +44,19 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 			threadContext.finishRequest(std::move(context));
 		}
 	}
+}
+
+
+std::vector<std::string> Website::splitUri(std::string uri){
+	std::vector<std::string> output;
+	std::stringstream uriStream(uri);
+	
+	std::string temp;
+	while(std::getline(uriStream, temp, '/')){
+		if(temp.size() != 0){
+			output.push_back(urlDecode(temp));
+		}
+	}
+	
+	return output;
 }

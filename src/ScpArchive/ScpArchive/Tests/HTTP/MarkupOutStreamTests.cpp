@@ -1,6 +1,6 @@
 #include "MarkupOutStreamTests.hpp"
 
-#include "../../Parser/MarkupOutStream.hpp"
+#include "../../HTTP/MarkupOutStream.hpp"
 
 #include <sstream>
 
