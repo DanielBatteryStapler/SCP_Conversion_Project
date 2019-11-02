@@ -328,7 +328,7 @@ namespace Scraper{
 	
 		std::cout << "\t\tGetting Page Revisions...\n";
 	
-		nlohmann::json output;
+		nlohmann::json output = nlohmann::json::array();
 		
 		std::string rawRevisionData = performAjaxRequest("history/PageRevisionListModule",
 				{{"page_id", pageId}, {"options", "{\"all\":true}"}, {"perpage", "999999"}, {"page", "1"}}
@@ -499,7 +499,7 @@ namespace Scraper{
 			rawPage = os.str();
 		}
 		
-		nlohmann::json tags;
+		nlohmann::json tags = nlohmann::json::array();
 		
 		std::size_t pos = 0;
 		while(true){
