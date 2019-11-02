@@ -34,28 +34,33 @@ namespace{
 	}
 }
 
-MarkupOutStream::MarkupOutStream(std::ostream& outputStream):
+MarkupOutStream::MarkupOutStream():
+	outStream(nullptr){
+	
+}
+
+MarkupOutStream::MarkupOutStream(std::ostream* outputStream):
 	outStream(outputStream){
 	
 }
 
 MarkupOutStream& MarkupOutStream::operator<<(std::string str){
-	outStream << escapeMarkup(str);
+	*outStream << escapeMarkup(str);
 	return *this;
 }
 
 MarkupOutStream& MarkupOutStream::operator<<(const MarkupOutStream::MarkupOutString& str){
-	outStream << str.buffer;
+	*outStream << str.buffer;
 	return *this;
 }
 
 MarkupOutStream& MarkupOutStream::operator<<(MarkupOutStream::MarkupOutString&& str){
-	outStream << str.buffer;
+	*outStream << str.buffer;
 	return *this;
 }
 
 MarkupOutStream::MarkupOutString::MarkupOutString(std::string str):
-buffer(str){
+	buffer(str){
 	
 }
 

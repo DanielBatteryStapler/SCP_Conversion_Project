@@ -45,6 +45,9 @@
 			<Add option="-lboost_system" />
 			<Add option="-lboost_filesystem" />
 			<Add option="$\(pkg-config --cflags --libs libmongocxx\)" />
+			<Add option="-lfcgi" />
+			<Add option="-lfcgi++" />
+			<Add option="-lcgicc" />
 		</Linker>
 		<Unit filename="ScpArchive/Database/Database.cpp" />
 		<Unit filename="ScpArchive/Database/Database.hpp" />
@@ -66,6 +69,8 @@
 		<Unit filename="ScpArchive/Tests/Parser/MarkupOutStreamTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Tests.cpp" />
 		<Unit filename="ScpArchive/Tests/Tests.hpp" />
+		<Unit filename="ScpArchive/Website/Gateway.cpp" />
+		<Unit filename="ScpArchive/Website/Gateway.hpp" />
 		<Unit filename="ScpArchive/main.cpp" />
 		<Extensions>
 			<code_completion />

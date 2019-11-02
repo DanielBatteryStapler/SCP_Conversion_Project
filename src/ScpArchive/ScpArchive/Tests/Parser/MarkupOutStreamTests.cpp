@@ -7,10 +7,9 @@
 namespace Tests{
 	void addMarkupOutStreamTests(Tester& tester){
 		tester.add("MarkupOutStream", [](){
-			
 			const auto escape = [](std::string testInput){
 				std::stringstream output;
-				MarkupOutStream stream(output);
+				MarkupOutStream stream(&output);
 				stream << testInput;
 				return output.str();
 			};
@@ -22,9 +21,9 @@ namespace Tests{
 			assertEquals("&lt;a href=&quot;google.com&quot;&gt;link&lt;/a&gt;", escape("<a href=\"google.com\">link</a>"));
 			
 			std::stringstream output;
-			MarkupOutStream stream(output);
-			stream << "<" << "<"_AM << allowMarkup("<");
-			assertEquals("&lt;<<", output.str());
+			MarkupOutStream stream(&output);
+			stream << "<"_AM << "<" << allowMarkup(">");
+			assertEquals("<&lt;>", output.str());
 		});
 	}
 }
