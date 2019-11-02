@@ -48,16 +48,16 @@ class Gateway{
                 void finishRequest(Gateway::RequestContext request);
 				
                 std::string domainName;
+                unsigned int threadIndex;
             private:
                 FCGX_Request fcgiRequest;
-                bool requestNeedsFinish;
 		};
 		
 		Gateway() = delete;
 		
 		static void setup(std::string domainName);
 		
-		static void run(const char* socket, std::function<void(Gateway::ThreadContext)> threadFunc);
+		static void run(std::string socket, std::function<void(Gateway::ThreadContext)> threadFunc);
 		static void shutdown();
 		
 	private:

@@ -5,17 +5,15 @@
 #include <sys/socket.h>
 #include <csignal>
 
-namespace{
-	constexpr unsigned int numberOfGatewayThreads = 16;
-}
+#include "../Config.hpp"
 
 void Gateway::setup(std::string domainName){
 	domain = domainName;
 }
 
-void Gateway::run(const char* socket, std::function<void(Gateway::ThreadContext)> threadFunc){
+void Gateway::run(std::string socket, std::function<void(Gateway::ThreadContext)> threadFunc){
 	shutdownFlag = false;
-	fcgiListenSocket = FCGX_OpenSocket(socket, 500);
+	fcgiListenSocket = FCGX_OpenSocket(socket.c_str(), 500);
 	FCGX_Init();
 	
 	auto signalHandler = [](int signum){
@@ -25,13 +23,13 @@ void Gateway::run(const char* socket, std::function<void(Gateway::ThreadContext)
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 	
+	unsigned int numberOfGatewayThreads = Config::getNumberOfThreadsForGateway();
+	
 	std::vector<std::thread> threadPool;
 	for(int i = 0; i < numberOfGatewayThreads; i++){
         ThreadContext threadContext;
-        
+        threadContext.threadIndex = i;
         threadContext.domainName = domain;
-        threadContext.requestNeedsFinish = false;
-        
         FCGX_InitRequest(&threadContext.fcgiRequest, fcgiListenSocket, 0);
         
         threadPool.push_back(std::thread(threadFunc, threadContext));
@@ -52,7 +50,6 @@ void Gateway::shutdown(){
 
 Gateway::RequestContext Gateway::ThreadContext::getNextRequest(){
 	if(FCGX_Accept_r(&fcgiRequest) == 0){
-		requestNeedsFinish = true;
 		RequestContext output;
 		
 		output.shouldShutdown = false;

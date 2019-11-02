@@ -24,6 +24,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="--importPages" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="./" />
@@ -50,6 +51,8 @@
 			<Add option="-lcgicc" />
 			<Add option="-lpthread" />
 		</Linker>
+		<Unit filename="ScpArchive/Config.cpp" />
+		<Unit filename="ScpArchive/Config.hpp" />
 		<Unit filename="ScpArchive/Database/Database.cpp" />
 		<Unit filename="ScpArchive/Database/Database.hpp" />
 		<Unit filename="ScpArchive/Database/Importer.cpp" />
@@ -72,6 +75,8 @@
 		<Unit filename="ScpArchive/Tests/Tests.hpp" />
 		<Unit filename="ScpArchive/Website/Gateway.cpp" />
 		<Unit filename="ScpArchive/Website/Gateway.hpp" />
+		<Unit filename="ScpArchive/Website/Website.cpp" />
+		<Unit filename="ScpArchive/Website/Website.hpp" />
 		<Unit filename="ScpArchive/main.cpp" />
 		<Extensions>
 			<code_completion />

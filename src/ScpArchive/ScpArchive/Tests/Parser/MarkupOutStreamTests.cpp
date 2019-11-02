@@ -25,5 +25,23 @@ namespace Tests{
 			stream << "<"_AM << "<" << allowMarkup(">");
 			assertEquals("<&lt;>", output.str());
 		});
+		
+		tester.add("percentEncode", [](){
+			assertEquals("hello+world%21", urlEncode("hello world!"));
+			assertEquals("", urlEncode(""));
+			assertEquals("hello", urlEncode("hello"));
+			assertEquals("hey%2C+what%27s+going+on%3F", urlEncode("hey, what's going on?"));
+			assertEquals("this+is%2Fwas+madness", urlEncode("this is/was madness"));
+			assertEquals("first%0D%0Asecond", urlEncode("first\r\nsecond"));
+		});
+		
+		tester.add("percentDecode", [](){
+			assertEquals("hello world!", urlDecode("hello+world%21"));
+			assertEquals("", urlDecode(""));
+			assertEquals("hello", urlDecode("hello"));
+			assertEquals("hey, what's going on?", urlDecode("hey%2C+what%27s+going+on%3F"));
+			assertEquals("this is/was madness", urlDecode("this+is%2Fwas+madness"));
+			assertEquals("first\r\nsecond", urlDecode("first%0D%0Asecond"));
+		});
 	}
 }

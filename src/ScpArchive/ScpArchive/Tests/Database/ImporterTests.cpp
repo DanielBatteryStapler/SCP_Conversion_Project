@@ -5,6 +5,8 @@
 
 #include "DatabaseTests.hpp"
 
+#include "../../Config.hpp"
+
 namespace Tests{
 	namespace{
 		const nlohmann::json testForumGroups = {
@@ -118,7 +120,7 @@ namespace Tests{
 		tester.add("Importer::importForumGroups", [](){
 			Importer::ImportMap map;
 			
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			db->cleanAndInitDatabase();
 			
 			importForumGroups(db.get(), map, testForumGroups);
@@ -147,7 +149,7 @@ namespace Tests{
 		tester.add("Importer::importBasicPageData", [](){
 			Importer::ImportMap map;
 			
-			std::unique_ptr<Database> database = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> database = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			database->cleanAndInitDatabase();
 			
 			Importer::importBasicPageData(database.get(), map, testPageA);
@@ -205,7 +207,7 @@ namespace Tests{
 		tester.add("Importer::linkPageParent", [](){
 			Importer::ImportMap map;
 			
-			std::unique_ptr<Database> database = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> database = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			database->cleanAndInitDatabase();
 			
 			Importer::importBasicPageData(database.get(), map, testPageA);

@@ -2,17 +2,19 @@
 
 #include "../../Database/Database.hpp"
 
+#include "../../Config.hpp"
+
 namespace Tests{
 	void addDatabaseTests(Tester& tester){
 		tester.add("Database::connectToMongoDatabase", [](){
 			//make that just making a connection doesn't cause an exception
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			db->getNumberOfPages();//make sure that a very simple command completes without error
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
 		
 		tester.add("Database::createPage", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -26,7 +28,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::cleanAndInitDatabase", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -42,7 +44,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::getNumberOfPages", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -58,7 +60,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::setPageParent", [](){
-            std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+            std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -77,7 +79,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::setPageDiscussion", [](){
-            std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+            std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -93,7 +95,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::setPageTags", [](){
-            std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+            std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -108,7 +110,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::createPageRevision", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -128,7 +130,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::getPageRevisions", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -152,7 +154,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::getLatestPageRevision", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -172,7 +174,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::createPageFile", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -205,7 +207,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::createForumGroup", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -235,7 +237,7 @@ namespace Tests{
 		});
 		
 		tester.add("Database::createForumCategory", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(testDatabaseName);
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			

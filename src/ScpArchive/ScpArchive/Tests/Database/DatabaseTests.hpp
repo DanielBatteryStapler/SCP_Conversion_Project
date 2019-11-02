@@ -4,8 +4,6 @@
 #include "../AutomatedTester.hpp"
 
 namespace Tests{
-
-	static inline const std::string testDatabaseName = "TemporaryTestingDatabaseFile";
 	
 	void addDatabaseTests(Tester& tester);
 }

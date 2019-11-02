@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 
+std::string urlEncode(const std::string& text);
+std::string urlDecode(const std::string& text);
+
 class MarkupOutStream{
 	public:
 		class MarkupOutString;
