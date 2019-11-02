@@ -6,6 +6,8 @@
 #include <nlohmann/json.hpp>
 
 namespace Json{
+	nlohmann::json loadJsonFromFile(std::string fileName);
+	
 	nlohmann::json fromBson(const bsoncxx::document::view doc);
 	bsoncxx::document::value toBson(const nlohmann::json doc);
 	

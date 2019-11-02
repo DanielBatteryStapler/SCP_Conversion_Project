@@ -29,12 +29,14 @@ namespace Importer{
         Database::ID getCategoryMap(std::string raw);
     };
     
-	void importFullArchive(Database* database, std::string archiveDirectory);
+	void importFullArchive(Database* database, std::string archiveDirectory);//unimplemented
 	
 	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups);
 	void importThread(Database* database, ImportMap& map, nlohmann::json threadData);
 	
+	void importBasicPageDataFromFolder(Database* database, ImportMap& map, std::string pagesDirectory);
 	void importBasicPageData(Database* database, ImportMap& map, nlohmann::json pageData);
+	
 	void linkPageParent(Database* database, ImportMap& map, nlohmann::json pageData);
 	void linkPageDiscussionThread(Database* database, ImportMap& map, nlohmann::json pageData);
 	void uploadPageFiles(Database* database, ImportMap& map, nlohmann::json pageData);

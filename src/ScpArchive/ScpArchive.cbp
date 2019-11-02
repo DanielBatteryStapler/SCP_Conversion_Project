@@ -48,6 +48,7 @@
 			<Add option="-lfcgi" />
 			<Add option="-lfcgi++" />
 			<Add option="-lcgicc" />
+			<Add option="-lpthread" />
 		</Linker>
 		<Unit filename="ScpArchive/Database/Database.cpp" />
 		<Unit filename="ScpArchive/Database/Database.hpp" />

@@ -1,5 +1,9 @@
 #include "Importer.hpp"
 
+#include <iostream>
+
+#include <boost/filesystem.hpp>
+
 #include "Json.hpp"
 
 namespace Importer{
@@ -78,6 +82,15 @@ namespace Importer{
 	
 	void importThread(Database* database, ImportMap& map, nlohmann::json threadData){
 		
+	}
+	
+	void importBasicPageDataFromFolder(Database* database, ImportMap& map, std::string pagesDirectory){
+		for(boost::filesystem::directory_iterator i(pagesDirectory); i != boost::filesystem::directory_iterator(); i++){
+			if(boost::filesystem::is_directory(i->path())){
+				std::cout << "Importing " << i->path().string() << "\n";
+				importBasicPageData(database, map, Json::loadJsonFromFile(i->path().string() + "/data.json"));
+			}
+		}
 	}
 	
 	void importBasicPageData(Database* database, ImportMap& map, nlohmann::json pageData){
