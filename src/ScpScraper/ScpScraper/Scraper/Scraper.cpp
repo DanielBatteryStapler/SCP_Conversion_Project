@@ -377,7 +377,12 @@ namespace Scraper{
 		
 		nlohmann::json revisionReply = performAjaxRequest("history/PageVersionModule", {{"revision_id", revisionId}});
 		
-		revision["title"] = revisionReply["title"];
+		if(revisionReply["title"].is_null()){
+			revision["title"] = "";
+		}
+		else{
+			revision["title"] = revisionReply["title"].get<std::string>();
+		}
 		
 		std::string rawRevisionSource = revisionReply["body"].get<std::string>();
 		
