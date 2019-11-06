@@ -24,6 +24,32 @@ namespace Parser{
             }
             return false;
 		}
+		
+		bool checkParagraph(const std::string& buffer, std::size_t pos, std::string text){
+			while(pos < buffer.size()){
+                if(check(buffer, pos, text)){
+                    return true;
+                }
+                if(check(buffer, pos, "\n\n")){
+                    return false;
+                }
+                pos++;
+            }
+            return false;
+		}
+		
+		bool checkParagraphBack(const std::string& buffer, std::size_t pos, std::string text){
+			while(pos >= 0){
+                if(check(buffer, pos, text)){
+                    return true;
+                }
+                if(check(buffer, pos, "\n\n")){
+                    return false;
+                }
+                pos--;
+            }
+            return false;
+		}
 	}
 	
 	bool tryCommentRule(const TokenRuleContext& context){
@@ -162,6 +188,91 @@ namespace Parser{
 		result.newTokens.push_back(Token{NewLine{}, context.pagePos, context.pagePos + 1, context.page.substr(context.pagePos, 1)});
 		result.newPos = context.pagePos + 1;
 		
+		return result;
+	}
+	
+	bool tryTypographyRule(const TokenRuleContext& context){
+		if(check(context.page, context.pagePos, "``") && checkParagraph(context.page, context.pagePos, "''")){
+			return true;
+		}
+		if(check(context.page, context.pagePos, "''") && checkParagraphBack(context.page, context.pagePos, "``")){
+			return true;
+		}
+		
+		if(check(context.page, context.pagePos, "`") && checkParagraph(context.page, context.pagePos, "'")){
+			return true;
+		}
+		if(check(context.page, context.pagePos, "'") && checkParagraphBack(context.page, context.pagePos, "`")){
+			return true;
+		}
+		
+		if(check(context.page, context.pagePos, ",,") && checkParagraph(context.page, context.pagePos, "''")){
+			return true;
+		}
+		if(check(context.page, context.pagePos, "''") && checkParagraphBack(context.page, context.pagePos, ",,")){
+			return true;
+		}
+		
+		if(check(context.page, context.pagePos, "--")){
+			return true;
+		}
+		if(check(context.page, context.pagePos, "<<")){
+			return true;
+		}
+		if(check(context.page, context.pagePos, ">>")){
+			return true;
+		}
+		if(check(context.page, context.pagePos, "...")){
+			return true;
+		}
+		
+		return false;
+	}
+	
+	TokenRuleResult doTypographyRule(const TokenRuleContext& context){
+		std::size_t size;
+		std::string output;
+		
+		if(check(context.page, context.pagePos, "``")){
+			size = 2;
+			output = "“";
+		}
+		else if(check(context.page, context.pagePos, "''")){
+			size = 2;
+			output = "”";
+		}
+		else if(check(context.page, context.pagePos, "`")){
+			size = 1;
+			output = "‘";
+		}
+		else if(check(context.page, context.pagePos, "'")){
+			size = 1;
+			output = "’";
+		}
+		else if(check(context.page, context.pagePos, ",,")){
+			size = 2;
+			output = "„";
+		}
+		else if(check(context.page, context.pagePos, "--")){
+			size = 2;
+			output = "—";
+		}
+		else if(check(context.page, context.pagePos, "<<")){
+			size = 2;
+			output = "«";
+		}
+		else if(check(context.page, context.pagePos, ">>")){
+			size = 2;
+			output = "»";
+		}
+		else if(check(context.page, context.pagePos, "...")){
+			size = 3;
+			output = "…";
+		}
+		
+		TokenRuleResult result;
+		result.newPos = context.pagePos + size;
+		result.newTokens.push_back(Token{PlainText{output}, context.pagePos, context.pagePos + size, context.page.substr(context.pagePos, size)});
 		return result;
 	}
 	

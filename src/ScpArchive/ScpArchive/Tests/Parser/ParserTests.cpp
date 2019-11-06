@@ -50,7 +50,7 @@ namespace Tests{
 				Token{PlainText{"A"}, 0, 1, "A"},
 				Token{NewLine{}, 11, 12, "\n"},
 				Token{NewLine{}, 12, 13, "\n"},
-				Token{PlainText{"C@@D--]E"}, 13, 21, "C@@D--]E"}
+				Token{PlainText{"C@@D—]E"}, 13, 21, "C@@D--]E"}
 			});
 		});
 		
@@ -87,6 +87,18 @@ namespace Tests{
                 Token{PlainText{"A@<B"}, 0, 4, "A@<B"},
                 Token{NewLine{}, 4, 5, "\n"},
                 Token{PlainText{"C>@D"}, 5, 9, "C>@D"}
+            });
+		});
+		
+		tester.add("Parser::tokenizePage Typography", [](){
+			assertPageTokenize("`A'``B'',,C''D--E<<F>>G...", {
+                Token{PlainText{"‘A’“B”„C”D—E«F»G…"}, 0, 26, "`A'``B'',,C''D--E<<F>>G..."}
+            });
+            assertPageTokenize("`A``B,,CD--E<<FG...\n\nA'B''C''D--EF>>G...", {
+                Token{PlainText{"`A``B,,CD—E«FG…"}, 0, 19, "`A``B,,CD--E<<FG..."},
+                Token{NewLine{}, 19, 20, "\n"},
+                Token{NewLine{}, 20, 21, "\n"},
+                Token{PlainText{"A'B''C''D—EF»G…"}, 21, 40, "A'B''C''D--EF>>G..."}
             });
 		});
 	}

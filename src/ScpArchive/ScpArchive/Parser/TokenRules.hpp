@@ -6,7 +6,7 @@
 namespace Parser{
 	bool tryCommentRule(const TokenRuleContext& context);
 	TokenRuleResult doCommentRule(const TokenRuleContext& context);
-	
+		
 	bool tryEntityEscapeRule(const TokenRuleContext& context);
 	TokenRuleResult doEntityEscapeRule(const TokenRuleContext& context);
 	
@@ -21,6 +21,9 @@ namespace Parser{
 	
 	bool tryNewLineRule(const TokenRuleContext& context);
 	TokenRuleResult doNewLineRule(const TokenRuleContext& context);
+	
+	bool tryTypographyRule(const TokenRuleContext& context);
+	TokenRuleResult doTypographyRule(const TokenRuleContext& context);
 	
 	bool tryPlainTextRule(const TokenRuleContext& context);
 	TokenRuleResult doPlainTextRule(const TokenRuleContext& context);
