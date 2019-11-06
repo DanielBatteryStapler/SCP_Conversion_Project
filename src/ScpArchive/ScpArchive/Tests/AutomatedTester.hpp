@@ -50,21 +50,23 @@ namespace Tests{
 		if(!areEqual){
 			std::stringstream ss;
 			ss << "Assert Fail, expected the following std::vectors to be equal:\n"
-			<< "\tExpected: {";
+			<< "\tExpected: {\n";
 			for(std::size_t i = 0; i < expected.size(); i++){
-				ss << expected[i];
+				ss << "\t\t" << expected[i];
 				if(i != expected.size() - 1){
 					ss << ", ";
 				}
+				ss << "\n";
 			}
-			ss << "}\n\tActual:   {";
+			ss << "\t}\n\tActual:   {\n";
 			for(std::size_t i = 0; i < actual.size(); i++){
-				ss << actual[i];
+				ss << "\t\t" << actual[i];
 				if(i != actual.size() - 1){
 					ss << ", ";
 				}
+				ss << "\n";
 			}
-			ss << "}\n";
+			ss << "\t}\n";
 			throw std::runtime_error(ss.str());
 		}
 	}

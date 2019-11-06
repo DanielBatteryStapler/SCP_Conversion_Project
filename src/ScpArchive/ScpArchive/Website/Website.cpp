@@ -35,13 +35,42 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 			}
 			std::cout << "]\n";
 			
-			
-			
-			context.out << "HTTP/1.1 200 OK\r\n"_AM
-			<< "Content-Type: text/html\r\n\r\n"_AM
-			<< "<html><body><h1>Hello from the SCP Conversion Project!</h1></body></html>"_AM;
-			
-			threadContext.finishRequest(std::move(context));
+			if(uri.size() == 1){
+				std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
+				
+				std::optional<Database::ID> pageId = db->getPageId(uri[0]);
+				if(pageId){
+					Database::PageRevision revision = db->getLatestPageRevision(*pageId);
+					
+					context.out << "HTTP/1.1 200 OK\r\n"_AM
+					<< "Content-Type: text/html\r\n\r\n"_AM;
+					
+					for(char c : revision.sourceCode){
+						if(c == '\n'){
+							context.out << "<br>"_AM;
+						}
+						else{
+							context.out << (c + std::string());
+						}
+					}
+					
+					threadContext.finishRequest(std::move(context));
+				}
+				else{
+					context.out << "HTTP/1.1 404 NOT FOUND\r\n"_AM
+					<< "Content-Type: text/html\r\n\r\n"_AM
+					<< "<html><body><h1>Page not found</h1></body></html>"_AM;
+					
+					threadContext.finishRequest(std::move(context));
+				}
+			}
+			else{
+				context.out << "HTTP/1.1 200 OK\r\n"_AM
+				<< "Content-Type: text/html\r\n\r\n"_AM
+				<< "<html><body><h1>Hello from the SCP Conversion Project!</h1></body></html>"_AM;
+				
+				threadContext.finishRequest(std::move(context));
+			}
 		}
 	}
 }
