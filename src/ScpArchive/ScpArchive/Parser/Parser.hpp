@@ -78,6 +78,14 @@ namespace Parser{
 		bool operator==(const InlineFormat& tok)const;
 	};
 	
+	struct HyperLink{
+		std::string shownText;
+		std::string url;
+		bool newWindow;
+		
+		bool operator==(const HyperLink& tok)const;
+	};
+	
 	struct LiteralText{
         std::string text;
         
@@ -99,12 +107,12 @@ namespace Parser{
 	};
 	
 	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, PrefixFormat, NestingPrefixFormat, 
-						InlineSectionStart, InlineSectionEnd, InlineFormat, LiteralText, PlainText, LineBreak, NewLine};
+						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
 	
 	struct Token{
 		using Type = TokenType;
 		std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, PrefixFormat, NestingPrefixFormat, 
-						InlineSectionStart, InlineSectionEnd, InlineFormat, LiteralText, PlainText, LineBreak, NewLine> token;
+						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine> token;
 		
 		Type getType()const;
 		

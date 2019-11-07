@@ -101,5 +101,16 @@ namespace Tests{
                 Token{PlainText{"A'B''C''D—EF»G…"}, 21, 40, "A'B''C''D--EF>>G..."}
             });
 		});
+		
+		tester.add("Parser::tokenizePage BareLink", [](){
+			assertPageTokenize("https://google.com link", {
+                Token{HyperLink{"https://google.com", "https://google.com", false}, 0, 18, "https://google.com"},
+                Token{PlainText{" link"}, 18, 23, " link"}
+            });
+            assertPageTokenize("http://google.com link", {
+                Token{HyperLink{"http://google.com", "http://google.com", false}, 0, 17, "http://google.com"},
+                Token{PlainText{" link"}, 17, 22, " link"}
+            });
+		});
 	}
 }

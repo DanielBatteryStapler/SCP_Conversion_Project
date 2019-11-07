@@ -29,6 +29,10 @@ namespace Parser{
 		return type == tok.type;
 	}
 	
+	bool HyperLink::operator==(const HyperLink& tok)const{
+		return shownText == tok.shownText && url == tok.url && newWindow == tok.newWindow;
+	}
+	
 	bool LiteralText::operator==(const LiteralText& tok)const{
 		return text == tok.text;
 	}
@@ -89,6 +93,12 @@ namespace Parser{
 			case Token::Type::InlineFormat:
 				ss << "InlineFormat";
 				break;
+			case Token::Type::HyperLink:
+				{
+					const HyperLink& link = std::get<HyperLink>(tok.token);
+					ss << "HyperLink:\"" << link.shownText << "\", \"" << link.url << "\", " << (link.newWindow?"true":"false");
+				}
+				break;
 			case Token::Type::LiteralText:
 				ss << "LiteralText:\"" << std::get<LiteralText>(tok.token).text << "\"";
 				break;
@@ -132,6 +142,7 @@ namespace Parser{
 		
 		std::vector<TokenRule> rules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
+			TokenRule{"bareLink", tryBareLinkRule, doBareLinkRule},
 			TokenRule{"entityEscape", tryEntityEscapeRule, doEntityEscapeRule},
 			TokenRule{"literalText", tryLiteralTextRule, doLiteralTextRule}, 
 			TokenRule{"lineBreak", tryLineBreakRule, doLineBreakRule},

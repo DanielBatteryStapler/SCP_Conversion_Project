@@ -67,7 +67,7 @@ namespace Parser{
 				pos += 3;
 				break;
 			}
-			if(!literal && check(context.page, pos, "@@") && checkLine(context.page, pos + 2, "@@")){
+			if(!literal && check(context.page, pos, "@@") && checkParagraph(context.page, pos + 2, "@@")){
 				literal = true;
 				pos += 2;
 			}
@@ -80,6 +80,37 @@ namespace Parser{
 		
 		TokenRuleResult result;
 		result.newPos = pos;
+		return result;
+	}
+	
+	bool tryBareLinkRule(const TokenRuleContext& context){
+		if(check(context.page, context.pagePos, "https://")){
+			return true;
+		}
+		if(check(context.page, context.pagePos, "http://")){
+			return true;
+		}
+		return false;
+	}
+	
+	TokenRuleResult doBareLinkRule(const TokenRuleContext& context){
+		HyperLink link;
+		
+		std::size_t pos = context.pagePos;
+		while(pos < context.page.size()){
+			char c = context.page[pos];
+			if(isspace(c)){
+				break;
+			}
+			link.url += c;
+			pos++;
+		}
+		link.shownText = link.url;
+		link.newWindow = false;
+		
+		TokenRuleResult result;
+		result.newPos = pos;
+		result.newTokens.push_back(Token{link, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
 		return result;
 	}
 	
