@@ -5,6 +5,47 @@
 #include <sstream>
 
 namespace Parser{
+	std::string& trimLeft(std::string& s) {
+		s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+		return s;
+	}
+	// trim from end
+	std::string& trimRight(std::string& s) {
+		s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+		return s;
+	}
+	// trim from both ends
+	std::string& trimString(std::string& s) {
+		return trimLeft(trimRight(s));
+	}
+	
+	std::string normalizePageName(std::string link){
+		std::string output;
+		for(char c : link){
+			if(isalnum(c) || c == '#'){
+				output += tolower(c);
+			}
+			else if(c == ':'){
+				while(output.size() > 0 && output.back() == '-'){//remove trailing white space
+					output.erase(output.size() - 1);
+				}
+				output += ':';
+			}
+			else if(isspace(c) || c == '-' || c == '.'){
+				if(output.size() == 0 || output.back() == ':'){
+					//do nothing
+				}
+				else{
+				output += '-';
+				}
+			}
+		}
+		while(output.size() > 0 && output.back() == '-'){//remove trailing white space
+			output.erase(output.size() - 1);
+		}
+		return output;
+	}
+	
 	bool SectionStart::operator==(const SectionStart& tok)const{
 		return type == tok.type && moduleType == tok.moduleType && parameters == tok.parameters;
 	}
@@ -142,6 +183,8 @@ namespace Parser{
 		
 		std::vector<TokenRule> rules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
+			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
+			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},
 			TokenRule{"bareLink", tryBareLinkRule, doBareLinkRule},
 			TokenRule{"entityEscape", tryEntityEscapeRule, doEntityEscapeRule},
 			TokenRule{"literalText", tryLiteralTextRule, doLiteralTextRule}, 

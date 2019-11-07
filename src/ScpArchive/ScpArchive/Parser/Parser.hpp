@@ -9,6 +9,10 @@
 #include <functional>
 
 namespace Parser{
+	std::string& trimLeft(std::string& s);
+	std::string& trimRight(std::string& s);
+	std::string& trimString(std::string& s);
+	std::string normalizePageName(std::string link);
 	
 	enum class SectionType{Unknown};
 	enum class ModuleType{Unknown};
