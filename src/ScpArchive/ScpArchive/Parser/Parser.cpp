@@ -57,9 +57,9 @@ namespace Parser{
 	bool Divider::operator==(const Divider& tok)const{
 		return type == tok.type;
 	}
-		
-	bool PrefixFormat::operator==(const PrefixFormat& tok)const{
-		return type == tok.type;
+    
+	bool Heading::operator==(const Heading& tok)const{
+		return degree == tok.degree && hidden == tok.hidden;
 	}
 		
 	bool NestingPrefixFormat::operator==(const NestingPrefixFormat& tok)const{
@@ -119,8 +119,11 @@ namespace Parser{
 			case Token::Type::Divider:
 				ss << "Divider";
 				break;
-			case Token::Type::PrefixFormat:
-				ss << "PrefixFormat";
+			case Token::Type::Heading:
+                {
+					const Heading& heading = std::get<Heading>(tok.token);
+                    ss << "Heading:" << heading.degree << ", " << (heading.hidden?"true":"false");
+				}
 				break;
 			case Token::Type::NestingPrefixFormat:
 				ss << "NestingPrefixFormat";
@@ -179,10 +182,36 @@ namespace Parser{
 		return out;
 	}
 	
-	TokenedPage tokenizePage(std::string page){
+	namespace{
+		TokenRuleContext applyTokenizingRules(std::string&& page, std::vector<TokenRule> rules){
+			TokenRuleContext context;
+			context.page = page;
+			context.pagePos = 0;
+			context.wasNewLine = true;
+			for(; context.pagePos < context.page.size();){
+				bool allRulesFailed = true;
+				for(const TokenRule& rule : rules){
+					if(rule.tryRule(context)){
+						allRulesFailed = false;
+						
+						TokenRuleResult result = rule.doRule(context);
+						context.pagePos = result.newPos;
+						context.wasNewLine = result.nowNewline;
+						context.tokens.insert(context.tokens.end(), result.newTokens.begin(), result.newTokens.end());
+						
+						break;
+					}
+				}
+				if(allRulesFailed){
+					throw std::runtime_error("All parsing rules failed, this should not be possible");
+				}
+			}
+			return context;
+		}
 		
-		std::vector<TokenRule> rules = {
+		std::vector<TokenRule> standardRules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
+			TokenRule{"heading", tryHeadingRule, doHeadingRule},
 			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
 			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},
 			TokenRule{"bareLink", tryBareLinkRule, doBareLinkRule},
@@ -194,36 +223,14 @@ namespace Parser{
 			TokenRule{"typography", tryTypographyRule, doTypographyRule},
 			TokenRule{"plainText", tryPlainTextRule, doPlainTextRule}
 		};
-		
-		TokenRuleContext context;
-		context.page = std::move(page);
-		context.pagePos = 0;
-		context.wasNewLine = true;
-		for(; context.pagePos < context.page.size();){
-			bool allRulesFailed = true;
-			for(const TokenRule& rule : rules){
-				if(rule.tryRule(context)){
-					allRulesFailed = false;
-					
-					TokenRuleResult result = rule.doRule(context);
-					context.pagePos = result.newPos;
-					context.wasNewLine = result.nowNewline;
-					context.tokens.insert(context.tokens.end(), result.newTokens.begin(), result.newTokens.end());
-					
-					break;
-				}
-			}
-			if(allRulesFailed){
-				throw std::runtime_error("All parsing rules failed, this should not be possible");
-			}
-		}
+	}
+	
+	TokenedPage tokenizePage(std::string page){
+		TokenRuleContext context = applyTokenizingRules(std::move(page), standardRules);
 		
 		TokenedPage output;
-		
 		output.originalPage = std::move(context.page);
-		//output.tokens = context.tokens;
 		
-		///*
 		//merge all PlainText Tokens
 		for(const Token& tok : context.tokens){
 			if(output.tokens.size() > 0){
@@ -241,8 +248,58 @@ namespace Parser{
 			}
 			output.tokens.push_back(tok);
 		}
-		//*/
 		
 		return output;
 	}
+	
+	namespace{
+		bool check(const std::string& buffer, std::size_t pos, std::string text){
+			if(pos + text.size() > buffer.size()){
+				return false;
+			}
+			std::string temp = buffer.substr(pos, text.size());
+			return text == temp;
+		}
+	}
+	
+	std::vector<std::string> getPageLinks(std::string page){
+		std::vector<TokenRule> rules = {
+			TokenRule{"comment", tryCommentRule, doCommentRule},
+			TokenRule{"heading", tryHeadingRule, doHeadingRule},
+			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
+			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},
+			TokenRule{"bareLink", tryBareLinkRule, doBareLinkRule},
+			TokenRule{"entityEscape", tryEntityEscapeRule, doEntityEscapeRule},
+			TokenRule{"literalText", tryLiteralTextRule, doLiteralTextRule}, 
+			TokenRule{"lineBreak", tryLineBreakRule, doLineBreakRule},
+			TokenRule{"escapedNewLine", tryEscapedNewLineRule, doEscapedNewLineRule},
+			TokenRule{"newLine", tryNewLineRule, doNewLineRule},
+			TokenRule{"typography", tryTypographyRule, doTypographyRule},
+			TokenRule{"plainText", tryPlainTextRule, doPlainTextRule}
+		};
+		
+		TokenRuleContext context = applyTokenizingRules(std::move(page), standardRules);
+		std::vector<std::string> links;
+		
+		for(const Token& tok : context.tokens){
+			if(tok.getType() == Token::Type::HyperLink){
+				HyperLink link = std::get<HyperLink>(tok.token);
+				if(!check(link.url, 0, "http://") && !check(link.url, 0, "https://")){
+					links.push_back(link.url);
+				}
+			}
+		}
+		
+		return links;
+	}
 }
+
+
+
+
+
+
+
+
+
+

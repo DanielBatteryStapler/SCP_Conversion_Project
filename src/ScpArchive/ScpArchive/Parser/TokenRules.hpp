@@ -7,6 +7,9 @@ namespace Parser{
 	bool tryCommentRule(const TokenRuleContext& context);
 	TokenRuleResult doCommentRule(const TokenRuleContext& context);
 	
+	bool tryHeadingRule(const TokenRuleContext& context);
+	TokenRuleResult doHeadingRule(const TokenRuleContext& context);
+	
 	bool tryTripleLinkRule(const TokenRuleContext& context);
 	TokenRuleResult doTripleLinkRule(const TokenRuleContext& context);
 	

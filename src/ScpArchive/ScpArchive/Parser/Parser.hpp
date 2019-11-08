@@ -37,7 +37,7 @@ namespace Parser{
 		
 	};
 	
-	enum class DividerType{Unknown};
+    enum class DividerType{Unknown};
 	
 	struct Divider{
 		using Type = DividerType;
@@ -46,13 +46,11 @@ namespace Parser{
 		bool operator==(const Divider& tok)const;
 	};
 	
-	enum class PrefixFormatType{Unknown};
-	
-	struct PrefixFormat{
-		using Type = PrefixFormatType;
-		Type type = Type::Unknown;
+	struct Heading{
+		unsigned int degree;
+		bool hidden;
 		
-		bool operator==(const PrefixFormat& tok)const;
+		bool operator==(const Heading& tok)const;
 	};
 	
 	enum class NestingPrefixFormatType{Unknown};
@@ -110,12 +108,12 @@ namespace Parser{
 		bool operator==(const NewLine& tok)const;
 	};
 	
-	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, PrefixFormat, NestingPrefixFormat, 
+	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, Heading, NestingPrefixFormat, 
 						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
 	
 	struct Token{
 		using Type = TokenType;
-		std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, PrefixFormat, NestingPrefixFormat, 
+		std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, Heading, NestingPrefixFormat, 
 						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine> token;
 		
 		Type getType()const;
@@ -136,6 +134,7 @@ namespace Parser{
 	};
 	
 	TokenedPage tokenizePage(std::string page);
+	std::vector<std::string> getPageLinks(std::string page);
 	
 	struct TokenRuleContext{
 		std::string page;

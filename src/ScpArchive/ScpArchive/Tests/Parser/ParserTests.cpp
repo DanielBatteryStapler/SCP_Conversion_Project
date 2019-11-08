@@ -21,6 +21,14 @@ namespace Tests{
 			assertEquals("page#toc", normalizePageName("page#toc"));
 		});
 		
+		tester.add("Parser::getPageLinks", [](){
+			assertEqualsVec({
+				"page-a",
+				"page-b",
+				"page-c"
+			}, getPageLinks("[https://google.com] https://google.com [[[https://google.com]]] [[[page-a]]] [[[page \"\"b;|link name]]] [[[*pAge\nC]]] [!--[[[page-d]]]--]"));
+		});
+		
 		tester.add("Parser::tokenizePage Basic", [](){
 			assertPageTokenize("", {});
 			assertPageTokenize("help", {
@@ -130,9 +138,41 @@ namespace Tests{
             });
 		});
 		
+		tester.add("Parser::tokenizePage SingleLink", [](){
+			assertPageTokenize("[https://google.com link here]", {
+                Token{HyperLink{"link here", "https://google.com", false}, 0, 30, "[https://google.com link here]"}
+            });
+            assertPageTokenize("[http://google.com link here]", {
+                Token{HyperLink{"link here", "http://google.com", false}, 0, 29, "[http://google.com link here]"}
+            });
+            assertPageTokenize("[*https://google.com link here]", {
+                Token{HyperLink{"link here", "https://google.com", true}, 0, 31, "[*https://google.com link here]"}
+            });
+            assertPageTokenize("[*http://google.com link here]", {
+                Token{HyperLink{"link here", "http://google.com", true}, 0, 30, "[*http://google.com link here]"}
+            });
+            
+            ///TODO: these don't actually work in wikidot, singleLinks must have a specified shownName
+            assertPageTokenize("[https://google.com]", {
+                Token{HyperLink{"https://google.com", "https://google.com", false}, 0, 20, "[https://google.com]"}
+            });
+            assertPageTokenize("[http://google.com]", {
+                Token{HyperLink{"http://google.com", "http://google.com", false}, 0, 19, "[http://google.com]"}
+            });
+            assertPageTokenize("[*https://google.com]", {
+                Token{HyperLink{"https://google.com", "https://google.com", true}, 0, 21, "[*https://google.com]"}
+            });
+            assertPageTokenize("[*http://google.com]", {
+                Token{HyperLink{"http://google.com", "http://google.com", true}, 0, 20, "[*http://google.com]"}
+            });
+		});
+		
 		tester.add("Parser::tokenizePage TripleLink", [](){
 			assertPageTokenize("[[[test-page]]]", {
                 Token{HyperLink{"test-page", "test-page", false}, 0, 15, "[[[test-page]]]"}
+            });
+            assertPageTokenize("[[[test-page|link]]]", {
+                Token{HyperLink{"link", "test-page", false}, 0, 20, "[[[test-page|link]]]"}
             });
             assertPageTokenize("[[[TeStInG, page2;? \"name\"]]]", {
                 Token{HyperLink{"TeStInG, page2;? \"name\"", "testing-page2-name", false}, 0, 29, "[[[TeStInG, page2;? \"name\"]]]"}
@@ -155,6 +195,7 @@ namespace Tests{
             assertPageTokenize("[[[# | java script]]]", {
                 Token{HyperLink{"java script", "#", false}, 0, 21, "[[[# | java script]]]"}
             });
+            
             assertPageTokenize("[[[https://google.com | google]]]", {
                 Token{HyperLink{"google", "https://google.com", false}, 0, 33, "[[[https://google.com | google]]]"}
             });
@@ -167,6 +208,34 @@ namespace Tests{
             assertPageTokenize("[[[*http://google.com | google]]]", {
                 Token{HyperLink{"google", "http://google.com", true}, 0, 33, "[[[*http://google.com | google]]]"}
             });
+            
+			assertPageTokenize("[[[https://google.com]]]", {
+                Token{HyperLink{"https://google.com", "https://google.com", false}, 0, 24, "[[[https://google.com]]]"}
+            });
+            assertPageTokenize("[[[http://google.com]]]", {
+                Token{HyperLink{"http://google.com", "http://google.com", false}, 0, 23, "[[[http://google.com]]]"}
+            });
+            assertPageTokenize("[[[*https://google.com]]]", {
+                Token{HyperLink{"https://google.com", "https://google.com", true}, 0, 25, "[[[*https://google.com]]]"}
+            });
+            assertPageTokenize("[[[*http://google.com]]]", {
+                Token{HyperLink{"http://google.com", "http://google.com", true}, 0, 24, "[[[*http://google.com]]]"}
+            });
 		});
+		
+		tester.add("Parser::tokenizePage Heading", [](){
+			assertPageTokenize("+++ Heading", {
+                Token{Heading{3, false}, 0, 4, "+++ "},
+                Token{PlainText{"Heading"}, 4, 11, "Heading"}
+            });
+            assertPageTokenize("++* Heading", {
+                Token{Heading{2, true}, 0, 4, "++* "},
+                Token{PlainText{"Heading"}, 4, 11, "Heading"}
+            });
+            assertPageTokenize("+ Hea+ ding+", {
+                Token{Heading{1, false}, 0, 2, "+ "},
+                Token{PlainText{"Hea+ ding+"}, 2, 12, "Hea+ ding+"}
+            });
+        });
 	}
 }
