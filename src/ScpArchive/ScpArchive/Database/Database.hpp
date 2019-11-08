@@ -89,6 +89,9 @@ class Database{
 		
 		std::optional<Database::ID> createPage(std::string name);
 		std::optional<Database::ID> getPageId(std::string name);
+		std::string getPageName(Database::ID id);
+		
+		std::vector<Database::ID> getPageList();
 		
 		std::optional<Database::ID> getPageDiscussion(Database::ID id);
 		void setPageDiscussion(Database::ID id, std::optional<Database::ID> discussion);

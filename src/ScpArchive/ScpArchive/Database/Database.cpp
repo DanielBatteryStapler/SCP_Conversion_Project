@@ -86,6 +86,25 @@ std::optional<Database::ID> Database::getPageId(std::string name){
 	}
 }
 
+std::string Database::getPageName(Database::ID id){
+	auto result = database[pagesCol].find_one(toBson({{colId, oid(id)}}));
+    
+    auto json = fromBson(*result);
+    
+    return json[pagesColName].get<std::string>();
+}
+
+std::vector<Database::ID> Database::getPageList(){
+	auto result = database[pagesCol].find(toBson({}));
+	
+	std::vector<Database::ID> output;
+	for(auto i : result){
+		output.push_back(getOid(fromBson(i)[colId]));
+	}
+	
+	return output;
+}
+
 std::optional<Database::ID> Database::getPageDiscussion(Database::ID id){
     auto result = database[pagesCol].find_one(toBson({{colId, oid(id)}}));
     

@@ -18,11 +18,11 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-			assertTrue(db->getPageId("testPageA") == std::nullopt);
-			Database::ID id = *db->createPage("testPageA");
-			assertEquals(id, *db->getPageId("testPageA"));
+			assertTrue(db->getPageId("test-page-a") == std::nullopt);
+			Database::ID id = *db->createPage("test-page-a");
+			assertEquals(id, *db->getPageId("test-page-a"));
 			
-			assertTrue(db->createPage("testPageA") == std::nullopt);
+			assertTrue(db->createPage("test-page-a") == std::nullopt);
 			
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
@@ -32,13 +32,13 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-			assertTrue(db->getPageId("testPageA") == std::nullopt);
-			Database::ID id = *db->createPage("testPageA");
-			assertEquals(id, *db->getPageId("testPageA"));
+			assertTrue(db->getPageId("test-page-a") == std::nullopt);
+			Database::ID id = *db->createPage("test-page-a");
+			assertEquals(id, *db->getPageId("test-page-a"));
 			
 			db->cleanAndInitDatabase();
 			
-			assertTrue(db->getPageId("testPageA") == std::nullopt);
+			assertTrue(db->getPageId("test-page-a") == std::nullopt);
 			
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
@@ -49,12 +49,41 @@ namespace Tests{
 			db->cleanAndInitDatabase();
 			
 			assertEquals(0, db->getNumberOfPages());
-			db->createPage("testPageA");
+			db->createPage("test-page-a");
 			assertEquals(1, db->getNumberOfPages());
-			db->createPage("testPageB");
+			db->createPage("test-page-b");
 			assertEquals(2, db->getNumberOfPages());
-			db->createPage("testPageB");
+			db->createPage("test-page-b");
 			assertEquals(2, db->getNumberOfPages());
+			
+			Database::wipeDatabaseFromMongo(std::move(db));
+		});
+		
+		tester.add("Database::getPageList", [](){
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			
+			db->cleanAndInitDatabase();
+			
+			assertEqualsVec({}, db->getPageList());
+			Database::ID a = *db->createPage("test-page-a");
+			assertEqualsVec({a}, db->getPageList());
+			Database::ID b = *db->createPage("test-page-b");
+			assertEqualsVec({a,b}, db->getPageList());
+			db->createPage("test-page-b");
+			assertEqualsVec({a,b}, db->getPageList());
+			
+			Database::wipeDatabaseFromMongo(std::move(db));
+		});
+		
+		tester.add("Database::getPageName", [](){
+			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			
+			db->cleanAndInitDatabase();
+			
+			Database::ID a = *db->createPage("test-page-a");
+			Database::ID b = *db->createPage("test-page-b");
+			assertEquals("test-page-a", db->getPageName(a));
+			assertEquals("test-page-b", db->getPageName(b));
 			
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
@@ -64,8 +93,8 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-			auto pageA = db->createPage("A");
-			auto pageB = db->createPage("B");
+			auto pageA = db->createPage("test-page-a");
+			auto pageB = db->createPage("test-page-b");
             assertTrue(std::nullopt == db->getPageParent(*pageA));
             assertTrue(std::nullopt == db->getPageParent(*pageB));
             db->setPageParent(*pageA, *pageB);
@@ -83,8 +112,8 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-			auto pageA = db->createPage("A");
-			auto threadB = db->createPage("B");///this should actually be a thread
+			auto pageA = db->createPage("test-page-a");
+			auto threadB = db->createPage("test-page-b");///this should actually be a thread
             assertTrue(std::nullopt == db->getPageDiscussion(*pageA));
             db->setPageDiscussion(*pageA, *threadB);
             assertTrue(*threadB == *db->getPageDiscussion(*pageA));
@@ -99,7 +128,7 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-            auto pageA = db->createPage("A");
+            auto pageA = db->createPage("test-page-a");
             assertEqualsVec({}, db->getPageTags(*pageA));
             db->setPageTags(*pageA, {"hello", "tags"});
             assertEqualsVec({"hello", "tags"}, db->getPageTags(*pageA));
@@ -114,7 +143,7 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-			Database::ID pageId = *db->createPage("testPageA");
+			Database::ID pageId = *db->createPage("test-page-a");
 			
 			Database::PageRevision rev;
 			rev.title = "testRevA";
@@ -134,7 +163,7 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-			Database::ID pageId = *db->createPage("testPageA");
+			Database::ID pageId = *db->createPage("test-page-a");
 			
 			assertEqualsVec({}, db->getPageRevisions(pageId));
 			
@@ -158,7 +187,7 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-			Database::ID pageId = *db->createPage("testPageA");
+			Database::ID pageId = *db->createPage("test-page-a");
 			
 			Database::PageRevision rev;
 			rev.title = "testRevA";
@@ -178,7 +207,7 @@ namespace Tests{
 			
 			db->cleanAndInitDatabase();
 			
-			Database::ID pageId = *db->createPage("testPageA");
+			Database::ID pageId = *db->createPage("test-page-a");
 			
 			Database::PageFile file;
 			file.name = "testFile";
@@ -197,7 +226,7 @@ namespace Tests{
 			
 			assertEqualsVec({fileId, fileIdB}, db->getPageFiles(pageId));
 			
-			Database::ID pageIdB = *db->createPage("testPageB");
+			Database::ID pageIdB = *db->createPage("test-page-b");
 			
 			db->createPageFile(pageIdB, file);
 			
