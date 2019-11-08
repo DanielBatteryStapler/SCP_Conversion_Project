@@ -4,7 +4,7 @@
 
 namespace Parser{
 	namespace{
-		bool check(const std::string& buffer, std::size_t pos, std::string text){
+		inline bool check(const std::string& buffer, std::size_t pos, std::string text){
 			if(pos + text.size() > buffer.size()){
 				return false;
 			}
@@ -12,7 +12,7 @@ namespace Parser{
 			return text == temp;
 		}
 		
-		bool checkLine(const std::string& buffer, std::size_t pos, std::string text){
+		inline bool checkLine(const std::string& buffer, std::size_t pos, std::string text){
             while(pos < buffer.size()){
                 if(check(buffer, pos, text)){
                     return true;
@@ -25,7 +25,7 @@ namespace Parser{
             return false;
 		}
 		
-		bool checkParagraph(const std::string& buffer, std::size_t pos, std::string text){
+		inline bool checkParagraph(const std::string& buffer, std::size_t pos, std::string text){
 			while(pos < buffer.size()){
                 if(check(buffer, pos, text)){
                     return true;
@@ -38,13 +38,16 @@ namespace Parser{
             return false;
 		}
 		
-		bool checkParagraphBack(const std::string& buffer, std::size_t pos, std::string text){
-			while(pos >= 0){
+		inline bool checkParagraphBack(const std::string& buffer, std::size_t pos, std::string text){
+			while(true){
                 if(check(buffer, pos, text)){
                     return true;
                 }
                 if(check(buffer, pos, "\n\n")){
                     return false;
+                }
+                if(pos == 0){
+					break;
                 }
                 pos--;
             }
