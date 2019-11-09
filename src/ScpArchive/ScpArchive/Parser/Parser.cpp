@@ -265,20 +265,12 @@ namespace Parser{
 	std::vector<std::string> getPageLinks(std::string page){
 		std::vector<TokenRule> rules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
-			TokenRule{"heading", tryHeadingRule, doHeadingRule},
 			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
 			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},
-			TokenRule{"bareLink", tryBareLinkRule, doBareLinkRule},
-			TokenRule{"entityEscape", tryEntityEscapeRule, doEntityEscapeRule},
-			TokenRule{"literalText", tryLiteralTextRule, doLiteralTextRule}, 
-			TokenRule{"lineBreak", tryLineBreakRule, doLineBreakRule},
-			TokenRule{"escapedNewLine", tryEscapedNewLineRule, doEscapedNewLineRule},
-			TokenRule{"newLine", tryNewLineRule, doNewLineRule},
-			TokenRule{"typography", tryTypographyRule, doTypographyRule},
-			TokenRule{"plainText", tryPlainTextRule, doPlainTextRule}
+			TokenRule{"null", tryNullRule, doNullRule}
 		};
 		
-		TokenRuleContext context = applyTokenizingRules(std::move(page), standardRules);
+		TokenRuleContext context = applyTokenizingRules(std::move(page), rules);
 		std::vector<std::string> links;
 		
 		for(const Token& tok : context.tokens){

@@ -39,6 +39,9 @@ namespace Parser{
 	
 	bool tryPlainTextRule(const TokenRuleContext& context);
 	TokenRuleResult doPlainTextRule(const TokenRuleContext& context);
+	
+	bool tryNullRule(const TokenRuleContext& context);
+	TokenRuleResult doNullRule(const TokenRuleContext& context);
 }
 
 #endif // TOKENRULES_HPP
