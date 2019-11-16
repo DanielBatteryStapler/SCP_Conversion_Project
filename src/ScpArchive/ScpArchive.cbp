@@ -18,6 +18,7 @@
 					<Add directory="ScpArchive/Tests/Database" />
 					<Add directory="ScpArchive/Website" />
 					<Add directory="ScpArchive/Parser" />
+					<Add directory="ScpArchive/UntestedUtils" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -25,13 +26,14 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--runWebsite" />
+				<Option parameters="--exportNodeDiagramData" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="./" />
 					<Add directory="ScpArchive/Tests/Database" />
 					<Add directory="ScpArchive/Website" />
 					<Add directory="ScpArchive/Parser" />
+					<Add directory="ScpArchive/UntestedUtils" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -88,6 +90,8 @@
 		<Unit filename="ScpArchive/Tests/Parser/ParserTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Tests.cpp" />
 		<Unit filename="ScpArchive/Tests/Tests.hpp" />
+		<Unit filename="ScpArchive/UntestedUtils/UntestedUtils.cpp" />
+		<Unit filename="ScpArchive/UntestedUtils/UntestedUtils.hpp" />
 		<Unit filename="ScpArchive/Website/Gateway.cpp" />
 		<Unit filename="ScpArchive/Website/Gateway.hpp" />
 		<Unit filename="ScpArchive/Website/Website.cpp" />
