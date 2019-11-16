@@ -10,6 +10,19 @@ namespace Parser{
 	bool tryHeadingRule(const TokenRuleContext& context);
 	TokenRuleResult doHeadingRule(const TokenRuleContext& context);
 	
+	bool tryStrikeRule(const TokenRuleContext& context);
+	TokenRuleResult doStrikeRule(const TokenRuleContext& context);
+	bool tryItalicsRule(const TokenRuleContext& context);
+	TokenRuleResult doItalicsRule(const TokenRuleContext& context);
+	bool tryBoldRule(const TokenRuleContext& context);
+	TokenRuleResult doBoldRule(const TokenRuleContext& context);
+	bool tryUnderlineRule(const TokenRuleContext& context);
+	TokenRuleResult doUnderlineRule(const TokenRuleContext& context);
+	bool trySuperRule(const TokenRuleContext& context);
+	TokenRuleResult doSuperRule(const TokenRuleContext& context);
+	bool trySubRule(const TokenRuleContext& context);
+	TokenRuleResult doSubRule(const TokenRuleContext& context);
+	
 	bool tryTripleLinkRule(const TokenRuleContext& context);
 	TokenRuleResult doTripleLinkRule(const TokenRuleContext& context);
 	

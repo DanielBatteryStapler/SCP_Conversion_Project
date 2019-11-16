@@ -129,6 +129,89 @@ namespace Parser{
         return result;
 	}
 	
+	namespace{
+		inline bool handleTryInlineFormatting(const TokenRuleContext& context, std::string format){
+			if(!check(context.page, context.pagePos, format)){
+				return false;
+			}
+			if(context.page.size() <= context.pagePos + format.size() || isspace(context.page[context.pagePos + format.size()])){
+				if(0 > context.pagePos - 1 || isspace(context.page[context.pagePos - 1])){
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		inline TokenRuleResult handleDoInlineFormatting(const TokenRuleContext& context, InlineFormat::Type type, std::string format){
+			
+			InlineFormat token;
+			token.type = type;
+			if(context.page.size() <= context.pagePos + format.size() || isspace(context.page[context.pagePos + format.size()])){
+				token.begin = false;
+			}
+			else{
+				token.begin = true;
+			}
+			
+			if(0 > context.pagePos - 1 || isspace(context.page[context.pagePos - 1])){
+				token.end = false;
+			}
+			else{
+				token.end = true;
+			}
+			
+			const std::size_t begin = context.pagePos;
+			const std::size_t end = context.pagePos + format.size();
+			
+			TokenRuleResult result;
+			result.newPos = context.pagePos + format.size();
+			result.newTokens.push_back(Token{token, begin, end, context.page.substr(begin, end - begin)});
+			return result;
+		}
+	}
+	
+	bool tryStrikeRule(const TokenRuleContext& context){
+		return handleTryInlineFormatting(context, "--");
+	}
+	TokenRuleResult doStrikeRule(const TokenRuleContext& context){
+		return handleDoInlineFormatting(context, InlineFormat::Type::Strike, "--");
+	}
+	
+	bool tryItalicsRule(const TokenRuleContext& context){
+		return handleTryInlineFormatting(context, "//");
+	}
+	TokenRuleResult doItalicsRule(const TokenRuleContext& context){
+		return handleDoInlineFormatting(context, InlineFormat::Type::Italics, "//");
+	}
+	
+	bool tryBoldRule(const TokenRuleContext& context){
+		return handleTryInlineFormatting(context, "**");
+	}
+	TokenRuleResult doBoldRule(const TokenRuleContext& context){
+		return handleDoInlineFormatting(context, InlineFormat::Type::Bold, "**");
+	}
+	
+	bool tryUnderlineRule(const TokenRuleContext& context){
+		return handleTryInlineFormatting(context, "__");
+	}
+	TokenRuleResult doUnderlineRule(const TokenRuleContext& context){
+		return handleDoInlineFormatting(context, InlineFormat::Type::Underline, "__");
+	}
+	
+	bool trySuperRule(const TokenRuleContext& context){
+		return handleTryInlineFormatting(context, "^^");
+	}
+	TokenRuleResult doSuperRule(const TokenRuleContext& context){
+		return handleDoInlineFormatting(context, InlineFormat::Type::Super, "^^");
+	}
+	
+	bool trySubRule(const TokenRuleContext& context){
+		return !checkParagraph(context.page, context.pagePos, "''") && handleTryInlineFormatting(context, ",,");
+	}
+	TokenRuleResult doSubRule(const TokenRuleContext& context){
+		return handleDoInlineFormatting(context, InlineFormat::Type::Sub, ",,");
+	}
+	
 	bool tryTripleLinkRule(const TokenRuleContext& context){
 		if(check(context.page, context.pagePos, "[[[") && checkParagraph(context.page, context.pagePos, "]]]")){
 			return true;

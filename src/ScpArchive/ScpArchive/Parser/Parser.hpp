@@ -71,11 +71,13 @@ namespace Parser{
 		
 	};
 	
-	enum class InlineFormatType{Unknown};
+	enum class InlineFormatType{Unknown, Strike, Italics, Bold, Underline, Super, Sub};
 	
 	struct InlineFormat{
 		using Type = InlineFormatType;
 		Type type;
+		bool begin;
+		bool end;
 		
 		bool operator==(const InlineFormat& tok)const;
 	};

@@ -67,7 +67,9 @@ namespace Tests{
 				Token{PlainText{"A"}, 0, 1, "A"},
 				Token{NewLine{}, 11, 12, "\n"},
 				Token{NewLine{}, 12, 13, "\n"},
-				Token{PlainText{"C@@D—]E"}, 13, 21, "C@@D--]E"}
+				Token{PlainText{"C@@D"}, 13, 17, "C@@D"},
+				Token{InlineFormat{InlineFormat::Type::Strike, true, true}, 17, 19, "--"},
+				Token{PlainText{"]E"}, 19, 21, "]E"}
 			});
 		});
 		
@@ -108,14 +110,16 @@ namespace Tests{
 		});
 		
 		tester.add("Parser::tokenizePage Typography", [](){
-			assertPageTokenize("`A'``B'',,C''D--E<<F>>G...", {
-                Token{PlainText{"‘A’“B”„C”D—E«F»G…"}, 0, 26, "`A'``B'',,C''D--E<<F>>G..."}
+			assertPageTokenize("`A'``B'',,C''D -- E<<F>>G...", {
+                Token{PlainText{"‘A’“B”„C”D — E«F»G…"}, 0, 28, "`A'``B'',,C''D -- E<<F>>G..."}
             });
-            assertPageTokenize("`A``B,,CD--E<<FG...\n\nA'B''C''D--EF>>G...", {
-                Token{PlainText{"`A``B,,CD—E«FG…"}, 0, 19, "`A``B,,CD--E<<FG..."},
-                Token{NewLine{}, 19, 20, "\n"},
-                Token{NewLine{}, 20, 21, "\n"},
-                Token{PlainText{"A'B''C''D—EF»G…"}, 21, 40, "A'B''C''D--EF>>G..."}
+            assertPageTokenize("`A``B,,CD -- E<<FG...\n\nA'B''C''D -- EF>>G...", {
+                Token{PlainText{"`A``B"}, 0, 5, "`A``B"},
+                Token{InlineFormat{InlineFormat::Type::Sub, true, true}, 5, 7, ",,"},
+                Token{PlainText{"CD — E«FG…"}, 7, 21, "CD -- E<<FG..."},
+                Token{NewLine{}, 21, 22, "\n"},
+                Token{NewLine{}, 22, 23, "\n"},
+                Token{PlainText{"A'B''C''D — EF»G…"}, 23, 44, "A'B''C''D -- EF>>G..."}
             });
 		});
 		
@@ -235,6 +239,114 @@ namespace Tests{
             assertPageTokenize("+ Hea+ ding+", {
                 Token{Heading{1, false}, 0, 2, "+ "},
                 Token{PlainText{"Hea+ ding+"}, 2, 12, "Hea+ ding+"}
+            });
+        });
+        
+        tester.add("Parser::tokenizePage InlineFormat::Strike", [](){
+            assertPageTokenize("A --B-- C", {
+                Token{PlainText{"A "}, 0, 2, "A "},
+                Token{InlineFormat{InlineFormat::Type::Strike, true, false}, 2, 4, "--"},
+                Token{PlainText{"B"}, 4, 5, "B"},
+                Token{InlineFormat{InlineFormat::Type::Strike, false, true}, 5, 7, "--"},
+                Token{PlainText{" C"}, 7, 9, " C"}
+            });
+            
+            assertPageTokenize("A-- B -- C --D", {
+                Token{PlainText{"A"}, 0, 1, "A"},
+                Token{InlineFormat{InlineFormat::Type::Strike, false, true}, 1, 3, "--"},
+                Token{PlainText{" B — C "}, 3, 11, " B -- C "},
+                Token{InlineFormat{InlineFormat::Type::Strike, true, false}, 11, 13, "--"},
+                Token{PlainText{"D"}, 13, 14, "D"}
+            });
+        });
+        
+        tester.add("Parser::tokenizePage InlineFormat::Italics", [](){
+            assertPageTokenize("A //B// C", {
+                Token{PlainText{"A "}, 0, 2, "A "},
+                Token{InlineFormat{InlineFormat::Type::Italics, true, false}, 2, 4, "//"},
+                Token{PlainText{"B"}, 4, 5, "B"},
+                Token{InlineFormat{InlineFormat::Type::Italics, false, true}, 5, 7, "//"},
+                Token{PlainText{" C"}, 7, 9, " C"}
+            });
+            
+            assertPageTokenize("A// B // C //D", {
+                Token{PlainText{"A"}, 0, 1, "A"},
+                Token{InlineFormat{InlineFormat::Type::Italics, false, true}, 1, 3, "//"},
+                Token{PlainText{" B // C "}, 3, 11, " B // C "},
+                Token{InlineFormat{InlineFormat::Type::Italics, true, false}, 11, 13, "//"},
+                Token{PlainText{"D"}, 13, 14, "D"}
+            });
+        });
+        
+        tester.add("Parser::tokenizePage InlineFormat::Bold", [](){
+            assertPageTokenize("A **B** C", {
+                Token{PlainText{"A "}, 0, 2, "A "},
+                Token{InlineFormat{InlineFormat::Type::Bold, true, false}, 2, 4, "**"},
+                Token{PlainText{"B"}, 4, 5, "B"},
+                Token{InlineFormat{InlineFormat::Type::Bold, false, true}, 5, 7, "**"},
+                Token{PlainText{" C"}, 7, 9, " C"}
+            });
+            
+            assertPageTokenize("A** B ** C **D", {
+                Token{PlainText{"A"}, 0, 1, "A"},
+                Token{InlineFormat{InlineFormat::Type::Bold, false, true}, 1, 3, "**"},
+                Token{PlainText{" B ** C "}, 3, 11, " B ** C "},
+                Token{InlineFormat{InlineFormat::Type::Bold, true, false}, 11, 13, "**"},
+                Token{PlainText{"D"}, 13, 14, "D"}
+            });
+        });
+        
+        tester.add("Parser::tokenizePage InlineFormat::Underline", [](){
+            assertPageTokenize("A __B__ C", {
+                Token{PlainText{"A "}, 0, 2, "A "},
+                Token{InlineFormat{InlineFormat::Type::Underline, true, false}, 2, 4, "__"},
+                Token{PlainText{"B"}, 4, 5, "B"},
+                Token{InlineFormat{InlineFormat::Type::Underline, false, true}, 5, 7, "__"},
+                Token{PlainText{" C"}, 7, 9, " C"}
+            });
+            
+            assertPageTokenize("A__ B __ C __D", {
+                Token{PlainText{"A"}, 0, 1, "A"},
+                Token{InlineFormat{InlineFormat::Type::Underline, false, true}, 1, 3, "__"},
+                Token{PlainText{" B __ C "}, 3, 11, " B __ C "},
+                Token{InlineFormat{InlineFormat::Type::Underline, true, false}, 11, 13, "__"},
+                Token{PlainText{"D"}, 13, 14, "D"}
+            });
+        });
+        
+        tester.add("Parser::tokenizePage InlineFormat::Super", [](){
+            assertPageTokenize("A ^^B^^ C", {
+                Token{PlainText{"A "}, 0, 2, "A "},
+                Token{InlineFormat{InlineFormat::Type::Super, true, false}, 2, 4, "^^"},
+                Token{PlainText{"B"}, 4, 5, "B"},
+                Token{InlineFormat{InlineFormat::Type::Super, false, true}, 5, 7, "^^"},
+                Token{PlainText{" C"}, 7, 9, " C"}
+            });
+            
+            assertPageTokenize("A^^ B ^^ C ^^D", {
+                Token{PlainText{"A"}, 0, 1, "A"},
+                Token{InlineFormat{InlineFormat::Type::Super, false, true}, 1, 3, "^^"},
+                Token{PlainText{" B ^^ C "}, 3, 11, " B ^^ C "},
+                Token{InlineFormat{InlineFormat::Type::Super, true, false}, 11, 13, "^^"},
+                Token{PlainText{"D"}, 13, 14, "D"}
+            });
+        });
+        
+        tester.add("Parser::tokenizePage InlineFormat::Sub", [](){
+            assertPageTokenize("A ,,B,, C", {
+                Token{PlainText{"A "}, 0, 2, "A "},
+                Token{InlineFormat{InlineFormat::Type::Sub, true, false}, 2, 4, ",,"},
+                Token{PlainText{"B"}, 4, 5, "B"},
+                Token{InlineFormat{InlineFormat::Type::Sub, false, true}, 5, 7, ",,"},
+                Token{PlainText{" C"}, 7, 9, " C"}
+            });
+            
+            assertPageTokenize("A,, B ,, C ,,D", {
+                Token{PlainText{"A"}, 0, 1, "A"},
+                Token{InlineFormat{InlineFormat::Type::Sub, false, true}, 1, 3, ",,"},
+                Token{PlainText{" B ,, C "}, 3, 11, " B ,, C "},
+                Token{InlineFormat{InlineFormat::Type::Sub, true, false}, 11, 13, ",,"},
+                Token{PlainText{"D"}, 13, 14, "D"}
             });
         });
 	}

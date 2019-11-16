@@ -67,7 +67,7 @@ namespace Parser{
 	}
 		
 	bool InlineFormat::operator==(const InlineFormat& tok)const{
-		return type == tok.type;
+		return type == tok.type && begin == tok.begin && end == tok.end;
 	}
 	
 	bool HyperLink::operator==(const HyperLink& tok)const{
@@ -135,7 +135,34 @@ namespace Parser{
 				ss << "InlineSectionEnd";
 				break;
 			case Token::Type::InlineFormat:
-				ss << "InlineFormat";
+				ss << "InlineFormat:";
+				{
+					const InlineFormat& format = std::get<InlineFormat>(tok.token);
+					switch(format.type){
+						case InlineFormat::Type::Unknown:
+							ss << "Unknown";
+							break;
+						case InlineFormat::Type::Bold:
+							ss << "Bold";
+							break;
+						case InlineFormat::Type::Italics:
+							ss << "Italics";
+							break;
+						case InlineFormat::Type::Strike:
+							ss << "Strike";
+							break;
+						case InlineFormat::Type::Underline:
+							ss << "Underline";
+							break;
+						case InlineFormat::Type::Super:
+							ss << "Super";
+							break;
+						case InlineFormat::Type::Sub:
+							ss << "Sub";
+							break;
+					}
+					ss << "[" << (format.begin?"true":"false") << "," << (format.end?"true":"false") << "]";
+				}
 				break;
 			case Token::Type::HyperLink:
 				{
@@ -212,9 +239,18 @@ namespace Parser{
 		std::vector<TokenRule> standardRules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
 			TokenRule{"heading", tryHeadingRule, doHeadingRule},
+			
+			TokenRule{"strike", tryStrikeRule, doStrikeRule},
+			TokenRule{"italics", tryItalicsRule, doItalicsRule},
+			TokenRule{"bold", tryBoldRule, doBoldRule},
+			TokenRule{"underline", tryUnderlineRule, doUnderlineRule},
+			TokenRule{"super", trySuperRule, doSuperRule},
+			TokenRule{"sub", trySubRule, doSubRule},
+			
 			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
 			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},
 			TokenRule{"bareLink", tryBareLinkRule, doBareLinkRule},
+			
 			TokenRule{"entityEscape", tryEntityEscapeRule, doEntityEscapeRule},
 			TokenRule{"literalText", tryLiteralTextRule, doLiteralTextRule}, 
 			TokenRule{"lineBreak", tryLineBreakRule, doLineBreakRule},
