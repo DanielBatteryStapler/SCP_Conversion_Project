@@ -27,8 +27,8 @@ namespace Tests{
 		if(!(expected == actual)){
 			std::stringstream ss;
 			ss << "Assert Fail, expected the following to be equal:\n"
-			<< "\tExpected: " << expected << "\n"
-			<< "\tActual:   " << actual   << "\n";
+			<< "\tExpected: {\n" << expected << "\n}\n"
+			<< "\tActual:   {\n" << actual   << "\n}\n";
 			throw std::runtime_error(ss.str());
 		}
 	}

@@ -8,12 +8,14 @@
 #include "HTTP/MarkupOutStreamTests.hpp"
 
 #include "Parser/ParserTests.hpp"
+#include "Parser/TreerTests.hpp"
 
 namespace Tests{
 	void runAllTests(){
 		Tester tester;
 		
 		addParserTests(tester);
+		addTreerTests(tester);
 		
 		addHtmlEntityTests(tester);
 		addMarkupOutStreamTests(tester);

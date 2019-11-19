@@ -19,6 +19,7 @@
 					<Add directory="ScpArchive/Website" />
 					<Add directory="ScpArchive/Parser" />
 					<Add directory="ScpArchive/UntestedUtils" />
+					<Add directory="ScpArchive/Tests/Parser" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -34,6 +35,7 @@
 					<Add directory="ScpArchive/Website" />
 					<Add directory="ScpArchive/Parser" />
 					<Add directory="ScpArchive/UntestedUtils" />
+					<Add directory="ScpArchive/Tests/Parser" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -74,6 +76,8 @@
 		<Unit filename="ScpArchive/Parser/Parser.hpp" />
 		<Unit filename="ScpArchive/Parser/TokenRules.cpp" />
 		<Unit filename="ScpArchive/Parser/TokenRules.hpp" />
+		<Unit filename="ScpArchive/Parser/Treer.cpp" />
+		<Unit filename="ScpArchive/Parser/Treer.hpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.hpp" />
 		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.cpp" />
@@ -88,6 +92,8 @@
 		<Unit filename="ScpArchive/Tests/HTTP/MarkupOutStreamTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Parser/ParserTests.cpp" />
 		<Unit filename="ScpArchive/Tests/Parser/ParserTests.hpp" />
+		<Unit filename="ScpArchive/Tests/Parser/TreerTests.cpp" />
+		<Unit filename="ScpArchive/Tests/Parser/TreerTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Tests.cpp" />
 		<Unit filename="ScpArchive/Tests/Tests.hpp" />
 		<Unit filename="ScpArchive/UntestedUtils/UntestedUtils.cpp" />

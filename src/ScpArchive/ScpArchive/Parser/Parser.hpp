@@ -113,10 +113,12 @@ namespace Parser{
 	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, Heading, NestingPrefixFormat, 
 						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
 	
+	using TokenVariant = std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, Heading, NestingPrefixFormat, 
+							InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine>;
 	struct Token{
 		using Type = TokenType;
-		std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, Heading, NestingPrefixFormat, 
-						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine> token;
+		using Variant = TokenVariant;
+		Variant token;
 		
 		Type getType()const;
 		
