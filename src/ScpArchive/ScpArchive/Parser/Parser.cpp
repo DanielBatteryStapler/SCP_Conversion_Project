@@ -257,6 +257,7 @@ namespace Parser{
 			TokenRule{"escapedNewLine", tryEscapedNewLineRule, doEscapedNewLineRule},
 			TokenRule{"newLine", tryNewLineRule, doNewLineRule},
 			TokenRule{"typography", tryTypographyRule, doTypographyRule},
+			TokenRule{"prelineSpace", tryPrelineSpaceRule, doPrelineSpaceRule},
 			TokenRule{"plainText", tryPlainTextRule, doPlainTextRule}
 		};
 	}

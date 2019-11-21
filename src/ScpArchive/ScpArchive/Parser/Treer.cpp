@@ -111,6 +111,7 @@ namespace Parser{
 	namespace{
 		struct TreeContext{
 			std::vector<Node> stack;
+			std::vector<Node> styleCarry;
 			int newlines;
 		};
 		
@@ -126,6 +127,35 @@ namespace Parser{
 			}
 		}
 		
+		bool isTextInsertable(Node::Type type){
+            switch(type){
+                default:
+                    return false;
+                case Node::Type::Paragraph:
+                case Node::Type::Heading:
+                case Node::Type::StyleFormat:
+                    return true;
+            }
+		}
+		
+		bool isDivInsertable(Node::Type type){
+            switch(type){
+                default:
+                    return false;
+                case Node::Type::RootPage:
+                    return true;
+            }
+		}
+        
+        bool isStyleCarryable(Node::Type type){
+            switch(type){
+                default:
+                    return false;
+                case Node::Type::StyleFormat:
+                    return true;
+            }
+        }
+        
 		bool isInside(TreeContext& context, Node::Type type){
 			for(const Node& i : context.stack){
 				if(i.getType() == type){
@@ -136,12 +166,11 @@ namespace Parser{
 		}
 		
 		bool isInsideTextInsertable(TreeContext& context){
-			for(const Node& i : context.stack){
-				if(i.getType() == Node::Type::Paragraph || i.getType() == Node::Type::Heading){
-					return true;
-				}
-			}
-			return false;
+			return isTextInsertable(context.stack.back().getType());
+		}
+		
+		bool isInsideDivInsertable(TreeContext& context){
+            return isDivInsertable(context.stack.back().getType());
 		}
 		
 		void pushStack(TreeContext& context, Node newNode){
@@ -154,16 +183,46 @@ namespace Parser{
 			context.stack.back().branches.push_back(node);
 		}
 		
+		void popSingle(TreeContext& context, std::function<bool(const Node&)> check){
+			while(true){
+                const auto& back = context.stack.back();
+                if(check(back)){
+                    popStack(context);
+                    break;
+                }
+                else if(isStyleCarryable(back.getType())){
+                    Node style = back;
+                    style.branches.clear();
+                    context.styleCarry.push_back(style);//don't copy over branches, just copy
+                    popStack(context);
+                }
+                else{
+                    popStack(context);
+                }
+			}
+		}
+		
+		void popSingle(TreeContext& context, Node::Type type){
+            popSingle(context, [type](const Node& nod){return type == nod.getType();});
+		}
+		
 		void makeDivPushable(TreeContext& context){
-			if(isInsideTextInsertable(context)){
+			while(!isInsideDivInsertable(context)){
 				popStack(context);
 			}
 		}
 		
 		void makeTextAddable(TreeContext& context){
 			if(!isInsideTextInsertable(context)){
+				while(!isInsideDivInsertable(context)){
+                    popStack(context);
+                }
 				pushStack(context, Node{Paragraph{}});
 			}
+			while(context.styleCarry.size() > 0){
+                pushStack(context, context.styleCarry.back());
+                context.styleCarry.pop_back();
+            }
 		}
 		
 		void addAsText(TreeContext& context, Node newNode){
@@ -176,13 +235,6 @@ namespace Parser{
 			else{
 				context.stack.back().branches.push_back(newNode);
 			}
-		}
-		
-		void endNode(TreeContext& context, Node::Type type){
-			while(context.stack.back().getType() != type){
-				popStack(context);
-			}
-			popStack(context);
 		}
 		
 		void handleInlineFormat(TreeContext& context, const Token& token){
@@ -199,16 +251,15 @@ namespace Parser{
 				}
 			}
 			if(alreadyInStyle && tokenFormat.end){
-				while(true){
-					if(context.stack.back().getType() == Node::Type::StyleFormat){
-						const StyleFormat& format = std::get<StyleFormat>(context.stack.back().node);
-						if(format.type == format.type){
-							popStack(context);
-							break;
-						}
-					}
-					popStack(context);
-				}
+				popSingle(context, [tokenFormat](const Node& nod){
+                    if(nod.getType() == Node::Type::StyleFormat){
+                        const StyleFormat& format = std::get<StyleFormat>(nod.node);
+                        if(tokenFormat.type == format.type){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
 			}
 			else if(!alreadyInStyle && tokenFormat.begin){
 				makeTextAddable(context);
@@ -247,12 +298,12 @@ namespace Parser{
 					addAsText(context, Node{LineBreak{}});
 				}
 				else if(context.newlines >= 2){
-					endNode(context, Node::Type::Paragraph);
+					popSingle(context, Node::Type::Paragraph);
 				}
 			}
 			if(isInside(context, Node::Type::Heading)){
 				if(context.newlines > 0){
-					endNode(context, Node::Type::Heading);
+					popSingle(context, Node::Type::Heading);
 				}
 			}
 			

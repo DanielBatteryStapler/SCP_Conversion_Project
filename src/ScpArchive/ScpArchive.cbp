@@ -27,7 +27,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--exportNodeDiagramData" />
+				<Option parameters="--runWebsite" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="./" />
@@ -72,6 +72,8 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="ScpArchive/HTTP/entities/entities.h" />
+		<Unit filename="ScpArchive/Parser/HTMLConverter.cpp" />
+		<Unit filename="ScpArchive/Parser/HTMLConverter.hpp" />
 		<Unit filename="ScpArchive/Parser/Parser.cpp" />
 		<Unit filename="ScpArchive/Parser/Parser.hpp" />
 		<Unit filename="ScpArchive/Parser/TokenRules.cpp" />

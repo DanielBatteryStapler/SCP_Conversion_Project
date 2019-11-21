@@ -49,6 +49,15 @@ namespace Tests{
 				Token{LineBreak{}, 5, 8, " _\n"},
 				Token{PlainText{"linebreak"}, 8, 17, "linebreak"}
 			});
+			assertPageTokenize("ignore\n  \n \n \n  \n pre-space", {
+				Token{PlainText{"ignore"}, 0, 6, "ignore"},
+				Token{NewLine{}, 6, 7, "\n"},
+				Token{NewLine{}, 9, 10, "\n"},
+				Token{NewLine{}, 11, 12, "\n"},
+				Token{NewLine{}, 13, 14, "\n"},
+				Token{NewLine{}, 16, 17, "\n"},
+				Token{PlainText{"pre-space"}, 18, 27, "pre-space"}
+			});
 		});
 		
 		tester.add("Parser::tokenizePage Comment", [](){

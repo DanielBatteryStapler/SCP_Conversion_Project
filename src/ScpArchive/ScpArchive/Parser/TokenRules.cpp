@@ -575,6 +575,22 @@ namespace Parser{
 		return result;
 	}
 	
+	bool tryPrelineSpaceRule(const TokenRuleContext& context){
+		if(context.wasNewLine){
+			if(context.page[context.pagePos] == ' ' || check(context.page, context.pagePos, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)})){//special unicode space
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	TokenRuleResult doPrelineSpaceRule(const TokenRuleContext& context){
+		TokenRuleResult result;
+		result.newPos = context.pagePos + 2;//just skip forward one character
+		result.nowNewline = true;//act as if we're still past a newline
+		return result;
+	}
+	
 	bool tryPlainTextRule(const TokenRuleContext& context){
 		return true;
 	}

@@ -4,6 +4,8 @@
 
 #include <sstream>
 
+#include "../Parser/HTMLConverter.hpp"
+
 void Website::run(){
 	std::string domainName = Config::getWebsiteDomainName();
 	std::string socket = Config::getFastCGISocket();
@@ -45,14 +47,16 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 					context.out << "HTTP/1.1 200 OK\r\n"_AM
 					<< "Content-Type: text/html\r\n\r\n"_AM;
 					
-					for(char c : revision.sourceCode){
-						if(c == '\n'){
-							context.out << "<br>"_AM;
-						}
-						else{
-							context.out << (c + std::string());
-						}
+					context.out << "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>"_AM
+					<< revision.title << "</title></head><body>"_AM;
+					
+					Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);
+					for(const auto& tok : pageTokens.tokens){
+						//std::cout << Parser::toString(tok) << "\n";
 					}
+					Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens);
+					Parser::convertPageTreeToHtml(context.out, pageTree);
+					context.out << "</body></html>"_AM;
 					
 					threadContext.finishRequest(std::move(context));
 				}

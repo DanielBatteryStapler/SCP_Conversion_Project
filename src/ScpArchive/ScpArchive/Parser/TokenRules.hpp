@@ -50,6 +50,9 @@ namespace Parser{
 	bool tryTypographyRule(const TokenRuleContext& context);
 	TokenRuleResult doTypographyRule(const TokenRuleContext& context);
 	
+	bool tryPrelineSpaceRule(const TokenRuleContext& context);
+	TokenRuleResult doPrelineSpaceRule(const TokenRuleContext& context);
+	
 	bool tryPlainTextRule(const TokenRuleContext& context);
 	TokenRuleResult doPlainTextRule(const TokenRuleContext& context);
 	

@@ -67,6 +67,27 @@ namespace Tests{
 					}
 				}
 			});
+			assertPageTree(
+			"Some text here\n"
+			" \n"
+			"  \n"
+			" \n"
+			"more text\n",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"Some text here"}}
+						}
+					},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"more text"}}
+						}
+					}
+				}
+			});
 		});
 		
 		tester.add("Parser::makeTreeFromPage HyperLink", [](){
@@ -211,6 +232,37 @@ namespace Tests{
 			});
 		});
 		
+		tester.add("Parser::makeTreeFromPage StyleFormat Advanced", [](){
+			assertPageTree(
+			"A **B --C** D-- E",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"A "}},
+							Node{StyleFormat{StyleFormat::Type::Bold},
+								{
+									Node{PlainText{"B "}},
+									Node{StyleFormat{StyleFormat::Type::Strike},
+										{
+											Node{PlainText{"C"}}
+										}
+									}
+								}
+							},
+							Node{StyleFormat{StyleFormat::Type::Strike},
+								{
+									Node{PlainText{" D"}}
+								}
+							},
+							Node{PlainText{" E"}}
+						}
+					}
+				}
+			});
+		});
+		
 		tester.add("Parser::makeTreeFromPage Heading",[](){
 			assertPageTree(
 			"+++ heading",
@@ -220,6 +272,24 @@ namespace Tests{
 					Node{Heading{3, false},
 						{
 							Node{PlainText{"heading"}}
+						}
+					}
+				}
+			});
+			
+			assertPageTree(
+			"+++ heading\nnormal text",
+			Node{
+				RootPage{},
+				{
+					Node{Heading{3, false},
+						{
+							Node{PlainText{"heading"}}
+						}
+					},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"normal text"}}
 						}
 					}
 				}
@@ -237,6 +307,64 @@ namespace Tests{
 					}
 				}
 			});
+			
+			assertPageTree(
+			"+ s--trik--e",
+			Node{
+				RootPage{},
+				{
+					Node{Heading{1, false},
+						{
+							Node{PlainText{"s"}},
+							Node{StyleFormat{StyleFormat::Type::Strike},
+								{
+									Node{PlainText{"trik"}}
+								}
+							},
+							Node{PlainText{"e"}}
+						}
+					}
+				}
+			});
+		});
+		
+		tester.add("Parser::makeTreeFromPage LiteralText",[](){
+			assertPageTree(
+			"this @@is@@ some @<te&gt;&lt;t>@",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"this "}},
+							Node{LiteralText{"is"}},
+							Node{PlainText{" some "}},
+							Node{LiteralText{"te><t"}}
+						}
+					}
+				}
+			});
 		});
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
