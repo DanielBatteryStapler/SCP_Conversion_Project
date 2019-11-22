@@ -83,6 +83,7 @@ namespace Parser{
 		
 		TokenRuleResult result;
 		result.newPos = pos;
+		result.nowNewline = context.wasNewLine;//preserve newline status
 		return result;
 	}
 	
@@ -126,6 +127,52 @@ namespace Parser{
         TokenRuleResult result;
         result.newPos = pos;
         result.newTokens.push_back(Token{heading, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
+        return result;
+	}
+	
+	bool tryQuoteBoxPrefixRule(const TokenRuleContext& context){
+		if(context.tokens.size() > 0 && context.tokens.back().getType() == Token::Type::QuoteBoxPrefix){
+			return false;//a quote box prefix cannot directly follow another quote box
+		}
+		if(context.wasNewLine && check(context.page, context.pagePos, ">")){
+			std::size_t pos = context.pagePos;
+			while(pos < context.page.size()){
+				if(check(context.page, pos, ">")){
+					//keep going
+				}
+				else if(check(context.page, pos, " ") || check(context.page, pos, "\n")){
+					return true;
+				}
+				else{
+					return false;//fail if the quote box prefix ends with anything other than a space
+				}
+				pos++;
+			}
+		}
+		return false;
+	}
+	
+	TokenRuleResult doQuoteBoxPrefixRule(const TokenRuleContext& context){
+		std::size_t pos = context.pagePos;
+		QuoteBoxPrefix prefix;
+		while(pos < context.page.size()){
+			if(check(context.page, pos, " ")){
+				prefix.degree = pos - context.pagePos;
+				pos++;//skip the space too
+				break;
+			}
+			else if(check(context.page, pos, "\n")){
+				prefix.degree = pos - context.pagePos;
+				break;
+			}
+			pos++;
+		}
+		
+		
+		TokenRuleResult result;
+        result.newPos = pos;
+        result.nowNewline = true;//preserve newline status
+        result.newTokens.push_back(Token{prefix, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
         return result;
 	}
 	
@@ -282,10 +329,16 @@ namespace Parser{
 			if(check(context.page, context.pagePos, "[http://")){
 				return true;
 			}
+			if(check(context.page, context.pagePos, "[#")){
+				return true;
+			}
 			if(check(context.page, context.pagePos, "[*https://")){
 				return true;
 			}
 			if(check(context.page, context.pagePos, "[*http://")){
+				return true;
+			}
+			if(check(context.page, context.pagePos, "[*#")){
 				return true;
 			}
 		}
@@ -368,11 +421,14 @@ namespace Parser{
 		
 		while(pos < context.page.size()){
 			char c = context.page[pos];
-			if(isspace(c)){
+			if(isalnum(c) || c == '.' || c == '-' || c == ':' || c == '/' || c == '_' || c == '&' || c == '?' || c == '#' || c == '=' || c == '%'){
+				link.url += c;
+				pos++;
+			}
+			else{//if you see a character that can't be in a url, then the url is finished
 				break;
 			}
-			link.url += c;
-			pos++;
+			
 		}
 		link.shownText = link.url;
 		
@@ -586,7 +642,12 @@ namespace Parser{
 	
 	TokenRuleResult doPrelineSpaceRule(const TokenRuleContext& context){
 		TokenRuleResult result;
-		result.newPos = context.pagePos + 2;//just skip forward one character
+		if(check(context.page, context.pagePos, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)})){//special unicode space
+			result.newPos = context.pagePos + 2;
+		}
+		else{
+			result.newPos = context.pagePos + 1;
+		}
 		result.nowNewline = true;//act as if we're still past a newline
 		return result;
 	}

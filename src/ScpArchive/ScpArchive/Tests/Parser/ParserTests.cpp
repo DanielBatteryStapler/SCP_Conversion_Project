@@ -137,6 +137,9 @@ namespace Tests{
                 Token{HyperLink{"https://google.com", "https://google.com", false}, 0, 18, "https://google.com"},
                 Token{PlainText{" link"}, 18, 23, " link"}
             });
+            assertPageTokenize("https://google.com[!--comment--]", {
+                Token{HyperLink{"https://google.com", "https://google.com", false}, 0, 18, "https://google.com"}
+            });
             assertPageTokenize("http://google.com link", {
                 Token{HyperLink{"http://google.com", "http://google.com", false}, 0, 17, "http://google.com"},
                 Token{PlainText{" link"}, 17, 22, " link"}
@@ -163,6 +166,10 @@ namespace Tests{
             });
             assertPageTokenize("[*http://google.com link here]", {
                 Token{HyperLink{"link here", "http://google.com", true}, 0, 30, "[*http://google.com link here]"}
+            });
+            
+            assertPageTokenize("[#toc go here]", {
+                Token{HyperLink{"go here", "#toc", false}, 0, 14, "[#toc go here]"}
             });
             
             ///TODO: these don't actually work in wikidot, singleLinks must have a specified shownName
@@ -245,9 +252,57 @@ namespace Tests{
                 Token{Heading{2, true}, 0, 4, "++* "},
                 Token{PlainText{"Heading"}, 4, 11, "Heading"}
             });
+            assertPageTokenize("+ + Heading", {
+                Token{Heading{1, false}, 0, 2, "+ "},
+                Token{PlainText{"+ Heading"}, 2, 11, "+ Heading"}
+            });
             assertPageTokenize("+ Hea+ ding+", {
                 Token{Heading{1, false}, 0, 2, "+ "},
                 Token{PlainText{"Hea+ ding+"}, 2, 12, "Hea+ ding+"}
+            });
+        });
+        
+        
+        tester.add("Parser::tokenizePage QuoteBoxPrefix", [](){
+            assertPageTokenize("> quote", {
+                Token{QuoteBoxPrefix{1}, 0, 2, "> "},
+                Token{PlainText{"quote"}, 2, 7, "quote"}
+            });
+            assertPageTokenize("> + quote", {
+                Token{QuoteBoxPrefix{1}, 0, 2, "> "},
+                Token{Heading{1, false}, 2, 4, "+ "},
+                Token{PlainText{"quote"}, 4, 9, "quote"}
+            });
+            assertPageTokenize("> > quote", {
+                Token{QuoteBoxPrefix{1}, 0, 2, "> "},
+                Token{PlainText{"> quote"}, 2, 9, "> quote"}
+            });
+            assertPageTokenize(">> quote", {
+                Token{QuoteBoxPrefix{2}, 0, 3, ">> "},
+                Token{PlainText{"quote"}, 3, 8, "quote"}
+            });
+            assertPageTokenize("> quote\n>> quote #2", {
+                Token{QuoteBoxPrefix{1}, 0, 2, "> "},
+                Token{PlainText{"quote"}, 2, 7, "quote"},
+                Token{NewLine{}, 7, 8, "\n"},
+                Token{QuoteBoxPrefix{2}, 8, 11, ">> "},
+                Token{PlainText{"quote #2"}, 11, 19, "quote #2"}
+            });
+            assertPageTokenize("> quote\n>> quote #2", {
+                Token{QuoteBoxPrefix{1}, 0, 2, "> "},
+                Token{PlainText{"quote"}, 2, 7, "quote"},
+                Token{NewLine{}, 7, 8, "\n"},
+                Token{QuoteBoxPrefix{2}, 8, 11, ">> "},
+                Token{PlainText{"quote #2"}, 11, 19, "quote #2"}
+            });
+            assertPageTokenize("> quote\n>\n> line", {
+                Token{QuoteBoxPrefix{1}, 0, 2, "> "},
+                Token{PlainText{"quote"}, 2, 7, "quote"},
+                Token{NewLine{}, 7, 8, "\n"},
+                Token{QuoteBoxPrefix{1}, 8, 9, ">"},
+                Token{NewLine{}, 9, 10, "\n"},
+                Token{QuoteBoxPrefix{1}, 10, 12, "> "},
+                Token{PlainText{"line"}, 12, 16, "line"},
             });
         });
         

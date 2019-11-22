@@ -139,6 +139,19 @@ namespace Tests{
 			});
 			
 			assertPageTree(
+			"**double **begin",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"**double **begin"}}
+						}
+					}
+				}
+			});
+			
+			assertPageTree(
 			"**bold**text**",
 			Node{
 				RootPage{},
@@ -340,6 +353,172 @@ namespace Tests{
 							Node{LiteralText{"is"}},
 							Node{PlainText{" some "}},
 							Node{LiteralText{"te><t"}}
+						}
+					}
+				}
+			});
+		});
+		
+		tester.add("Parser::makeTreeFromPage QuoteBox",[](){
+			assertPageTree(
+			"> simple quote",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"simple quote"}}
+								}
+							}
+						}
+					}
+				}
+			});
+		});
+		tester.add("Parser::makeTreeFromPage QuoteBox",[](){
+			assertPageTree(
+			"> quote",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"quote"}}
+								}
+							}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"> quote\n> part 2",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"quote"}},
+									Node{LineBreak{}},
+									Node{PlainText{"part 2"}}
+								}
+							}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			">> double quote",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{QuoteBox{},
+								{
+									Node{Paragraph{},
+										{
+											Node{PlainText{"double quote"}}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			">> double quote\n> drop to single\n> \n> new paragraph",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{QuoteBox{},
+								{
+									Node{Paragraph{},
+										{
+											Node{PlainText{"double quote"}}
+										}
+									}
+								}
+							},
+							Node{Paragraph{},
+								{
+									Node{PlainText{"drop to single"}}
+								}
+							},
+							Node{Paragraph{},
+								{
+									Node{PlainText{"new paragraph"}}
+								}
+							}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"none\n> single\n>> double\n> single again\nnone again\n",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"none"}}
+						}
+					},
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"single"}}
+								}
+							},
+							Node{QuoteBox{},
+								{
+									Node{Paragraph{},
+										{
+											Node{PlainText{"double"}}
+										}
+									}
+								}
+							},
+							Node{Paragraph{},
+								{
+									Node{PlainText{"single again"}}
+								}
+							}
+						}
+					},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"none again"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"> quote\n>\n> box",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"quote"}}
+								}
+							},
+							Node{Paragraph{},
+								{
+									Node{PlainText{"box"}}
+								}
+							}
 						}
 					}
 				}

@@ -53,14 +53,10 @@ namespace Parser{
 		bool operator==(const Heading& tok)const;
 	};
 	
-	enum class NestingPrefixFormatType{Unknown};
-	
-	struct NestingPrefixFormat{
-		using Type = NestingPrefixFormatType;
-		Type type = Type::Unknown;
+	struct QuoteBoxPrefix{
 		unsigned int degree;
 		
-		bool operator==(const NestingPrefixFormat& tok)const;
+		bool operator==(const QuoteBoxPrefix& tok)const;
 	};
 	
 	struct InlineSectionStart : public SectionStart{
@@ -110,10 +106,10 @@ namespace Parser{
 		bool operator==(const NewLine& tok)const;
 	};
 	
-	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, Heading, NestingPrefixFormat, 
+	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, 
 						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
 	
-	using TokenVariant = std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, Heading, NestingPrefixFormat, 
+	using TokenVariant = std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, 
 							InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine>;
 	struct Token{
 		using Type = TokenType;

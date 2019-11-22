@@ -88,6 +88,22 @@ namespace Parser{
             out << "</"_AM << allowMarkup(endTag) << ">"_AM;
 		}
 		
+		template<>
+		void handleNode<Heading>(MarkupOutStream& out, const Node& nod){
+            const Heading& node = std::get<Heading>(nod.node);
+            out << "<h"_AM << std::to_string(node.degree) << ">"_AM;
+            delegateBranch(out, nod);
+			out << "</h"_AM << std::to_string(node.degree) << ">"_AM;
+		}
+		
+		template<>
+		void handleNode<QuoteBox>(MarkupOutStream& out, const Node& nod){
+            const QuoteBox& node = std::get<QuoteBox>(nod.node);
+            out << "<quotebox>"_AM;
+            delegateBranch(out, nod);
+			out << "</quotebox>"_AM;
+		}
+		
 		void delegateNode(MarkupOutStream& out, const Node& nod){
 			switch(nod.getType()){
                 default:
@@ -113,6 +129,12 @@ namespace Parser{
                 case Node::Type::StyleFormat:
                     handleNode<StyleFormat>(out, nod);
                     break;
+				case Node::Type::Heading:
+					handleNode<Heading>(out, nod);
+					break;
+				case Node::Type::QuoteBox:
+					handleNode<QuoteBox>(out, nod);
+					break;
 			}
 		}
 		

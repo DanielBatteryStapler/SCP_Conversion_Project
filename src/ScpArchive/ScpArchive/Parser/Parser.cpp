@@ -62,8 +62,8 @@ namespace Parser{
 		return degree == tok.degree && hidden == tok.hidden;
 	}
 		
-	bool NestingPrefixFormat::operator==(const NestingPrefixFormat& tok)const{
-		return type == tok.type && degree == tok.degree;
+	bool QuoteBoxPrefix::operator==(const QuoteBoxPrefix& tok)const{
+		return degree == tok.degree;
 	}
 		
 	bool InlineFormat::operator==(const InlineFormat& tok)const{
@@ -125,8 +125,11 @@ namespace Parser{
                     ss << "Heading:" << heading.degree << ", " << (heading.hidden?"true":"false");
 				}
 				break;
-			case Token::Type::NestingPrefixFormat:
-				ss << "NestingPrefixFormat";
+			case Token::Type::QuoteBoxPrefix:
+				{
+					const QuoteBoxPrefix& quoteBoxPrefix = std::get<QuoteBoxPrefix>(tok.token);
+                    ss << "QuoteBoxPrefix:" << quoteBoxPrefix.degree;
+				}
 				break;
 			case Token::Type::InlineSectionStart:
 				ss << "InlineSectionStart";
@@ -239,6 +242,7 @@ namespace Parser{
 		std::vector<TokenRule> standardRules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
 			TokenRule{"heading", tryHeadingRule, doHeadingRule},
+			TokenRule{"quoteBoxPrefix", tryQuoteBoxPrefixRule, doQuoteBoxPrefixRule},
 			
 			TokenRule{"strike", tryStrikeRule, doStrikeRule},
 			TokenRule{"italics", tryItalicsRule, doItalicsRule},

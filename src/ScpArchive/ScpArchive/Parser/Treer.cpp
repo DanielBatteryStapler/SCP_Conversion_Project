@@ -12,6 +12,10 @@ namespace Parser{
 		return true;
 	}
 	
+	bool QuoteBox::operator==(const QuoteBox& nod)const{
+		return true;
+	}
+	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;
 	}
@@ -39,6 +43,9 @@ namespace Parser{
 				break;
 			case Node::Type::RootPage:
 				ss << "RootPage";
+				break;
+			case Node::Type::QuoteBox:
+				ss << "QuoteBox";
 				break;
 			case Node::Type::Paragraph:
 				ss << "Paragraph";
@@ -113,6 +120,8 @@ namespace Parser{
 			std::vector<Node> stack;
 			std::vector<Node> styleCarry;
 			int newlines;
+			std::size_t tokenPos;
+			TokenedPage tokenedPage;
 		};
 		
 		bool isTextType(Token::Type type){
@@ -143,6 +152,7 @@ namespace Parser{
                 default:
                     return false;
                 case Node::Type::RootPage:
+				case Node::Type::QuoteBox:
                     return true;
             }
 		}
@@ -260,22 +270,84 @@ namespace Parser{
                     }
                     return false;
                 });
+                return;
 			}
 			else if(!alreadyInStyle && tokenFormat.begin){
-				makeTextAddable(context);
-				pushStack(context, Node{StyleFormat{tokenFormat.type}});
+				//there needs to be a valid end token too, so let's check for that
+				bool hasValidEnd = false;
+				{
+					std::size_t pos = context.tokenPos + 1;
+					bool wasNewline = false;
+					while(pos < context.tokenedPage.tokens.size()){
+						const Token& checkToken = context.tokenedPage.tokens[pos];
+						if(checkToken.getType() == Token::Type::InlineFormat){
+							const InlineFormat& inlineFormat = std::get<InlineFormat>(checkToken.token);
+							if(tokenFormat.type == inlineFormat.type && inlineFormat.end){
+								hasValidEnd = true;
+								break;
+							}
+						}
+						else if(checkToken.getType() == Token::Type::NewLine){
+							if(wasNewline){
+								break;
+							}
+							else{
+								wasNewline = true;
+							}
+						}
+						else{
+							wasNewline = false;
+						}
+						pos++;
+					}
+				}
+				if(hasValidEnd){
+					makeTextAddable(context);
+					pushStack(context, Node{StyleFormat{tokenFormat.type}});
+					return;
+				}
+			}
+			//this format marker doesn't line up with starting or stopping anything, so that means it is
+			//"degenerate"(in the mathematical sense) and should go back into plain text
+			switch(tokenFormat.type){
+				default:
+					addAsText(context, Node{PlainText{token.source}});
+					break;
+				case InlineFormat::Type::Strike:
+					addAsText(context, Node{PlainText{"—"}});
+					break;
+			}
+		}
+	}
+	
+	void handleQuoteBoxNesting(TreeContext& context, std::size_t pos){
+		const auto countQuoteBoxes = [](TreeContext& context)->unsigned int{
+			unsigned int count = 0;
+			for(const Node& node : context.stack){
+				if(node.getType() == Node::Type::QuoteBox){
+					count++;
+				}
+			}
+			return count;
+		};
+		
+		unsigned int wantedCount = 0;
+		if(context.tokenedPage.tokens[pos].getType() == Token::Type::QuoteBoxPrefix){
+			context.tokenPos++;
+			const QuoteBoxPrefix& quoteBoxPrefix = std::get<QuoteBoxPrefix>(context.tokenedPage.tokens[pos].token);
+			wantedCount = quoteBoxPrefix.degree;
+		}
+		while(true){
+			unsigned int count = countQuoteBoxes(context);
+			if(wantedCount > count){
+				makeDivPushable(context);
+				pushStack(context, Node{QuoteBox{}});
+			}
+			else if(wantedCount < count){
+				popSingle(context, Node::Type::QuoteBox);
 			}
 			else{
-				//this format marker doesn't line up with starting or stopping anything, so that means it is
-				//"degenerate"(in the mathematical sense) and should go back into plain text
-				switch(tokenFormat.type){
-					default:
-						addAsText(context, Node{PlainText{token.source}});
-						break;
-					case InlineFormat::Type::Strike:
-						addAsText(context, Node{PlainText{"—"}});
-						break;
-				}
+				break;
 			}
 		}
 	}
@@ -285,10 +357,21 @@ namespace Parser{
 		
 		TreeContext context;
 		context.stack.push_back(Node{RootPage{}});//start out with a page root
-		context.newlines = 0;
+		context.newlines = 99;//act like we're already in a bunch of newlines
+		context.tokenedPage = std::move(tokenPage);
+		context.tokenPos = 0;
 		
-		for(const Token& token : tokenPage.tokens){
+		if(context.tokenedPage.tokens.size() > 0) {
+			handleQuoteBoxNesting(context, 0);//needs to run in case of quoteboxes immediately at start
+		}
+		
+		for(; context.tokenPos < context.tokenedPage.tokens.size(); context.tokenPos++){
+			const Token& token = context.tokenedPage.tokens[context.tokenPos];
+			
 			if(token.getType() == Token::Type::NewLine){
+				if(context.tokenedPage.tokens.size() > context.tokenPos + 1){
+					handleQuoteBoxNesting(context, context.tokenPos + 1);
+				}
 				context.newlines++;
 				continue;
 			}
