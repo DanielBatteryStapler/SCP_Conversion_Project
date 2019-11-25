@@ -16,6 +16,16 @@ namespace Parser{
 		bool operator==(const Paragraph& nod)const;
 	};
 	
+	struct List{
+        using Type = ListPrefix::Type;
+        Type type = Type::Unknown;
+		bool operator==(const List& nod)const;
+    };
+    
+    struct ListElement{
+		bool operator==(const ListElement& nod)const;
+    };
+	
 	struct QuoteBox{
 		bool operator==(const QuoteBox& nod)const;
 	};
@@ -24,8 +34,8 @@ namespace Parser{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, QuoteBox, Paragraph, Heading, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat};
-	using NodeVariant = std::variant<std::monostate, RootPage, QuoteBox, Paragraph, Heading, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat>;
+	enum class NodeType{Unknown = 0, RootPage, QuoteBox, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat};
+	using NodeVariant = std::variant<std::monostate, RootPage, QuoteBox, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat>;
 	
 	struct Node{
 		using Type = NodeType;

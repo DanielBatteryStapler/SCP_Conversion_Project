@@ -65,7 +65,11 @@ namespace Parser{
 	bool QuoteBoxPrefix::operator==(const QuoteBoxPrefix& tok)const{
 		return degree == tok.degree;
 	}
-		
+	
+    bool ListPrefix::operator==(const ListPrefix& tok)const{
+        return type == tok.type && degree == tok.degree;
+    }
+	
 	bool InlineFormat::operator==(const InlineFormat& tok)const{
 		return type == tok.type && begin == tok.begin && end == tok.end;
 	}
@@ -117,7 +121,21 @@ namespace Parser{
 				ss << "SectionComplete";
 				break;
 			case Token::Type::Divider:
-				ss << "Divider";
+                {
+					const Divider& divider = std::get<Divider>(tok.token);
+                    ss << "Divider:";
+                    switch(divider.type){
+					default:
+						ss << "Unknown";
+						break;
+					case Divider::Type::Line:
+						ss << "Line";
+						break;
+					case Divider::Type::Clear:
+						ss << "Clear";
+						break;
+                    }
+				}
 				break;
 			case Token::Type::Heading:
                 {
@@ -129,6 +147,24 @@ namespace Parser{
 				{
 					const QuoteBoxPrefix& quoteBoxPrefix = std::get<QuoteBoxPrefix>(tok.token);
                     ss << "QuoteBoxPrefix:" << quoteBoxPrefix.degree;
+				}
+				break;
+            case Token::Type::ListPrefix:
+				{
+					const ListPrefix& listPrefix = std::get<ListPrefix>(tok.token);
+                    ss << "ListPrefix:";
+                    switch(listPrefix.type){
+                    case ListPrefix::Type::Unknown:
+                        ss << "Unknown";
+                        break;
+                    case ListPrefix::Type::Bullet:
+                        ss << "Bullet";
+                        break;
+                    case ListPrefix::Type::Number:
+                        ss << "Number";
+                        break;
+                    }
+                    ss << ", " << listPrefix.degree;
 				}
 				break;
 			case Token::Type::InlineSectionStart:
@@ -242,7 +278,9 @@ namespace Parser{
 		std::vector<TokenRule> standardRules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
 			TokenRule{"heading", tryHeadingRule, doHeadingRule},
+			TokenRule{"divider", tryDividerRule, doDividerRule},
 			TokenRule{"quoteBoxPrefix", tryQuoteBoxPrefixRule, doQuoteBoxPrefixRule},
+			TokenRule{"listPrefix", tryListPrefixRule, doListPrefixRule},
 			
 			TokenRule{"strike", tryStrikeRule, doStrikeRule},
 			TokenRule{"italics", tryItalicsRule, doItalicsRule},

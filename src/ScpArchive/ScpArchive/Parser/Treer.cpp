@@ -12,6 +12,15 @@ namespace Parser{
 		return true;
 	}
 	
+	
+    bool List::operator==(const List& nod)const{
+        return type == nod.type;
+    }
+		
+    bool ListElement::operator==(const ListElement& nod)const{
+        return true;
+    }
+	
 	bool QuoteBox::operator==(const QuoteBox& nod)const{
 		return true;
 	}
@@ -47,8 +56,46 @@ namespace Parser{
 			case Node::Type::QuoteBox:
 				ss << "QuoteBox";
 				break;
+            case Node::Type::List:
+				{
+					const List& list = std::get<List>(nod.node);
+					ss << "List:\"";
+					switch(list.type){
+						case List::Type::Unknown:
+							ss << "Unknown";
+							break;
+						case List::Type::Bullet:
+							ss << "Bullet";
+							break;
+						case List::Type::Number:
+							ss << "Number";
+							break;
+                        }
+					ss << "\"";
+				}
+				break;
+            case Node::Type::ListElement:
+				ss << "ListElement";
+				break;
 			case Node::Type::Paragraph:
 				ss << "Paragraph";
+				break;
+			case Node::Type::Divider:
+				{
+					const Divider& divider = std::get<Divider>(nod.node);
+                    ss << "Divider:";
+                    switch(divider.type){
+					default:
+						ss << "Unknown";
+						break;
+					case Divider::Type::Line:
+						ss << "Line";
+						break;
+					case Divider::Type::Clear:
+						ss << "Clear";
+						break;
+                    }
+				}
 				break;
 			case Node::Type::Heading:
                 {
@@ -142,6 +189,7 @@ namespace Parser{
                     return false;
                 case Node::Type::Paragraph:
                 case Node::Type::Heading:
+                case Node::Type::ListElement:
                 case Node::Type::StyleFormat:
                     return true;
             }
@@ -193,6 +241,19 @@ namespace Parser{
 			context.stack.back().branches.push_back(node);
 		}
 		
+		void popStackWithCarry(TreeContext& context){
+            const auto& back = context.stack.back();
+            if(isStyleCarryable(back.getType())){
+                Node style = back;
+                style.branches.clear();
+                context.styleCarry.push_back(style);//don't copy over branches, just copy
+                popStack(context);
+            }
+            else{
+                popStack(context);
+            }
+		}
+		
 		void popSingle(TreeContext& context, std::function<bool(const Node&)> check){
 			while(true){
                 const auto& back = context.stack.back();
@@ -200,14 +261,8 @@ namespace Parser{
                     popStack(context);
                     break;
                 }
-                else if(isStyleCarryable(back.getType())){
-                    Node style = back;
-                    style.branches.clear();
-                    context.styleCarry.push_back(style);//don't copy over branches, just copy
-                    popStack(context);
-                }
                 else{
-                    popStack(context);
+                    popStackWithCarry(context);
                 }
 			}
 		}
@@ -218,8 +273,13 @@ namespace Parser{
 		
 		void makeDivPushable(TreeContext& context){
 			while(!isInsideDivInsertable(context)){
-				popStack(context);
+				popStackWithCarry(context);
 			}
+		}
+		
+		void addAsDiv(TreeContext& context, Node newNode){
+			makeDivPushable(context);
+			context.stack.back().branches.push_back(newNode);
 		}
 		
 		void makeTextAddable(TreeContext& context){
@@ -352,6 +412,71 @@ namespace Parser{
 		}
 	}
 	
+	void handleListNesting(TreeContext& context, std::size_t pos){
+        const auto countLists = [](TreeContext& context)->unsigned int{
+            unsigned int count = 0;
+            for(const Node& node : context.stack){
+				if(node.getType() == Node::Type::List){
+					count++;
+				}
+			}
+			return count;
+        };
+        
+        List::Type wantedType = List::Type::Unknown;
+        unsigned int wantedCount = 0;
+        if(context.tokenedPage.tokens[pos].getType() == Token::Type::ListPrefix){
+			context.tokenPos++;
+			const ListPrefix& listPrefix = std::get<ListPrefix>(context.tokenedPage.tokens[pos].token);
+			wantedType = listPrefix.type;
+			wantedCount = listPrefix.degree;
+		}
+		
+		unsigned int count = countLists(context);
+		if(wantedCount == count){
+            if(count > 0){
+                popSingle(context, Node::Type::ListElement);
+                pushStack(context, Node{ListElement{}});
+            }
+		}
+        else{
+            if(count > 0){
+                while(context.stack.back().getType() != Node::Type::ListElement){
+                    popStackWithCarry(context);
+                }
+            }
+            else{
+                makeDivPushable(context);
+            }
+            
+            if(wantedCount > count){
+                while(true){
+                    count = countLists(context);
+                    if(wantedCount == count){
+                        break;
+                    }
+                    pushStack(context, Node{List{wantedType}});
+                    pushStack(context, Node{ListElement{}});
+                }
+            }
+            else{
+                while(true){
+                    count = countLists(context);
+                    if(wantedCount == count){
+                        break;
+                    }
+                    popSingle(context, Node::Type::List);
+                    if(count > 1){
+                        popSingle(context, Node::Type::ListElement);
+                    }
+                }
+                if(wantedCount > 0){
+                    pushStack(context, Node{ListElement{}});
+                }
+            }
+		}
+	}
+	
 	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage){
 		PageTree page;
 		
@@ -362,7 +487,8 @@ namespace Parser{
 		context.tokenPos = 0;
 		
 		if(context.tokenedPage.tokens.size() > 0) {
-			handleQuoteBoxNesting(context, 0);//needs to run in case of quoteboxes immediately at start
+			handleQuoteBoxNesting(context, context.tokenPos);//needs to run in case of quoteboxes immediately at start
+            handleListNesting(context, context.tokenPos);
 		}
 		
 		for(; context.tokenPos < context.tokenedPage.tokens.size(); context.tokenPos++){
@@ -371,6 +497,7 @@ namespace Parser{
 			if(token.getType() == Token::Type::NewLine){
 				if(context.tokenedPage.tokens.size() > context.tokenPos + 1){
 					handleQuoteBoxNesting(context, context.tokenPos + 1);
+					handleListNesting(context, context.tokenPos + 1);
 				}
 				context.newlines++;
 				continue;
@@ -384,7 +511,7 @@ namespace Parser{
 					popSingle(context, Node::Type::Paragraph);
 				}
 			}
-			if(isInside(context, Node::Type::Heading)){
+			else if(isInside(context, Node::Type::Heading)){
 				if(context.newlines > 0){
 					popSingle(context, Node::Type::Heading);
 				}
@@ -413,6 +540,9 @@ namespace Parser{
 				case Token::Type::Heading:
 					makeDivPushable(context);
 					pushStack(context, Node{std::get<Heading>(token.token)});
+					break;
+				case Token::Type::Divider:
+					addAsDiv(context, Node{std::get<Divider>(token.token)});
 					break;
 			}
 			

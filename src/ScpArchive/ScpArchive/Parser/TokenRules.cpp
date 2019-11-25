@@ -130,6 +130,56 @@ namespace Parser{
         return result;
 	}
 	
+	bool tryDividerRule(const TokenRuleContext& context){
+		if(context.wasNewLine){
+			const auto checkFunction = [&context](char c)->bool{
+				std::size_t pos = context.pagePos;
+				while(pos < context.page.size()){
+					if(context.page[pos] == '\n'){
+						break;
+					}
+					else if(context.page[pos] != c){
+						return false;
+					}
+					pos++;
+				}
+				return true;
+			};
+			
+			if(check(context.page, context.pagePos, "----")){
+				return checkFunction('-');
+			}
+			else if(check(context.page, context.pagePos, "~~~~")){
+				return checkFunction('~');
+			}
+		}
+		return false;
+	}
+	
+	TokenRuleResult doDividerRule(const TokenRuleContext& context){
+		Divider divider;
+		
+		if(context.page[context.pagePos] == '-'){
+			divider.type = Divider::Type::Line;
+		}
+		else if(context.page[context.pagePos] == '~'){
+			divider.type = Divider::Type::Clear;
+		}
+		
+		std::size_t pos = context.pagePos;
+		while(pos < context.page.size()){
+			if(context.page[pos] == '\n'){
+				break;
+			}
+			pos++;
+		}
+		
+		TokenRuleResult result;
+        result.newPos = pos;
+        result.newTokens.push_back(Token{divider, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
+        return result;
+	}
+	
 	bool tryQuoteBoxPrefixRule(const TokenRuleContext& context){
 		if(context.tokens.size() > 0 && context.tokens.back().getType() == Token::Type::QuoteBoxPrefix){
 			return false;//a quote box prefix cannot directly follow another quote box
@@ -172,6 +222,53 @@ namespace Parser{
 		TokenRuleResult result;
         result.newPos = pos;
         result.nowNewline = true;//preserve newline status
+        result.newTokens.push_back(Token{prefix, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
+        return result;
+	}
+	
+	bool tryListPrefixRule(const TokenRuleContext& context){
+        if(context.wasNewLine){
+            std::size_t pos = context.pagePos;
+			while(pos < context.page.size()){
+				if(check(context.page, pos, " ")){
+					//keep going
+				}
+				else if(check(context.page, pos, "* ")){
+                    return true;
+				}
+				else if(check(context.page, pos, "# ")){
+                    return true;
+				}
+				else{
+					return false;//fail if there is an unexpected character
+				}
+				pos++;
+			}
+        }
+        return false;
+	}
+	
+	TokenRuleResult doListPrefixRule(const TokenRuleContext& context){
+        std::size_t pos = context.pagePos;
+		ListPrefix prefix;
+		while(pos < context.page.size()){
+			if(check(context.page, pos, "* ")){
+				prefix.type = ListPrefix::Type::Bullet;
+				prefix.degree = pos - context.pagePos + 1;
+				pos += 2;//skip the "* "
+				break;
+			}
+			else if(check(context.page, pos, "# ")){
+                prefix.type = ListPrefix::Type::Number;
+				prefix.degree = pos - context.pagePos + 1;
+				pos += 2;//skip the "# "
+				break;
+			}
+			pos++;
+		}
+		
+		TokenRuleResult result;
+        result.newPos = pos;
         result.newTokens.push_back(Token{prefix, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
         return result;
 	}

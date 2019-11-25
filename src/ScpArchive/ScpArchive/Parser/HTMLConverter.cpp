@@ -99,9 +99,52 @@ namespace Parser{
 		template<>
 		void handleNode<QuoteBox>(MarkupOutStream& out, const Node& nod){
             const QuoteBox& node = std::get<QuoteBox>(nod.node);
-            out << "<quotebox>"_AM;
+            out << "<blockquote>"_AM;
             delegateBranch(out, nod);
-			out << "</quotebox>"_AM;
+			out << "</blockquote>"_AM;
+		}
+		
+		template<>
+		void handleNode<ListElement>(MarkupOutStream& out, const Node& nod){
+            const ListElement& node = std::get<ListElement>(nod.node);
+            out << "<li>"_AM;
+            delegateBranch(out, nod);
+			out << "</li>"_AM;
+		}
+		
+		template<>
+		void handleNode<List>(MarkupOutStream& out, const Node& nod){
+            const List& node = std::get<List>(nod.node);
+            
+            switch(node.type){
+				case List::Type::Bullet:
+					out << "<ul>"_AM;
+					delegateBranch(out, nod);
+					out << "</ul>"_AM;
+					break;
+				case List::Type::Number:
+					out << "<ol>"_AM;
+					delegateBranch(out, nod);
+					out << "</ol>"_AM;
+					break;
+				default:
+					throw std::runtime_error("Invalid List type");
+            }
+		}
+		
+		template<>
+		void handleNode<Divider>(MarkupOutStream& out, const Node& nod){
+            const Divider& node = std::get<Divider>(nod.node);
+            switch(node.type){
+				case Divider::Type::Line:
+					out << "<hr />"_AM;
+					break;
+				case Divider::Type::Clear:
+					out << "<div class='PageClearer' />"_AM;
+					break;
+				default:
+					throw std::runtime_error("Invalid Divider type");
+            }
 		}
 		
 		void delegateNode(MarkupOutStream& out, const Node& nod){
@@ -134,6 +177,15 @@ namespace Parser{
 					break;
 				case Node::Type::QuoteBox:
 					handleNode<QuoteBox>(out, nod);
+					break;
+				case Node::Type::List:
+					handleNode<List>(out, nod);
+					break;
+				case Node::Type::ListElement:
+					handleNode<ListElement>(out, nod);
+					break;
+				case Node::Type::Divider:
+					handleNode<Divider>(out, nod);
 					break;
 			}
 		}

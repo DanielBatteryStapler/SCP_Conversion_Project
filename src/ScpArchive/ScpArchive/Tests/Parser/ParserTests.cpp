@@ -306,6 +306,145 @@ namespace Tests{
             });
         });
         
+        tester.add("Parser::tokenizePage ListPrefix", [](){
+            assertPageTokenize("* list", {
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 0, 2, "* "},
+                Token{PlainText{"list"}, 2, 6, "list"}
+            });
+            assertPageTokenize("* list\n* bullets", {
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 0, 2, "* "},
+                Token{PlainText{"list"}, 2, 6, "list"},
+                Token{NewLine{}, 6, 7, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 7, 9, "* "},
+                Token{PlainText{"bullets"}, 9, 16, "bullets"}
+            });
+            assertPageTokenize("* list\n * bullets\n  * yeah\n* l * s", {
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 0, 2, "* "},
+                Token{PlainText{"list"}, 2, 6, "list"},
+                Token{NewLine{}, 6, 7, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 2}, 7, 10, " * "},
+                Token{PlainText{"bullets"}, 10, 17, "bullets"},
+                Token{NewLine{}, 17, 18, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 3}, 18, 22, "  * "},
+                Token{PlainText{"yeah"}, 22, 26, "yeah"},
+                Token{NewLine{}, 26, 27, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 27, 29, "* "},
+                Token{PlainText{"l * s"}, 29, 34, "l * s"}
+            });
+            
+            assertPageTokenize("# list", {
+                Token{ListPrefix{ListPrefix::Type::Number, 1}, 0, 2, "# "},
+                Token{PlainText{"list"}, 2, 6, "list"}
+            });
+            assertPageTokenize("# list\n* bullets", {
+                Token{ListPrefix{ListPrefix::Type::Number, 1}, 0, 2, "# "},
+                Token{PlainText{"list"}, 2, 6, "list"},
+                Token{NewLine{}, 6, 7, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 7, 9, "* "},
+                Token{PlainText{"bullets"}, 9, 16, "bullets"}
+            });
+            assertPageTokenize("# list\n # bullets\n  # yeah\n# l # s", {
+                Token{ListPrefix{ListPrefix::Type::Number, 1}, 0, 2, "# "},
+                Token{PlainText{"list"}, 2, 6, "list"},
+                Token{NewLine{}, 6, 7, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Number, 2}, 7, 10, " # "},
+                Token{PlainText{"bullets"}, 10, 17, "bullets"},
+                Token{NewLine{}, 17, 18, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Number, 3}, 18, 22, "  # "},
+                Token{PlainText{"yeah"}, 22, 26, "yeah"},
+                Token{NewLine{}, 26, 27, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Number, 1}, 27, 29, "# "},
+                Token{PlainText{"l # s"}, 29, 34, "l # s"}
+            });
+            
+            assertPageTokenize("* list\n # one\n # two\n* lists", {
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 0, 2, "* "},
+                Token{PlainText{"list"}, 2, 6, "list"},
+                Token{NewLine{}, 6, 7, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Number, 2}, 7, 10, " # "},
+                Token{PlainText{"one"}, 10, 13, "one"},
+                Token{NewLine{}, 13, 14, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Number, 2}, 14, 17, " # "},
+                Token{PlainText{"two"}, 17, 20, "two"},
+                Token{NewLine{}, 20, 21, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 21, 23, "* "},
+                Token{PlainText{"lists"}, 23, 28, "lists"}
+            });
+            assertPageTokenize("# list\n * one\n * two\n# lists", {
+                Token{ListPrefix{ListPrefix::Type::Number, 1}, 0, 2, "# "},
+                Token{PlainText{"list"}, 2, 6, "list"},
+                Token{NewLine{}, 6, 7, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 2}, 7, 10, " * "},
+                Token{PlainText{"one"}, 10, 13, "one"},
+                Token{NewLine{}, 13, 14, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 2}, 14, 17, " * "},
+                Token{PlainText{"two"}, 17, 20, "two"},
+                Token{NewLine{}, 20, 21, "\n"},
+                Token{ListPrefix{ListPrefix::Type::Number, 1}, 21, 23, "# "},
+                Token{PlainText{"lists"}, 23, 28, "lists"}
+            });
+            
+            assertPageTokenize("> * list", {
+                Token{QuoteBoxPrefix{1}, 0, 2, "> "},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 1}, 2, 4, "* "},
+                Token{PlainText{"list"}, 4, 8, "list"}
+            });
+            assertPageTokenize(">>  * list", {
+                Token{QuoteBoxPrefix{2}, 0, 3, ">> "},
+                Token{ListPrefix{ListPrefix::Type::Bullet, 2}, 3, 6, " * "},
+                Token{PlainText{"list"}, 6, 10, "list"}
+            });
+            
+            assertPageTokenize("> # list", {
+                Token{QuoteBoxPrefix{1}, 0, 2, "> "},
+                Token{ListPrefix{ListPrefix::Type::Number, 1}, 2, 4, "# "},
+                Token{PlainText{"list"}, 4, 8, "list"}
+            });
+            assertPageTokenize(">>  # list", {
+                Token{QuoteBoxPrefix{2}, 0, 3, ">> "},
+                Token{ListPrefix{ListPrefix::Type::Number, 2}, 3, 6, " # "},
+                Token{PlainText{"list"}, 6, 10, "list"}
+            });
+        });
+        
+        tester.add("Parser::tokenizePage Divider", [](){
+			assertPageTokenize("----\nyup", {
+                Token{Divider{Divider::Type::Line}, 0, 4, "----"},
+                Token{NewLine{}, 4, 5, "\n"},
+                Token{PlainText{"yup"}, 5, 8, "yup"}
+            });
+            assertPageTokenize("-------\nyup", {
+                Token{Divider{Divider::Type::Line}, 0, 7, "-------"},
+                Token{NewLine{}, 7, 8, "\n"},
+                Token{PlainText{"yup"}, 8, 11, "yup"}
+            });
+            assertPageTokenize("huh?\n------\nyup", {
+				Token{PlainText{"huh?"}, 0, 4, "huh?"},
+				Token{NewLine{}, 4, 5, "\n"},
+                Token{Divider{Divider::Type::Line}, 5, 11, "------"},
+                Token{NewLine{}, 11, 12, "\n"},
+                Token{PlainText{"yup"}, 12, 15, "yup"}
+            });
+            
+            assertPageTokenize("~~~~\nyup", {
+                Token{Divider{Divider::Type::Clear}, 0, 4, "~~~~"},
+                Token{NewLine{}, 4, 5, "\n"},
+                Token{PlainText{"yup"}, 5, 8, "yup"}
+            });
+            assertPageTokenize("~~~~~~~\nyup", {
+                Token{Divider{Divider::Type::Clear}, 0, 7, "~~~~~~~"},
+                Token{NewLine{}, 7, 8, "\n"},
+                Token{PlainText{"yup"}, 8, 11, "yup"}
+            });
+            assertPageTokenize("huh?\n~~~~~~\nyup", {
+				Token{PlainText{"huh?"}, 0, 4, "huh?"},
+				Token{NewLine{}, 4, 5, "\n"},
+                Token{Divider{Divider::Type::Clear}, 5, 11, "~~~~~~"},
+                Token{NewLine{}, 11, 12, "\n"},
+                Token{PlainText{"yup"}, 12, 15, "yup"}
+            });
+		});
+        
         tester.add("Parser::tokenizePage InlineFormat::Strike", [](){
             assertPageTokenize("A --B-- C", {
                 Token{PlainText{"A "}, 0, 2, "A "},

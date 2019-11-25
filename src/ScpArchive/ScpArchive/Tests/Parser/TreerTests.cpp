@@ -341,6 +341,194 @@ namespace Tests{
 			});
 		});
 		
+		tester.add("Parser::makeTreeFromPage Divider",[](){
+			assertPageTree(
+			"before\n----",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::Line}}
+				}
+			});
+			assertPageTree(
+			"----\nafter",
+			Node{
+				RootPage{},
+				{
+					Node{Divider{Divider::Type::Line}},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"after"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"before\n-----\nafter",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::Line}},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"after"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"before\n------",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::Line}}
+				}
+			});
+			assertPageTree(
+			"----\nafter",
+			Node{
+				RootPage{},
+				{
+					Node{Divider{Divider::Type::Line}},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"after"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"> before\n> ------\n> after",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"before"}}
+								}
+							},
+							Node{Divider{Divider::Type::Line}},
+							Node{Paragraph{},
+								{
+									Node{PlainText{"after"}}
+								}
+							}
+						}
+					}
+				}
+			});
+			
+			assertPageTree(
+			"before\n~~~~",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::Clear}}
+				}
+			});
+			assertPageTree(
+			"~~~~\nafter",
+			Node{
+				RootPage{},
+				{
+					Node{Divider{Divider::Type::Clear}},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"after"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"before\n~~~~~~\nafter",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::Clear}},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"after"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"before\n~~~~",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::Clear}}
+				}
+			});
+			assertPageTree(
+			"~~~~~\nafter",
+			Node{
+				RootPage{},
+				{
+					Node{Divider{Divider::Type::Clear}},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"after"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"> before\n> ~~~~~~~~\n> after",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"before"}}
+								}
+							},
+							Node{Divider{Divider::Type::Clear}},
+							Node{Paragraph{},
+								{
+									Node{PlainText{"after"}}
+								}
+							}
+						}
+					}
+				}
+			});
+		});
+		
 		tester.add("Parser::makeTreeFromPage LiteralText",[](){
 			assertPageTree(
 			"this @@is@@ some @<te&gt;&lt;t>@",
@@ -376,13 +564,16 @@ namespace Tests{
 					}
 				}
 			});
-		});
-		tester.add("Parser::makeTreeFromPage QuoteBox",[](){
 			assertPageTree(
-			"> quote",
+			"good\n> quote",
 			Node{
 				RootPage{},
 				{
+                    Node{Paragraph{},
+                        {
+                            Node{PlainText{"good"}}
+                        }
+                    },
 					Node{QuoteBox{},
 						{
 							Node{Paragraph{},
@@ -524,6 +715,224 @@ namespace Tests{
 				}
 			});
 		});
+		
+		tester.add("Parser::makeTreeFromPage List",[](){
+			assertPageTree(
+			"* simple list\n* simple list #2",
+			Node{
+				RootPage{},
+				{
+					Node{List{List::Type::Bullet},
+						{
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list"}}
+								}
+							},
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list #2"}}
+								}
+							}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"paragraph #1\n* simple list\n* simple list #2\nparagraph #2",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"paragraph #1"}}
+						}
+					},
+					Node{List{List::Type::Bullet},
+						{
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list"}}
+								}
+							},
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list #2"}}
+								}
+							}
+						}
+					},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"paragraph #2"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"paragraph #1\n\n* simple list\n\n* simple list #2\n\nparagraph #2",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"paragraph #1"}}
+						}
+					},
+					Node{List{List::Type::Bullet},
+						{
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list"}}
+								}
+							}
+						}
+					},
+					Node{List{List::Type::Bullet},
+						{
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list #2"}}
+								}
+							}
+						}
+					},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"paragraph #2"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"# simple list\n# simple list #2",
+			Node{
+				RootPage{},
+				{
+					Node{List{List::Type::Number},
+						{
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list"}}
+								}
+							},
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list #2"}}
+								}
+							}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"* simple list\n * simple list #2\n* simple list: the prequel",
+			Node{
+				RootPage{},
+				{
+					Node{List{List::Type::Bullet},
+						{
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list"}},
+									Node{List{List::Type::Bullet},
+                                        {
+                                            Node{ListElement{},
+                                                {
+                                                    Node{PlainText{"simple list #2"}}
+                                                }
+                                            }
+                                        }
+									}
+								}
+							},
+                            Node{ListElement{},
+                                {
+                                    Node{PlainText{"simple list: the prequel"}}
+                                }
+                            }
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"* simple list\n  * skip",
+			Node{
+				RootPage{},
+				{
+					Node{List{List::Type::Bullet},
+						{
+							Node{ListElement{},
+								{
+									Node{PlainText{"simple list"}},
+									Node{List{List::Type::Bullet},
+                                        {
+                                            Node{ListElement{},
+                                                {
+                                                    Node{List{List::Type::Bullet},
+                                                        {
+                                                            Node{ListElement{},
+                                                                {
+                                                                    Node{PlainText{"skip"}}
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+									}
+								}
+							}
+						}
+					}
+				}
+			});
+			assertPageTree(
+			"> * simple list\n>  * simple list #2\n> * simple list: the prequel\n> yeah\nyeah #2",
+			Node{
+				RootPage{},
+				{
+                    Node{QuoteBox{},
+                        {
+                            Node{List{List::Type::Bullet},
+                                {
+                                    Node{ListElement{},
+                                        {
+                                            Node{PlainText{"simple list"}},
+                                            Node{List{List::Type::Bullet},
+                                                {
+                                                    Node{ListElement{},
+                                                        {
+                                                            Node{PlainText{"simple list #2"}}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    Node{ListElement{},
+                                        {
+                                            Node{PlainText{"simple list: the prequel"}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{Paragraph{},
+                                {
+                                    Node{PlainText{"yeah"}}
+                                }
+                            }
+                        }
+                    },
+                    Node{Paragraph{},
+                        {
+                            Node{PlainText{"yeah #2"}}
+                        }
+                    }
+				}
+			});
+        });
 	}
 }
 

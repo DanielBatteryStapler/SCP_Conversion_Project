@@ -37,7 +37,7 @@ namespace Parser{
 		
 	};
 	
-    enum class DividerType{Unknown};
+    enum class DividerType{Unknown, Line, Clear};
 	
 	struct Divider{
 		using Type = DividerType;
@@ -57,6 +57,15 @@ namespace Parser{
 		unsigned int degree;
 		
 		bool operator==(const QuoteBoxPrefix& tok)const;
+	};
+	
+	enum class ListPrefixType{Unknown, Bullet, Number};
+	struct ListPrefix{
+		using Type = ListPrefixType;
+		Type type = Type::Unknown;
+		unsigned int degree;
+		
+		bool operator==(const ListPrefix& tok)const;
 	};
 	
 	struct InlineSectionStart : public SectionStart{
@@ -106,10 +115,10 @@ namespace Parser{
 		bool operator==(const NewLine& tok)const;
 	};
 	
-	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, 
+	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, ListPrefix, 
 						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
 	
-	using TokenVariant = std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, 
+	using TokenVariant = std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, ListPrefix, 
 							InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine>;
 	struct Token{
 		using Type = TokenType;

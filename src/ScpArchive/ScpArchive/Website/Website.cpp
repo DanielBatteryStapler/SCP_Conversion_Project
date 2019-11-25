@@ -47,7 +47,7 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 					context.out << "HTTP/1.1 200 OK\r\n"_AM
 					<< "Content-Type: text/html\r\n\r\n"_AM;
 					
-					context.out << "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>"_AM
+					context.out << "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
 					<< revision.title << "</title></head><body>"_AM;
 					
 					Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);

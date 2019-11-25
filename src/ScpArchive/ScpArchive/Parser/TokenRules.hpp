@@ -10,8 +10,14 @@ namespace Parser{
 	bool tryHeadingRule(const TokenRuleContext& context);
 	TokenRuleResult doHeadingRule(const TokenRuleContext& context);
 	
+	bool tryDividerRule(const TokenRuleContext& context);
+	TokenRuleResult doDividerRule(const TokenRuleContext& context);
+	
 	bool tryQuoteBoxPrefixRule(const TokenRuleContext& context);
 	TokenRuleResult doQuoteBoxPrefixRule(const TokenRuleContext& context);
+	
+	bool tryListPrefixRule(const TokenRuleContext& context);
+	TokenRuleResult doListPrefixRule(const TokenRuleContext& context);
 	
 	bool tryStrikeRule(const TokenRuleContext& context);
 	TokenRuleResult doStrikeRule(const TokenRuleContext& context);
