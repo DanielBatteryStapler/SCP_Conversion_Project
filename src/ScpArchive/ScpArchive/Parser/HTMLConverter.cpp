@@ -82,6 +82,10 @@ namespace Parser{
 				startTag = "u";
 				endTag = "u";
 				break;
+			case StyleFormat::Type::Monospace:
+				startTag = "span class='Monospaced'";
+				endTag = "span";
+				break;
             }
             out << "<"_AM << allowMarkup(startTag) << ">"_AM;
             delegateBranch(out, nod);

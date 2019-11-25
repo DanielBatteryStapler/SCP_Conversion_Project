@@ -154,7 +154,7 @@ namespace Parser{
 					const ListPrefix& listPrefix = std::get<ListPrefix>(tok.token);
                     ss << "ListPrefix:";
                     switch(listPrefix.type){
-                    case ListPrefix::Type::Unknown:
+                    default:
                         ss << "Unknown";
                         break;
                     case ListPrefix::Type::Bullet:
@@ -178,7 +178,7 @@ namespace Parser{
 				{
 					const InlineFormat& format = std::get<InlineFormat>(tok.token);
 					switch(format.type){
-						case InlineFormat::Type::Unknown:
+						default:
 							ss << "Unknown";
 							break;
 						case InlineFormat::Type::Bold:
@@ -198,6 +198,9 @@ namespace Parser{
 							break;
 						case InlineFormat::Type::Sub:
 							ss << "Sub";
+							break;
+						case InlineFormat::Type::Monospace:
+							ss << "Monospace";
 							break;
 					}
 					ss << "[" << (format.begin?"true":"false") << "," << (format.end?"true":"false") << "]";
@@ -288,6 +291,7 @@ namespace Parser{
 			TokenRule{"underline", tryUnderlineRule, doUnderlineRule},
 			TokenRule{"super", trySuperRule, doSuperRule},
 			TokenRule{"sub", trySubRule, doSubRule},
+			TokenRule{"monospace", tryMonospaceRule, doMonospaceRule},
 			
 			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
 			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},

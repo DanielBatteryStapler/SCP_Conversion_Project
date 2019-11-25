@@ -76,7 +76,7 @@ namespace Parser{
 		
 	};
 	
-	enum class InlineFormatType{Unknown, Strike, Italics, Bold, Underline, Super, Sub};
+	enum class InlineFormatType{Unknown, Strike, Italics, Bold, Underline, Super, Sub, Monospace};
 	
 	struct InlineFormat{
 		using Type = InlineFormatType;

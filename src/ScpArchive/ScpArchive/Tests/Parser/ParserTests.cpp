@@ -552,5 +552,15 @@ namespace Tests{
                 Token{PlainText{"D"}, 13, 14, "D"}
             });
         });
+        
+        tester.add("Parser::tokenizePage InlineFormat::Monospace", [](){
+            assertPageTokenize("A {{B}} C", {
+                Token{PlainText{"A "}, 0, 2, "A "},
+                Token{InlineFormat{InlineFormat::Type::Monospace, true, false}, 2, 4, "{{"},
+                Token{PlainText{"B"}, 4, 5, "B"},
+                Token{InlineFormat{InlineFormat::Type::Monospace, false, true}, 5, 7, "}}"},
+                Token{PlainText{" C"}, 7, 9, " C"}
+            });
+        });
 	}
 }

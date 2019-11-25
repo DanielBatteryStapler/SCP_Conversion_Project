@@ -31,6 +31,8 @@ namespace Parser{
 	TokenRuleResult doSuperRule(const TokenRuleContext& context);
 	bool trySubRule(const TokenRuleContext& context);
 	TokenRuleResult doSubRule(const TokenRuleContext& context);
+	bool tryMonospaceRule(const TokenRuleContext& context);
+	TokenRuleResult doMonospaceRule(const TokenRuleContext& context);
 	
 	bool tryTripleLinkRule(const TokenRuleContext& context);
 	TokenRuleResult doTripleLinkRule(const TokenRuleContext& context);

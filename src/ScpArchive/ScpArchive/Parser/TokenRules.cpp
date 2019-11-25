@@ -308,7 +308,7 @@ namespace Parser{
 			const std::size_t end = context.pagePos + format.size();
 			
 			TokenRuleResult result;
-			result.newPos = context.pagePos + format.size();
+			result.newPos = end;
 			result.newTokens.push_back(Token{token, begin, end, context.page.substr(begin, end - begin)});
 			return result;
 		}
@@ -354,6 +354,37 @@ namespace Parser{
 	}
 	TokenRuleResult doSubRule(const TokenRuleContext& context){
 		return handleDoInlineFormatting(context, InlineFormat::Type::Sub, ",,");
+	}
+	
+	bool tryMonospaceRule(const TokenRuleContext& context){
+		if(check(context.page, context.pagePos, "{{")){
+			return true;
+		}
+		else if(check(context.page, context.pagePos, "}}")){
+			return true;
+		}
+		return false;
+	}
+	
+	TokenRuleResult doMonospaceRule(const TokenRuleContext& context){
+		InlineFormat token;
+		token.type = InlineFormat::Type::Monospace;
+		if(check(context.page, context.pagePos, "{{")){
+			token.begin = true;
+			token.end = false;
+		}
+		else{
+			token.begin = false;
+			token.end = true;
+		}
+		
+		const std::size_t begin = context.pagePos;
+		const std::size_t end = context.pagePos + 2;
+		
+		TokenRuleResult result;
+		result.newPos = end;
+		result.newTokens.push_back(Token{token, begin, end, context.page.substr(begin, end - begin)});
+		return result;
 	}
 	
 	bool tryTripleLinkRule(const TokenRuleContext& context){
