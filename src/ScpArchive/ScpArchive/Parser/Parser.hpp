@@ -76,13 +76,15 @@ namespace Parser{
 		
 	};
 	
-	enum class InlineFormatType{Unknown, Strike, Italics, Bold, Underline, Super, Sub, Monospace};
+	enum class InlineFormatType{Unknown, Strike, Italics, Bold, Underline, Super, Sub, Monospace, Color};
 	
 	struct InlineFormat{
 		using Type = InlineFormatType;
 		Type type;
 		bool begin;
 		bool end;
+		
+		std::string color;//optional
 		
 		bool operator==(const InlineFormat& tok)const;
 	};

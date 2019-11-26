@@ -71,7 +71,7 @@ namespace Parser{
     }
 	
 	bool InlineFormat::operator==(const InlineFormat& tok)const{
-		return type == tok.type && begin == tok.begin && end == tok.end;
+		return type == tok.type && begin == tok.begin && end == tok.end && color == tok.color;
 	}
 	
 	bool HyperLink::operator==(const HyperLink& tok)const{
@@ -202,8 +202,11 @@ namespace Parser{
 						case InlineFormat::Type::Monospace:
 							ss << "Monospace";
 							break;
+						case InlineFormat::Type::Color:
+							ss << "Color";
+							break;
 					}
-					ss << "[" << (format.begin?"true":"false") << "," << (format.end?"true":"false") << "]";
+					ss << "[" << (format.begin?"true":"false") << "," << (format.end?"true":"false") << "," << format.color << "]";
 				}
 				break;
 			case Token::Type::HyperLink:
@@ -292,6 +295,7 @@ namespace Parser{
 			TokenRule{"super", trySuperRule, doSuperRule},
 			TokenRule{"sub", trySubRule, doSubRule},
 			TokenRule{"monospace", tryMonospaceRule, doMonospaceRule},
+			TokenRule{"color", tryColorRule, doColorRule},
 			
 			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
 			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},

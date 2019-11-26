@@ -5,7 +5,7 @@
 namespace Parser{
 	
 	bool StyleFormat::operator==(const StyleFormat& nod)const{
-		return nod.type == type;
+		return nod.type == type && nod.color == color;
 	}
 	
 	bool Paragraph::operator==(const Paragraph& nod)const{
@@ -123,7 +123,7 @@ namespace Parser{
 					const StyleFormat& format = std::get<StyleFormat>(nod.node);
 					ss << "StyleFormat:\"";
 					switch(format.type){
-						case StyleFormat::Type::Unknown:
+						default:
 							ss << "Unknown";
 							break;
 						case StyleFormat::Type::Bold:
@@ -143,6 +143,9 @@ namespace Parser{
 							break;
 						case StyleFormat::Type::Sub:
 							ss << "Sub";
+							break;
+						case StyleFormat::Type::Color:
+							ss << "Color," << format.color;
 							break;
 					}
 					ss << "\"";
@@ -363,7 +366,7 @@ namespace Parser{
 				}
 				if(hasValidEnd){
 					makeTextAddable(context);
-					pushStack(context, Node{StyleFormat{tokenFormat.type}});
+					pushStack(context, Node{StyleFormat{tokenFormat.type, tokenFormat.color}});
 					return;
 				}
 			}

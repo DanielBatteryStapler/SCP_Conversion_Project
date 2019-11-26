@@ -33,6 +33,8 @@ namespace Parser{
 	TokenRuleResult doSubRule(const TokenRuleContext& context);
 	bool tryMonospaceRule(const TokenRuleContext& context);
 	TokenRuleResult doMonospaceRule(const TokenRuleContext& context);
+	bool tryColorRule(const TokenRuleContext& context);
+	TokenRuleResult doColorRule(const TokenRuleContext& context);
 	
 	bool tryTripleLinkRule(const TokenRuleContext& context);
 	TokenRuleResult doTripleLinkRule(const TokenRuleContext& context);

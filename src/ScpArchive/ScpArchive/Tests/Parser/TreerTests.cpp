@@ -243,6 +243,23 @@ namespace Tests{
 					}
 				}
 			});
+			
+			assertPageTree(
+			"##blue|text##",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{StyleFormat{StyleFormat::Type::Color, "blue"},
+								{
+									Node{PlainText{"text"}}
+								}
+							}
+						}
+					}
+				}
+			});
 		});
 		
 		tester.add("Parser::makeTreeFromPage StyleFormat Advanced", [](){

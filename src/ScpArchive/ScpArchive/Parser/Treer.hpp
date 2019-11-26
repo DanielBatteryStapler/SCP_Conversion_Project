@@ -9,6 +9,8 @@ namespace Parser{
 		using Type = InlineFormat::Type;
 		Type type;
 		
+		std::string color;//optional
+		
 		bool operator==(const StyleFormat& nod)const;
 	};
 	

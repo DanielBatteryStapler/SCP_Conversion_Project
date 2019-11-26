@@ -562,5 +562,15 @@ namespace Tests{
                 Token{PlainText{" C"}, 7, 9, " C"}
             });
         });
+        
+        tester.add("Parser::tokenizePage InlineFormat::Color", [](){
+            assertPageTokenize("A ##blue|B## C", {
+                Token{PlainText{"A "}, 0, 2, "A "},
+                Token{InlineFormat{InlineFormat::Type::Color, true, false, "blue"}, 2, 9, "##blue|"},
+                Token{PlainText{"B"}, 9, 10, "B"},
+                Token{InlineFormat{InlineFormat::Type::Color, false, true}, 10, 12, "##"},
+                Token{PlainText{" C"}, 12, 14, " C"}
+            });
+        });
 	}
 }

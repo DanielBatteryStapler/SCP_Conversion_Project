@@ -387,6 +387,42 @@ namespace Parser{
 		return result;
 	}
 	
+	bool tryColorRule(const TokenRuleContext& context){
+		if(check(context.page, context.pagePos, "##")){
+			return true;
+		}
+		return false;
+	}
+	
+	TokenRuleResult doColorRule(const TokenRuleContext& context){
+		const std::size_t begin = context.pagePos;
+		std::size_t end = context.pagePos;
+		
+		InlineFormat token;
+		token.type = InlineFormat::Type::Color;
+		if(checkLine(context.page, context.pagePos, "|")){
+			token.begin = true;
+			token.end = false;
+			end += 2;
+			while(context.page[end] != '|'){
+				end++;
+			}
+			token.color = context.page.substr(begin + 2, end - begin - 2);
+			token.color.erase(remove(token.color.begin(),token.color.end(),' '),token.color.end());//remove all whitespace
+			end++;
+		}
+		else{
+			end += 2;
+			token.begin = false;
+			token.end = true;
+		}
+		
+		TokenRuleResult result;
+		result.newPos = end;
+		result.newTokens.push_back(Token{token, begin, end, context.page.substr(begin, end - begin)});
+		return result;
+	}
+	
 	bool tryTripleLinkRule(const TokenRuleContext& context){
 		if(check(context.page, context.pagePos, "[[[") && checkParagraph(context.page, context.pagePos, "]]]")){
 			return true;
