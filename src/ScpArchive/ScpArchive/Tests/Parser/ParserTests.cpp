@@ -572,5 +572,19 @@ namespace Tests{
                 Token{PlainText{" C"}, 12, 14, " C"}
             });
         });
+        
+        tester.add("Parser::tokenizePage Sections", [](){
+            assertPageTokenize("[[<]]\n[[/<]]\n[[include page this=that|me=[[you]]|option]]\n[[span style=\"color:blue;\" option]]yeah[[/span]]", {
+                Token{SectionStart{SectionType::LeftAlign, "<", ModuleType::Unknown, "", {}}, 0, 5, "[[<]]"},
+                Token{NewLine{}, 5, 6, "\n"},
+                Token{SectionEnd{SectionType::LeftAlign, "<"}, 6, 12, "[[/<]]"},
+                Token{NewLine{}, 12, 13, "\n"},
+                Token{Section{SectionType::Include, "include", ModuleType::Unknown, "page", {{"this", "that"}, {"me", "[[you]]"}, {"option", ""}}}, 13, 57, "[[include page this=that|me=[[you]]|option]]"},
+                Token{NewLine{}, 57, 58, "\n"},
+                Token{SectionStart{SectionType::Span, "span", ModuleType::Unknown, "", {{"style", "color:blue;"}, {"option", ""}}}, 58, 93, "[[span style=\"color:blue;\" option]]"},
+                Token{PlainText{"yeah"}, 93, 97, "yeah"},
+                Token{SectionEnd{SectionType::Span, "span"}, 97, 106, "[[/span]]"}
+            });
+        });
 	}
 }

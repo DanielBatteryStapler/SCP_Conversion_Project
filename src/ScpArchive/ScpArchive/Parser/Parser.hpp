@@ -14,27 +14,35 @@ namespace Parser{
 	std::string& trimString(std::string& s);
 	std::string normalizePageName(std::string link);
 	
-	enum class SectionType{Unknown};
+	enum class SectionType{Unknown, Module, LeftAlign, RightAlign, CenterAlign, JustifyAlign, Div, Span, Include};
 	enum class ModuleType{Unknown};
 	
-	struct SectionStart{
-		using Type = SectionType;
-		Type type = Type::Unknown;
+	struct Section{
+		SectionType type = SectionType::Unknown;
+		std::string typeString;
 		ModuleType moduleType = ModuleType::Unknown;
+		std::string mainParameter;
 		std::map<std::string, std::string> parameters;
 		
-		bool operator==(const SectionStart& tok)const;
+		bool operator==(const Section& tok)const;
+	};
+	
+	struct SectionStart : public Section{
+        
 	};
 	
 	struct SectionEnd{
 		using Type = SectionType;
 		Type type = Type::Unknown;
+		std::string typeString;
 		
 		bool operator==(const SectionEnd& tok)const;
 	};
 	
 	struct SectionComplete : public SectionStart{
+		std::string contents;
 		
+		bool operator==(const SectionComplete& tok)const;
 	};
 	
     enum class DividerType{Unknown, Line, Clear};
@@ -66,14 +74,6 @@ namespace Parser{
 		unsigned int degree;
 		
 		bool operator==(const ListPrefix& tok)const;
-	};
-	
-	struct InlineSectionStart : public SectionStart{
-		
-	};
-	
-	struct InlineSectionEnd : public SectionEnd{
-		
 	};
 	
 	enum class InlineFormatType{Unknown, Strike, Italics, Bold, Underline, Super, Sub, Monospace, Color};
@@ -117,11 +117,11 @@ namespace Parser{
 		bool operator==(const NewLine& tok)const;
 	};
 	
-	enum class TokenType{Unknown = 0, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, ListPrefix, 
-						InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
+	enum class TokenType{Unknown = 0, Section, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, ListPrefix, 
+						InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
 	
-	using TokenVariant = std::variant<std::monostate, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, ListPrefix, 
-							InlineSectionStart, InlineSectionEnd, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine>;
+	using TokenVariant = std::variant<std::monostate, Section, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, ListPrefix, 
+                                        InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine>;
 	struct Token{
 		using Type = TokenType;
 		using Variant = TokenVariant;

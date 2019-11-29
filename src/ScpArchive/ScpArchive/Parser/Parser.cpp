@@ -1,8 +1,9 @@
 #include "Parser.hpp"
 
-#include "TokenRules.hpp"
-
 #include <sstream>
+
+#include "TokenRules.hpp"
+#include "SectionRules.hpp"
 
 namespace Parser{
 	std::string& trimLeft(std::string& s) {
@@ -46,12 +47,16 @@ namespace Parser{
 		return output;
 	}
 	
-	bool SectionStart::operator==(const SectionStart& tok)const{
-		return type == tok.type && moduleType == tok.moduleType && parameters == tok.parameters;
+	bool Section::operator==(const Section& tok)const{
+		return type == tok.type && typeString == tok.typeString && moduleType == tok.moduleType && mainParameter == tok.mainParameter && parameters == tok.parameters;
 	}
 		
 	bool SectionEnd::operator==(const SectionEnd& tok)const{
-		return type == tok.type;
+		return type == tok.type && typeString == tok.typeString;
+	}
+	
+	bool SectionComplete::operator==(const SectionComplete& tok)const{
+		return type == tok.type && typeString == tok.typeString && moduleType == tok.moduleType && mainParameter == tok.mainParameter && parameters == tok.parameters && contents == tok.contents;
 	}
 	
 	bool Divider::operator==(const Divider& tok)const{
@@ -111,14 +116,41 @@ namespace Parser{
 			default:
 				ss << "Unknown";
 				break;
+            case Token::Type::Section:
+				{
+					const Section& section = std::get<Section>(tok.token);
+                    ss << "Section:" << section.typeString << ", " << section.mainParameter << ", {";
+                    for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
+                        ss << i->first << ": " << i->second << ", ";
+                    }
+                    ss << "}";
+				}
+				break;
 			case Token::Type::SectionStart:
-				ss << "SectionStart";
+				{
+					const SectionStart& section = std::get<SectionStart>(tok.token);
+                    ss << "SectionStart:" << section.typeString << ", " << section.mainParameter << ", {";
+                    for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
+                        ss << i->first << ": " << i->second << ", ";
+                    }
+                    ss << "}";
+				}
 				break;
 			case Token::Type::SectionEnd:
-				ss << "SectionEnd";
+				{
+					const SectionEnd& section = std::get<SectionEnd>(tok.token);
+                    ss << "SectionEnd:" << section.typeString;
+				}
 				break;
 			case Token::Type::SectionComplete:
-				ss << "SectionComplete";
+				{
+					const SectionComplete& section = std::get<SectionComplete>(tok.token);
+                    ss << "SectionComplete:" << section.typeString << ", " << section.mainParameter << ", {";
+                    for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
+                        ss << i->first << ": " << i->second << ", ";
+                    }
+                    ss << "}";
+				}
 				break;
 			case Token::Type::Divider:
                 {
@@ -166,12 +198,6 @@ namespace Parser{
                     }
                     ss << ", " << listPrefix.degree;
 				}
-				break;
-			case Token::Type::InlineSectionStart:
-				ss << "InlineSectionStart";
-				break;
-			case Token::Type::InlineSectionEnd:
-				ss << "InlineSectionEnd";
 				break;
 			case Token::Type::InlineFormat:
 				ss << "InlineFormat:";
@@ -281,7 +307,7 @@ namespace Parser{
 			return context;
 		}
 		
-		std::vector<TokenRule> standardRules = {
+		const std::vector<TokenRule> standardRules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
 			TokenRule{"heading", tryHeadingRule, doHeadingRule},
 			TokenRule{"divider", tryDividerRule, doDividerRule},
@@ -298,6 +324,9 @@ namespace Parser{
 			TokenRule{"color", tryColorRule, doColorRule},
 			
 			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
+			
+			TokenRule{"section", trySectionRule, doSectionRule},
+			
 			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},
 			TokenRule{"bareLink", tryBareLinkRule, doBareLinkRule},
 			
@@ -350,7 +379,7 @@ namespace Parser{
 	}
 	
 	std::vector<std::string> getPageLinks(std::string page){
-		std::vector<TokenRule> rules = {
+		const std::vector<TokenRule> rules = {
 			TokenRule{"comment", tryCommentRule, doCommentRule},
 			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
 			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},

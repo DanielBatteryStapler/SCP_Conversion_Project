@@ -27,7 +27,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--runWebsite" />
+				<Option parameters="--runCustomTest" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="./" />
@@ -76,6 +76,8 @@
 		<Unit filename="ScpArchive/Parser/HTMLConverter.hpp" />
 		<Unit filename="ScpArchive/Parser/Parser.cpp" />
 		<Unit filename="ScpArchive/Parser/Parser.hpp" />
+		<Unit filename="ScpArchive/Parser/SectionRules.cpp" />
+		<Unit filename="ScpArchive/Parser/SectionRules.hpp" />
 		<Unit filename="ScpArchive/Parser/TokenRules.cpp" />
 		<Unit filename="ScpArchive/Parser/TokenRules.hpp" />
 		<Unit filename="ScpArchive/Parser/Treer.cpp" />
