@@ -575,9 +575,9 @@ namespace Tests{
         
         tester.add("Parser::tokenizePage Sections", [](){
             assertPageTokenize("[[<]]\n[[/<]]\n[[include page this=that|me=[[you]]|option]]\n[[span style=\"color:blue;\" option]]yeah[[/span]]\n[[code]]inside[[/code]]", {
-                Token{SectionStart{SectionType::LeftAlign, "<", ModuleType::Unknown, "", {}}, 0, 5, "[[<]]"},
+                Token{SectionStart{SectionType::Align, "<", ModuleType::Unknown, "", {}}, 0, 5, "[[<]]"},
                 Token{NewLine{}, 5, 6, "\n"},
-                Token{SectionEnd{SectionType::LeftAlign, "<"}, 6, 12, "[[/<]]"},
+                Token{SectionEnd{SectionType::Align, "<"}, 6, 12, "[[/<]]"},
                 Token{NewLine{}, 12, 13, "\n"},
                 Token{Section{SectionType::Include, "include", ModuleType::Unknown, "page", {{"this", "that"}, {"me", "[[you]]"}, {"option", ""}}}, 13, 57, "[[include page this=that|me=[[you]]|option]]"},
                 Token{NewLine{}, 57, 58, "\n"},

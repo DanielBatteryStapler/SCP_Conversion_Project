@@ -82,6 +82,8 @@
 		<Unit filename="ScpArchive/Parser/TokenRules.hpp" />
 		<Unit filename="ScpArchive/Parser/Treer.cpp" />
 		<Unit filename="ScpArchive/Parser/Treer.hpp" />
+		<Unit filename="ScpArchive/Parser/TreerRules.cpp" />
+		<Unit filename="ScpArchive/Parser/TreerRules.hpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.hpp" />
 		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.cpp" />

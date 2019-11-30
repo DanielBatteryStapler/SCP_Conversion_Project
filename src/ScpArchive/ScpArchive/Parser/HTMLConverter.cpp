@@ -175,6 +175,31 @@ namespace Parser{
             out << "</span>"_AM;
 		}
 		
+		template<>
+		void handleNode<Align>(MarkupOutStream& out, const Node& nod){
+            const Align& node = std::get<Align>(nod.node);
+            std::string textAlign;
+            switch(node.type){
+                case Align::Type::Center:
+                    textAlign = "center";
+                    break;
+                case Align::Type::Left:
+                    textAlign = "left";
+                    break;
+                case Align::Type::Right:
+                    textAlign = "right";
+                    break;
+                case Align::Type::Justify:
+                    textAlign = "justify";
+                    break;
+                default:
+                    throw std::runtime_error("Encountered invalid Align::Type");
+            }
+            out << "<div style='text-align:"_AM << textAlign << "'>"_AM;
+            delegateBranch(out, nod);
+            out << "</div>"_AM;
+		}
+		
 		void delegateNode(MarkupOutStream& out, const Node& nod){
 			switch(nod.getType()){
                 default:
@@ -221,6 +246,8 @@ namespace Parser{
                 case Node::Type::Span:
                     handleNode<Span>(out, nod);
                     break;
+                case Node::Type::Align:
+                    handleNode<Align>(out, nod);
 			}
 		}
 		

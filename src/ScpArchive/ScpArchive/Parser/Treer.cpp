@@ -14,6 +14,10 @@ namespace Parser{
         return parameters == nod.parameters;
     }
 	
+    bool Align::operator==(const Align& nod)const{
+        return type == nod.type;
+    }
+	
 	bool StyleFormat::operator==(const StyleFormat& nod)const{
 		return nod.type == type && nod.color == color;
 	}
@@ -65,6 +69,9 @@ namespace Parser{
 				break;
 			case Node::Type::QuoteBox:
 				ss << "QuoteBox";
+				break;
+            case Node::Type::Align:
+				ss << "Align";
 				break;
             case Node::Type::List:
 				{
@@ -239,6 +246,7 @@ namespace Parser{
         switch(type){
             default:
                 return false;
+            case Node::Type::Align:
             case Node::Type::RootPage:
             case Node::Type::QuoteBox:
                 return true;
@@ -451,7 +459,8 @@ namespace Parser{
             TreeRule{{Token::Type::Divider}, handleDivider},
             
             TreeRule{{Token::Type::Section, SectionType::Size}, handleSize},
-            TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan}
+            TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan},
+            TreeRule{{Token::Type::Section, SectionType::Align}, handleAlign}
         };
 	}
 	

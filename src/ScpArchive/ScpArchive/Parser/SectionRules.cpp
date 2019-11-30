@@ -33,17 +33,12 @@ namespace Parser{
             
             SectionRule{SectionType::Span, {"span"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::Quoted, true},
-            SectionRule{SectionType::Size, {"size"}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::Quoted, true},
+            SectionRule{SectionType::Size, {"size"}, SubnameType::Parameter, ModuleType::Unknown, {},
+                ContentType::Surround, ParameterType::None, true},
             
-            SectionRule{SectionType::LeftAlign, {"<"}, SubnameType::None, ModuleType::Unknown, {},
+            SectionRule{SectionType::Align, {"<", ">", "=", "=="}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::None, false},
-            SectionRule{SectionType::RightAlign, {">"}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::None, false},
-            SectionRule{SectionType::CenterAlign, {"="}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::None, false},
-            SectionRule{SectionType::JustifyAlign, {"=="}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::None, false},
+            
             SectionRule{SectionType::Div, {"div"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::Quoted, false},
             
@@ -176,7 +171,15 @@ namespace Parser{
             getName(content, section.typeString);
             
             if(rule.subnameType != SubnameType::None){
-                getName(content, section.mainParameter);
+                if(rule.parameterType == ParameterType::None && rule.subnameType == SubnameType::Parameter){
+                    //if there are no parameters and it wants a parameter, give it the whole of content
+                    trimString(content);
+                    section.mainParameter = content;
+                }
+                else{
+                    getName(content, section.mainParameter);
+                }
+                
                 if(rule.subnameType == SubnameType::Module){
                     section.moduleType = rule.moduleType;
                 }

@@ -15,6 +15,7 @@ namespace Parser{
     
     void handleSpan(TreeContext& context, const Token& token);
     void handleSize(TreeContext& context, const Token& token);
+    void handleAlign(TreeContext& context, const Token& token);
 }
 
 #endif // TREERRULES_HPP

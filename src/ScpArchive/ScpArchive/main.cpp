@@ -25,7 +25,7 @@ int main(int argc, char** argv){
         
         std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
 
-        std::optional<Database::ID> pageId = db->getPageId("scp-2317");
+        std::optional<Database::ID> pageId = db->getPageId("scp-001");
         if(pageId){
             Database::PageRevision revision = db->getLatestPageRevision(*pageId);
             

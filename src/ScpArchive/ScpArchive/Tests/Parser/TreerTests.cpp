@@ -950,6 +950,25 @@ namespace Tests{
 				}
 			});
         });
+        
+        tester.add("Parser::makeTreeFromPage Section",[](){
+			assertPageTree(
+			"[[size 300%]]big text[[/size]]",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{Size{"300%"},
+								{
+									Node{PlainText{"big text"}}
+								}
+							}
+						}
+					}
+				}
+			});
+        });
 	}
 }
 
