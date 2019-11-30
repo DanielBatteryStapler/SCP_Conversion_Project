@@ -31,6 +31,11 @@ namespace Parser{
             //SectionRule{type, matchingNames, subsnameType, moduleType, matchingModules,
             //    contentType, parameterType, allowInline},
             
+            SectionRule{SectionType::Span, {"span"}, SubnameType::None, ModuleType::Unknown, {},
+                ContentType::Surround, ParameterType::Quoted, true},
+            SectionRule{SectionType::Size, {"size"}, SubnameType::None, ModuleType::Unknown, {},
+                ContentType::Surround, ParameterType::Quoted, true},
+            
             SectionRule{SectionType::LeftAlign, {"<"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::None, false},
             SectionRule{SectionType::RightAlign, {">"}, SubnameType::None, ModuleType::Unknown, {},
@@ -39,15 +44,16 @@ namespace Parser{
                 ContentType::Surround, ParameterType::None, false},
             SectionRule{SectionType::JustifyAlign, {"=="}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::None, false},
-            
             SectionRule{SectionType::Div, {"div"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::Quoted, false},
-            SectionRule{SectionType::Span, {"span"}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::Quoted, true},
             
             SectionRule{SectionType::Include, {"include"}, SubnameType::Parameter, ModuleType::Unknown, {},
                 ContentType::None, ParameterType::Lined, false},
             
+            SectionRule{SectionType::Code, {"code"}, SubnameType::None, ModuleType::Unknown, {},
+                ContentType::Contain, ParameterType::Quoted, false},
+            SectionRule{SectionType::Module, {"module"}, SubnameType::Module, ModuleType::CSS, {"CSS"},
+                ContentType::Contain, ParameterType::None, false}
         };
         
         inline std::string getSectionContent(const TokenRuleContext& context, std::size_t& pos){
@@ -137,12 +143,11 @@ namespace Parser{
     }
     
     bool trySectionRule(const TokenRuleContext& context){
-        if(context.page.size() > context.pagePos + 1){
+        if(context.page.size() > context.pagePos + 4){
             if(context.page[context.pagePos] == '[' && context.page[context.pagePos + 1] == '['){
                 std::size_t pos = context.pagePos;
                 std::string content = getSectionContent(context, pos);
                 if(findMatchingSection(content) != sectionRules.end()){
-                    std::cout << "Matched section rule #" << (findMatchingSection(content) - sectionRules.begin()) << "\n";
                     return true;
                 }
             }
@@ -286,7 +291,23 @@ namespace Parser{
                 sectionComplete.moduleType = section.moduleType;
                 sectionComplete.mainParameter = section.mainParameter;
                 sectionComplete.parameters = section.parameters;
-                //TODO: get contents
+                std::size_t contentStart = pos;
+                while(pos < context.page.size()){
+                    if(pos + 4 < context.page.size() && context.page[pos + 0] == '[' && context.page[pos + 1] == '[' && context.page[pos + 2] == '/'){
+                        std::size_t tempPos = pos;
+                        std::string endContent = getSectionContent(context, tempPos);
+                        endContent = endContent.substr(1, endContent.size() - 1);//remove the first /
+                        if(std::find(rule.matchingNames.begin(), rule.matchingNames.end(), endContent) != rule.matchingNames.end()){
+                            break;
+                        }
+                    }
+                    pos++;
+                }
+                sectionComplete.contents = context.page.substr(contentStart, pos - contentStart);
+                if(pos + 4 < context.page.size()){
+                    getSectionContent(context, pos);//go to the end of the [[/...]]
+                }
+                
                 result.newTokens.push_back(Token{sectionComplete, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
             }
         }

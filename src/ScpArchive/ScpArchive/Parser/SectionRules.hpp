@@ -2,6 +2,7 @@
 #define SECTIONRULES_HPP
 
 #include "Parser.hpp"
+#include "Treer.hpp"
 
 namespace Parser{
     bool trySectionRule(const TokenRuleContext& context);

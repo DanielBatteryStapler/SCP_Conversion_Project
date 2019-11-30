@@ -155,6 +155,26 @@ namespace Parser{
             }
 		}
 		
+		template<>
+		void handleNode<Size>(MarkupOutStream& out, const Node& nod){
+            const Size& node = std::get<Size>(nod.node);
+            out << "<span style='font-size:"_AM << node.size << "'>"_AM;
+            delegateBranch(out, nod);
+            out << "</span>"_AM;
+		}
+		
+		template<>
+		void handleNode<Span>(MarkupOutStream& out, const Node& nod){
+            const Span& node = std::get<Span>(nod.node);
+            out << "<span"_AM;
+            for(auto i = node.parameters.begin(); i != node.parameters.end(); i++){
+                out << " "_AM << i->first << "='"_AM << i->second << "'"_AM;
+            }
+            out << ">"_AM;
+            delegateBranch(out, nod);
+            out << "</span>"_AM;
+		}
+		
 		void delegateNode(MarkupOutStream& out, const Node& nod){
 			switch(nod.getType()){
                 default:
@@ -195,6 +215,12 @@ namespace Parser{
 				case Node::Type::Divider:
 					handleNode<Divider>(out, nod);
 					break;
+                case Node::Type::Size:
+                    handleNode<Size>(out, nod);
+                    break;
+                case Node::Type::Span:
+                    handleNode<Span>(out, nod);
+                    break;
 			}
 		}
 		

@@ -574,7 +574,7 @@ namespace Tests{
         });
         
         tester.add("Parser::tokenizePage Sections", [](){
-            assertPageTokenize("[[<]]\n[[/<]]\n[[include page this=that|me=[[you]]|option]]\n[[span style=\"color:blue;\" option]]yeah[[/span]]", {
+            assertPageTokenize("[[<]]\n[[/<]]\n[[include page this=that|me=[[you]]|option]]\n[[span style=\"color:blue;\" option]]yeah[[/span]]\n[[code]]inside[[/code]]", {
                 Token{SectionStart{SectionType::LeftAlign, "<", ModuleType::Unknown, "", {}}, 0, 5, "[[<]]"},
                 Token{NewLine{}, 5, 6, "\n"},
                 Token{SectionEnd{SectionType::LeftAlign, "<"}, 6, 12, "[[/<]]"},
@@ -583,7 +583,9 @@ namespace Tests{
                 Token{NewLine{}, 57, 58, "\n"},
                 Token{SectionStart{SectionType::Span, "span", ModuleType::Unknown, "", {{"style", "color:blue;"}, {"option", ""}}}, 58, 93, "[[span style=\"color:blue;\" option]]"},
                 Token{PlainText{"yeah"}, 93, 97, "yeah"},
-                Token{SectionEnd{SectionType::Span, "span"}, 97, 106, "[[/span]]"}
+                Token{SectionEnd{SectionType::Span, "span"}, 97, 106, "[[/span]]"},
+                Token{NewLine{}, 106, 107, "\n"},
+                Token{SectionComplete{SectionType::Code, "code", ModuleType::Unknown, "", {}, "inside"}, 107, 130, "[[code]]inside[[/code]]"},
             });
         });
 	}

@@ -12,11 +12,48 @@
 
 #include "UntestedUtils.hpp"
 
+#include "Parser/Parser.hpp"
+#include "Parser/Treer.hpp"
+#include "Parser/HTMLConverter.hpp"
+
 int main(int argc, char** argv){
 	
 	mongocxx::instance instance{};//this needs to exist for the entire program so mongodb works
 	
-	if(argc == 2 && std::string(argv[1]) == "--runTests"){
+	if(argc == 2 && std::string(argv[1]) == "--runCustomTest"){
+       // Tests::runAllTests();
+        
+        std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
+
+        std::optional<Database::ID> pageId = db->getPageId("scp-2317");
+        if(pageId){
+            Database::PageRevision revision = db->getLatestPageRevision(*pageId);
+            
+            std::ofstream fileOut("test.html");
+            {
+                MarkupOutStream out(&fileOut);
+                
+                out << "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='static/style.css'><meta charset='UTF-8'><title>"_AM
+                << revision.title << "</title></head><body>"_AM;
+
+                std::ofstream("raw.txt") << revision.sourceCode;
+                
+                Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);
+                for(const auto& tok : pageTokens.tokens){
+                //std::cout << Parser::toString(tok) << "\n";
+                }
+                Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens);
+                Parser::convertPageTreeToHtml(out, pageTree);
+                out << "</body></html>"_AM;
+            }
+            fileOut.close();
+        }
+        else{
+            std::cout << "Cannot find page\n";
+        }
+        
+	}
+	else if(argc == 2 && std::string(argv[1]) == "--runTests"){
 		Tests::runAllTests();
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--importPages"){

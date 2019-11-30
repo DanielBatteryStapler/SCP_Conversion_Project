@@ -14,8 +14,8 @@ namespace Parser{
 	std::string& trimString(std::string& s);
 	std::string normalizePageName(std::string link);
 	
-	enum class SectionType{Unknown, Module, LeftAlign, RightAlign, CenterAlign, JustifyAlign, Div, Span, Include};
-	enum class ModuleType{Unknown};
+	enum class SectionType{Unknown, Module, Span, Size, LeftAlign, RightAlign, CenterAlign, JustifyAlign, Div, Include, Code};
+	enum class ModuleType{Unknown, CSS};
 	
 	struct Section{
 		SectionType type = SectionType::Unknown;

@@ -2,7 +2,17 @@
 
 #include <sstream>
 
+#include "TreerRules.hpp"
+
 namespace Parser{
+
+    bool Size::operator==(const Size& nod)const{
+        return size == nod.size;
+    }
+    
+    bool Span::operator==(const Span& nod)const{
+        return parameters == nod.parameters;
+    }
 	
 	bool StyleFormat::operator==(const StyleFormat& nod)const{
 		return nod.type == type && nod.color == color;
@@ -151,6 +161,22 @@ namespace Parser{
 					ss << "\"";
 				}
 				break;
+            case Node::Type::Size:
+				{
+					const Size& size = std::get<Size>(nod.node);
+					ss << "Size:\"" << size.size << "\"";
+				}
+				break;
+            case Node::Type::Span:
+				{
+					const Span& span = std::get<Span>(nod.node);
+                    ss << "Span:{";
+                    for(auto i = span.parameters.begin(); i != span.parameters.end(); i++){
+                        ss << i->first << ": " << i->second << ", ";
+                    }
+                    ss << "}";
+				}
+				break;
 		}
 		ss << "\n";
 		
@@ -165,319 +191,268 @@ namespace Parser{
 		return out << toString(nod);
 	}
 	
+    bool isTextType(SectionType type){
+        switch(type){
+            default:
+                return false;
+            case SectionType::Size:
+            case SectionType::Span:
+                return true;
+        }
+    }
+    
+    bool isTextType(const Token& tok){
+        switch(tok.getType()){
+            default:
+                return false;
+            case Token::Type::PlainText:
+            case Token::Type::LiteralText:
+            case Token::Type::InlineFormat:
+            case Token::Type::HyperLink:
+                return true;
+            case Token::Type::Section:
+                return isTextType(std::get<Section>(tok.token).type);
+            case Token::Type::SectionStart:
+                return isTextType(std::get<SectionStart>(tok.token).type);
+            case Token::Type::SectionEnd:
+                return isTextType(std::get<SectionEnd>(tok.token).type);
+            case Token::Type::SectionComplete:
+                return isTextType(std::get<SectionComplete>(tok.token).type);
+        }
+    }
+    
+    bool isTextInsertable(Node::Type type){
+        switch(type){
+            default:
+                return false;
+            case Node::Type::Paragraph:
+            case Node::Type::Heading:
+            case Node::Type::ListElement:
+            case Node::Type::StyleFormat:
+            case Node::Type::Size:
+            case Node::Type::Span:
+                return true;
+        }
+    }
+    
+    bool isDivInsertable(Node::Type type){
+        switch(type){
+            default:
+                return false;
+            case Node::Type::RootPage:
+            case Node::Type::QuoteBox:
+                return true;
+        }
+    }
+    
+    bool isStyleCarryable(Node::Type type){
+        switch(type){
+            default:
+                return false;
+            case Node::Type::StyleFormat:
+            case Node::Type::Size:
+            case Node::Type::Span:
+                return true;
+        }
+    }
+    
+    bool isInside(TreeContext& context, Node::Type type){
+        for(const Node& i : context.stack){
+            if(i.getType() == type){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    
+    void pushStack(TreeContext& context, Node newNode){
+        context.stack.push_back(newNode);
+    }
+    
+    void popStack(TreeContext& context){
+        Node node = context.stack.back();
+        context.stack.pop_back();
+        context.stack.back().branches.push_back(node);
+    }
+    
+    void popStackWithCarry(TreeContext& context){
+        const auto& back = context.stack.back();
+        if(isStyleCarryable(back.getType())){
+            Node style = back;
+            style.branches.clear();
+            context.styleCarry.push_back(style);//don't copy over branches, just copy
+            popStack(context);
+        }
+        else{
+            popStack(context);
+        }
+    }
+    
+    void popSingle(TreeContext& context, std::function<bool(const Node&)> check){
+        while(true){
+            const auto& back = context.stack.back();
+            if(check(back)){
+                popStack(context);
+                break;
+            }
+            else{
+                popStackWithCarry(context);
+            }
+        }
+    }
+    
+    void popSingle(TreeContext& context, Node::Type type){
+        popSingle(context, [type](const Node& nod){return type == nod.getType();});
+    }
+    
+    void makeDivPushable(TreeContext& context){
+        while(!isDivInsertable(context.stack.back().getType())){
+            popStackWithCarry(context);
+        }
+    }
+    
+    void makeTextAddable(TreeContext& context){
+        if(!isTextInsertable(context.stack.back().getType())){
+            makeDivPushable(context);
+            pushStack(context, Node{Paragraph{}});
+        }
+        while(context.styleCarry.size() > 0){
+            pushStack(context, context.styleCarry.back());
+            context.styleCarry.pop_back();
+        }
+    }
+    
+    void addAsDiv(TreeContext& context, Node newNode){
+        makeDivPushable(context);
+        context.stack.back().branches.push_back(newNode);
+    }
+    
+    void addAsText(TreeContext& context, Node newNode){
+        makeTextAddable(context);
+        //if there is already a	PlainText Token in the branch, just merge with that one
+        if(newNode.getType() == Node::Type::PlainText && context.stack.back().branches.size() > 0
+                && context.stack.back().branches.back().getType() == Node::Type::PlainText){
+            std::get<PlainText>(context.stack.back().branches.back().node).text += std::get<PlainText>(newNode.node).text;
+        }
+        else{
+            context.stack.back().branches.push_back(newNode);
+        }
+    }
+	
 	namespace{
-		struct TreeContext{
-			std::vector<Node> stack;
-			std::vector<Node> styleCarry;
-			int newlines;
-			std::size_t tokenPos;
-			TokenedPage tokenedPage;
-		};
-		
-		bool isTextType(Token::Type type){
-			switch(type){
-				default:
-					return false;
-				case Token::Type::PlainText:
-				case Token::Type::LiteralText:
-				case Token::Type::InlineFormat:
-				case Token::Type::HyperLink:
-					return true;
-			}
-		}
-		
-		bool isTextInsertable(Node::Type type){
-            switch(type){
-                default:
-                    return false;
-                case Node::Type::Paragraph:
-                case Node::Type::Heading:
-                case Node::Type::ListElement:
-                case Node::Type::StyleFormat:
-                    return true;
+        void handleQuoteBoxNesting(TreeContext& context, std::size_t pos){
+            const auto countQuoteBoxes = [](TreeContext& context)->unsigned int{
+                unsigned int count = 0;
+                for(const Node& node : context.stack){
+                    if(node.getType() == Node::Type::QuoteBox){
+                        count++;
+                    }
+                }
+                return count;
+            };
+            
+            unsigned int wantedCount = 0;
+            if(context.tokenedPage.tokens[pos].getType() == Token::Type::QuoteBoxPrefix){
+                context.tokenPos++;
+                const QuoteBoxPrefix& quoteBoxPrefix = std::get<QuoteBoxPrefix>(context.tokenedPage.tokens[pos].token);
+                wantedCount = quoteBoxPrefix.degree;
             }
-		}
-		
-		bool isDivInsertable(Node::Type type){
-            switch(type){
-                default:
-                    return false;
-                case Node::Type::RootPage:
-				case Node::Type::QuoteBox:
-                    return true;
-            }
-		}
-        
-        bool isStyleCarryable(Node::Type type){
-            switch(type){
-                default:
-                    return false;
-                case Node::Type::StyleFormat:
-                    return true;
+            while(true){
+                unsigned int count = countQuoteBoxes(context);
+                if(wantedCount > count){
+                    makeDivPushable(context);
+                    pushStack(context, Node{QuoteBox{}});
+                }
+                else if(wantedCount < count){
+                    popSingle(context, Node::Type::QuoteBox);
+                }
+                else{
+                    break;
+                }
             }
         }
         
-		bool isInside(TreeContext& context, Node::Type type){
-			for(const Node& i : context.stack){
-				if(i.getType() == type){
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		bool isInsideTextInsertable(TreeContext& context){
-			return isTextInsertable(context.stack.back().getType());
-		}
-		
-		bool isInsideDivInsertable(TreeContext& context){
-            return isDivInsertable(context.stack.back().getType());
-		}
-		
-		void pushStack(TreeContext& context, Node newNode){
-			context.stack.push_back(newNode);
-		}
-		
-		void popStack(TreeContext& context){
-			Node node = context.stack.back();
-			context.stack.pop_back();
-			context.stack.back().branches.push_back(node);
-		}
-		
-		void popStackWithCarry(TreeContext& context){
-            const auto& back = context.stack.back();
-            if(isStyleCarryable(back.getType())){
-                Node style = back;
-                style.branches.clear();
-                context.styleCarry.push_back(style);//don't copy over branches, just copy
-                popStack(context);
-            }
-            else{
-                popStack(context);
-            }
-		}
-		
-		void popSingle(TreeContext& context, std::function<bool(const Node&)> check){
-			while(true){
-                const auto& back = context.stack.back();
-                if(check(back)){
-                    popStack(context);
-                    break;
-                }
-                else{
-                    popStackWithCarry(context);
-                }
-			}
-		}
-		
-		void popSingle(TreeContext& context, Node::Type type){
-            popSingle(context, [type](const Node& nod){return type == nod.getType();});
-		}
-		
-		void makeDivPushable(TreeContext& context){
-			while(!isInsideDivInsertable(context)){
-				popStackWithCarry(context);
-			}
-		}
-		
-		void addAsDiv(TreeContext& context, Node newNode){
-			makeDivPushable(context);
-			context.stack.back().branches.push_back(newNode);
-		}
-		
-		void makeTextAddable(TreeContext& context){
-			if(!isInsideTextInsertable(context)){
-				while(!isInsideDivInsertable(context)){
-                    popStack(context);
-                }
-				pushStack(context, Node{Paragraph{}});
-			}
-			while(context.styleCarry.size() > 0){
-                pushStack(context, context.styleCarry.back());
-                context.styleCarry.pop_back();
-            }
-		}
-		
-		void addAsText(TreeContext& context, Node newNode){
-			makeTextAddable(context);
-			//if there is already a	PlainText Token in the branch, just merge with that one
-			if(newNode.getType() == Node::Type::PlainText && context.stack.back().branches.size() > 0
-					&& context.stack.back().branches.back().getType() == Node::Type::PlainText){
-				std::get<PlainText>(context.stack.back().branches.back().node).text += std::get<PlainText>(newNode.node).text;
-			}
-			else{
-				context.stack.back().branches.push_back(newNode);
-			}
-		}
-		
-		void handleInlineFormat(TreeContext& context, const Token& token){
-			const InlineFormat& tokenFormat = std::get<InlineFormat>(token.token);
-			
-			bool alreadyInStyle = false;
-			for(const Node& i : context.stack){
-				if(i.getType() == Node::Type::StyleFormat){
-					const StyleFormat& format = std::get<StyleFormat>(i.node);
-					if(format.type == tokenFormat.type){
-						alreadyInStyle = true;
-						break;
-					}
-				}
-			}
-			if(alreadyInStyle && tokenFormat.end){
-				popSingle(context, [tokenFormat](const Node& nod){
-                    if(nod.getType() == Node::Type::StyleFormat){
-                        const StyleFormat& format = std::get<StyleFormat>(nod.node);
-                        if(tokenFormat.type == format.type){
-                            return true;
-                        }
+        void handleListNesting(TreeContext& context, std::size_t pos){
+            const auto countLists = [](TreeContext& context)->unsigned int{
+                unsigned int count = 0;
+                for(const Node& node : context.stack){
+                    if(node.getType() == Node::Type::List){
+                        count++;
                     }
-                    return false;
-                });
-                return;
-			}
-			else if(!alreadyInStyle && tokenFormat.begin){
-				//there needs to be a valid end token too, so let's check for that
-				bool hasValidEnd = false;
-				{
-					std::size_t pos = context.tokenPos + 1;
-					bool wasNewline = false;
-					while(pos < context.tokenedPage.tokens.size()){
-						const Token& checkToken = context.tokenedPage.tokens[pos];
-						if(checkToken.getType() == Token::Type::InlineFormat){
-							const InlineFormat& inlineFormat = std::get<InlineFormat>(checkToken.token);
-							if(tokenFormat.type == inlineFormat.type && inlineFormat.end){
-								hasValidEnd = true;
-								break;
-							}
-						}
-						else if(checkToken.getType() == Token::Type::NewLine){
-							if(wasNewline){
-								break;
-							}
-							else{
-								wasNewline = true;
-							}
-						}
-						else{
-							wasNewline = false;
-						}
-						pos++;
-					}
-				}
-				if(hasValidEnd){
-					makeTextAddable(context);
-					pushStack(context, Node{StyleFormat{tokenFormat.type, tokenFormat.color}});
-					return;
-				}
-			}
-			//this format marker doesn't line up with starting or stopping anything, so that means it is
-			//"degenerate"(in the mathematical sense) and should go back into plain text
-			switch(tokenFormat.type){
-				default:
-					addAsText(context, Node{PlainText{token.source}});
-					break;
-				case InlineFormat::Type::Strike:
-					addAsText(context, Node{PlainText{"—"}});
-					break;
-			}
-		}
-	}
-	
-	void handleQuoteBoxNesting(TreeContext& context, std::size_t pos){
-		const auto countQuoteBoxes = [](TreeContext& context)->unsigned int{
-			unsigned int count = 0;
-			for(const Node& node : context.stack){
-				if(node.getType() == Node::Type::QuoteBox){
-					count++;
-				}
-			}
-			return count;
-		};
-		
-		unsigned int wantedCount = 0;
-		if(context.tokenedPage.tokens[pos].getType() == Token::Type::QuoteBoxPrefix){
-			context.tokenPos++;
-			const QuoteBoxPrefix& quoteBoxPrefix = std::get<QuoteBoxPrefix>(context.tokenedPage.tokens[pos].token);
-			wantedCount = quoteBoxPrefix.degree;
-		}
-		while(true){
-			unsigned int count = countQuoteBoxes(context);
-			if(wantedCount > count){
-				makeDivPushable(context);
-				pushStack(context, Node{QuoteBox{}});
-			}
-			else if(wantedCount < count){
-				popSingle(context, Node::Type::QuoteBox);
-			}
-			else{
-				break;
-			}
-		}
-	}
-	
-	void handleListNesting(TreeContext& context, std::size_t pos){
-        const auto countLists = [](TreeContext& context)->unsigned int{
-            unsigned int count = 0;
-            for(const Node& node : context.stack){
-				if(node.getType() == Node::Type::List){
-					count++;
-				}
-			}
-			return count;
-        };
-        
-        List::Type wantedType = List::Type::Unknown;
-        unsigned int wantedCount = 0;
-        if(context.tokenedPage.tokens[pos].getType() == Token::Type::ListPrefix){
-			context.tokenPos++;
-			const ListPrefix& listPrefix = std::get<ListPrefix>(context.tokenedPage.tokens[pos].token);
-			wantedType = listPrefix.type;
-			wantedCount = listPrefix.degree;
-		}
-		
-		unsigned int count = countLists(context);
-		if(wantedCount == count){
-            if(count > 0){
-                popSingle(context, Node::Type::ListElement);
-                pushStack(context, Node{ListElement{}});
-            }
-		}
-        else{
-            if(count > 0){
-                while(context.stack.back().getType() != Node::Type::ListElement){
-                    popStackWithCarry(context);
                 }
-            }
-            else{
-                makeDivPushable(context);
+                return count;
+            };
+            
+            List::Type wantedType = List::Type::Unknown;
+            unsigned int wantedCount = 0;
+            if(context.tokenedPage.tokens[pos].getType() == Token::Type::ListPrefix){
+                context.tokenPos++;
+                const ListPrefix& listPrefix = std::get<ListPrefix>(context.tokenedPage.tokens[pos].token);
+                wantedType = listPrefix.type;
+                wantedCount = listPrefix.degree;
             }
             
-            if(wantedCount > count){
-                while(true){
-                    count = countLists(context);
-                    if(wantedCount == count){
-                        break;
-                    }
-                    pushStack(context, Node{List{wantedType}});
+            unsigned int count = countLists(context);
+            if(wantedCount == count){
+                if(count > 0){
+                    popSingle(context, Node::Type::ListElement);
                     pushStack(context, Node{ListElement{}});
                 }
             }
             else{
-                while(true){
-                    count = countLists(context);
-                    if(wantedCount == count){
-                        break;
-                    }
-                    popSingle(context, Node::Type::List);
-                    if(count > 1){
-                        popSingle(context, Node::Type::ListElement);
+                if(count > 0){
+                    while(context.stack.back().getType() != Node::Type::ListElement){
+                        popStackWithCarry(context);
                     }
                 }
-                if(wantedCount > 0){
-                    pushStack(context, Node{ListElement{}});
+                else{
+                    makeDivPushable(context);
+                }
+                
+                if(wantedCount > count){
+                    while(true){
+                        count = countLists(context);
+                        if(wantedCount == count){
+                            break;
+                        }
+                        pushStack(context, Node{List{wantedType}});
+                        pushStack(context, Node{ListElement{}});
+                    }
+                }
+                else{
+                    while(true){
+                        count = countLists(context);
+                        if(wantedCount == count){
+                            break;
+                        }
+                        popSingle(context, Node::Type::List);
+                        if(count > 1){
+                            popSingle(context, Node::Type::ListElement);
+                        }
+                    }
+                    if(wantedCount > 0){
+                        pushStack(context, Node{ListElement{}});
+                    }
                 }
             }
-		}
+        }
+	}
+	
+	namespace{
+        const std::vector<TreeRule> treeRules = {
+            TreeRule{{Token::Type::InlineFormat}, handleInlineFormat},
+            TreeRule{{Token::Type::PlainText}, handlePlainText},
+            TreeRule{{Token::Type::LiteralText}, handleLiteralText},
+            TreeRule{{Token::Type::LineBreak}, handleLineBreak},
+            TreeRule{{Token::Type::HyperLink}, handleHyperLink},
+            TreeRule{{Token::Type::InlineFormat}, handleInlineFormat},
+            TreeRule{{Token::Type::Heading}, handleHeading},
+            TreeRule{{Token::Type::Divider}, handleDivider},
+            
+            TreeRule{{Token::Type::Section, SectionType::Size}, handleSize},
+            TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan}
+        };
 	}
 	
 	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage){
@@ -507,7 +482,7 @@ namespace Parser{
 			}
 			
 			if(isInside(context, Node::Type::Paragraph)){
-				if(context.newlines == 1 && isTextType(token.getType())){
+				if(context.newlines == 1 && isTextType(token)){
 					addAsText(context, Node{LineBreak{}});
 				}
 				else if(context.newlines >= 2){
@@ -522,33 +497,80 @@ namespace Parser{
 			
 			context.newlines = 0;
 			
-			switch(token.getType()){
-				default:
-					throw std::runtime_error("Encountered Unknown/Unimplemented when constructing tree from page");
-				case Token::Type::PlainText:
-					addAsText(context, Node{std::get<PlainText>(token.token)});
-					break;
-				case Token::Type::LiteralText:
-					addAsText(context, Node{std::get<LiteralText>(token.token)});
-					break;
-				case Token::Type::LineBreak:
-					addAsText(context, Node{std::get<LineBreak>(token.token)});
-					break;
-				case Token::Type::HyperLink:
-					addAsText(context, Node{std::get<HyperLink>(token.token)});
-					break;
-				case Token::Type::InlineFormat:
-					handleInlineFormat(context, token);
-					break;
-				case Token::Type::Heading:
-					makeDivPushable(context);
-					pushStack(context, Node{std::get<Heading>(token.token)});
-					break;
-				case Token::Type::Divider:
-					addAsDiv(context, Node{std::get<Divider>(token.token)});
-					break;
+			bool found = false;
+			for(const TreeRule& rule : treeRules){
+                constexpr auto getSectionTypes = [](const Token& token, SectionType& type, ModuleType& moduleType){
+                    switch(token.getType()){
+                        case Token::Type::Section:
+                            {
+                                const Section& section = std::get<Section>(token.token);
+                                type = section.type;
+                                moduleType = section.moduleType;
+                            }
+                            break;
+                        case Token::Type::SectionStart:
+                            {
+                                const SectionStart& section = std::get<SectionStart>(token.token);
+                                type = section.type;
+                                moduleType = section.moduleType;
+                            }
+                            break;
+                        case Token::Type::SectionComplete:
+                            {
+                                const SectionComplete& section = std::get<SectionComplete>(token.token);
+                                type = section.type;
+                                moduleType = section.moduleType;
+                            }
+                            break;
+                        default:
+                            throw new std::runtime_error("Entered impossible situation when getting section types");
+                    }
+                };
+                
+                Token::Type tokenType = token.getType();
+                
+                switch(tokenType){
+                    default:
+                        if(tokenType == rule.type.mainType){
+                            rule.handleRule(context, token);
+                            found = true;
+                        }
+                        break;
+                    case Token::Type::Section:
+                    case Token::Type::SectionStart:
+                    case Token::Type::SectionComplete:
+                        if(rule.type.mainType == Token::Type::Section){
+                            SectionType sectionType;
+                            ModuleType moduleType;
+                            getSectionTypes(token, sectionType, moduleType);
+                            if(sectionType == rule.type.sectionType){
+                                if(sectionType == SectionType::Module){
+                                    if(rule.type.moduleType == moduleType){
+                                        rule.handleRule(context, token);
+                                        found = true;
+                                    }
+                                }
+                                else{
+                                    rule.handleRule(context, token);
+                                    found = true;
+                                }
+                            }
+                        }
+                        break;
+                    case Token::Type::SectionEnd:
+                        if(rule.type.mainType == Token::Type::Section && std::get<SectionEnd>(token.token).type == rule.type.sectionType){
+                            rule.handleRule(context, token);
+                            found = true;
+                        }
+                        break;
+                }
+                if(found){
+                    break;
+                }
 			}
-			
+			if(!found){
+                //throw std::runtime_error("Could not find handling rule for Token");
+			}
 		}
 		
 		while(context.stack.size() > 1){
