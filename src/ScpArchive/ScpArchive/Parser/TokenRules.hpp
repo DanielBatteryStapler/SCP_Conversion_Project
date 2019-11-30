@@ -4,6 +4,9 @@
 #include "Parser.hpp"
 
 namespace Parser{
+	bool tryCarriageReturn(const TokenRuleContext& context);
+	TokenRuleResult doCarriageReturn(const TokenRuleContext& context);
+    
 	bool tryCommentRule(const TokenRuleContext& context);
 	TokenRuleResult doCommentRule(const TokenRuleContext& context);
 	

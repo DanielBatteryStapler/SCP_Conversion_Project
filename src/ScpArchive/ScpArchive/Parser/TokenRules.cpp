@@ -55,6 +55,17 @@ namespace Parser{
 		}
 	}
 	
+	bool tryCarriageReturn(const TokenRuleContext& context){
+        return check(context.page, context.pagePos, "\r");
+	}
+	
+	TokenRuleResult doCarriageReturn(const TokenRuleContext& context){
+        TokenRuleResult result;
+        result.newPos = context.pagePos + 1;
+        result.nowNewline = context.wasNewLine;//make sure to preserve newline status
+        return result;
+	}
+	
 	bool tryCommentRule(const TokenRuleContext& context){
 		if(check(context.page, context.pagePos, "[!--")){
 			return true;
@@ -230,8 +241,12 @@ namespace Parser{
         if(context.wasNewLine){
             std::size_t pos = context.pagePos;
 			while(pos < context.page.size()){
-				if(check(context.page, pos, " ")){
+				if(context.page[pos] == ' '){
 					//keep going
+				}
+				else if(check(context.page, pos, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)})){//special unicode space
+                    pos++;//the unicode space is 2 bytes long so we need to add in an extra increment
+                    //keep going
 				}
 				else if(check(context.page, pos, "* ")){
                     return true;
@@ -251,16 +266,22 @@ namespace Parser{
 	TokenRuleResult doListPrefixRule(const TokenRuleContext& context){
         std::size_t pos = context.pagePos;
 		ListPrefix prefix;
+		prefix.degree = 1;
 		while(pos < context.page.size()){
-			if(check(context.page, pos, "* ")){
+			if(context.page[pos] == ' '){
+                prefix.degree++;
+            }
+            else if(check(context.page, pos, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)})){//special unicode space
+                pos++;//the unicode space is 2 bytes long so we need to add in an extra increment
+                prefix.degree++;
+            }
+			else if(check(context.page, pos, "* ")){
 				prefix.type = ListPrefix::Type::Bullet;
-				prefix.degree = pos - context.pagePos + 1;
 				pos += 2;//skip the "* "
 				break;
 			}
 			else if(check(context.page, pos, "# ")){
                 prefix.type = ListPrefix::Type::Number;
-				prefix.degree = pos - context.pagePos + 1;
 				pos += 2;//skip the "# "
 				break;
 			}

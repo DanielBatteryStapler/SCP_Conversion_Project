@@ -308,6 +308,7 @@ namespace Parser{
 		}
 		
 		const std::vector<TokenRule> standardRules = {
+			TokenRule{"carriageReturn", tryCarriageReturn, doCarriageReturn},
 			TokenRule{"comment", tryCommentRule, doCommentRule},
 			TokenRule{"heading", tryHeadingRule, doHeadingRule},
 			TokenRule{"divider", tryDividerRule, doDividerRule},
