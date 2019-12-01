@@ -731,6 +731,31 @@ namespace Tests{
 					}
 				}
 			});
+			assertPageTree(
+			"> quote\n>  **too** many spaces\n> box",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"quote"}},
+									Node{LineBreak{}},
+									Node{StyleFormat{StyleFormat::Type::Bold},
+                                        {
+                                            Node{PlainText{"too"}}
+                                        }
+									},
+									Node{PlainText{" many spaces"}},
+									Node{LineBreak{}},
+									Node{PlainText{"box"}}
+								}
+							}
+						}
+					}
+				}
+			});
 		});
 		
 		tester.add("Parser::makeTreeFromPage List",[](){

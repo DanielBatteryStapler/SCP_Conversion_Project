@@ -343,6 +343,19 @@ namespace Parser{
 	}
 	
 	TokenedPage tokenizePage(std::string page){
+		//just to save myself some headaches, lets replace all nonbreaking spaces with normal spaces
+		//this might be refactored out in the future if the token rules are updated to deal with nonbreaking spaces more correctly
+		const auto replaceAll = [](std::string str, const std::string& from, const std::string& to)->std::string{
+            size_t start_pos = 0;
+            while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                str.replace(start_pos, from.length(), to);
+                start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+            }
+            return str;
+        };
+		
+		page = replaceAll(page, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)}, " ");
+		
 		TokenRuleContext context = applyTokenizingRules(std::move(page), standardRules);
 		
 		TokenedPage output;
