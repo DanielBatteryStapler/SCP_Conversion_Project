@@ -14,6 +14,7 @@ class MarkupOutStream{
 		MarkupOutStream();
 		MarkupOutStream(std::ostream* outputStream);
 		
+		MarkupOutStream& operator<<(char c);
 		MarkupOutStream& operator<<(std::string str);
 		MarkupOutStream& operator<<(const MarkupOutStream::MarkupOutString& str);
 		MarkupOutStream& operator<<(MarkupOutStream::MarkupOutString&& str);

@@ -136,6 +136,7 @@ namespace Parser{
 		bool operator==(const Token& tok)const;
 	};
 	
+	std::string tokenVariantToString(const Token& token);
 	std::string toString(const Token& token);
 	std::ostream& operator<<(std::ostream& out, const Token& tok);
 	

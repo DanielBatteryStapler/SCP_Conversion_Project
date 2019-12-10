@@ -79,6 +79,11 @@ MarkupOutStream::MarkupOutStream(std::ostream* outputStream):
 	
 }
 
+MarkupOutStream& MarkupOutStream::operator<<(char c){
+	*outStream << escapeMarkup(std::string(1, c));
+	return *this;
+}
+
 MarkupOutStream& MarkupOutStream::operator<<(std::string str){
 	*outStream << escapeMarkup(str);
 	return *this;

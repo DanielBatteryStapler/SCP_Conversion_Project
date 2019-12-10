@@ -107,11 +107,9 @@ namespace Parser{
 		return token == tok.token && sourceStart == tok.sourceStart && sourceEnd == tok.sourceEnd && source == tok.source;
 	}
 	
-	std::string toString(const Token& tok){
-		
+	std::string tokenVariantToString(const Token& tok){
 		std::stringstream ss;
 		
-		ss << "{";
 		switch(tok.getType()){
 			default:
 				ss << "Unknown";
@@ -254,6 +252,15 @@ namespace Parser{
 				ss << "NewLine";
 				break;
 		}
+		return ss.str();
+	}
+	
+	std::string toString(const Token& tok){
+		
+		std::stringstream ss;
+		
+		ss << "{";
+		ss << tokenVariantToString(tok);
 		ss << "} -> [" << tok.sourceStart << ", " << tok.sourceEnd << ") = \"";
 		for(char c : tok.source){
 			switch(c){
