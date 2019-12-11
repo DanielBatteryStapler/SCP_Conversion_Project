@@ -276,7 +276,7 @@ namespace Parser{
 		//thank you, https://stackoverflow.com/questions/309149/generate-distinctly-different-rgb-colors-in-graphs#309193
 		std::string getColor(int i, bool hover){
 			constexpr auto toNum = [](char c)->int{
-				if(std::isdigit(c)){
+				if(std::isalpha(c)){
 					return c - 'A' + 10;
 				}
 				else{
@@ -311,6 +311,9 @@ namespace Parser{
 					if(c == '\n'){
 						out << "\u00B6<br />"_AM;
 					}
+					else if(c == ' '){
+						out << "&ensp;"_AM;
+					}
 					else{
 						out << c;
 					}
@@ -323,6 +326,9 @@ namespace Parser{
 				if(page.originalPage[pos] == '\n'){
 					out << "\u00B6<br />"_AM;
 				}
+				else if(page.originalPage[pos] == ' '){
+						out << "&ensp;"_AM;
+					}
 				else{
 					out << page.originalPage[pos];
 				}
