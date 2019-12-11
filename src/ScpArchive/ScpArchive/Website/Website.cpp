@@ -21,6 +21,9 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 	while(true){
 		Gateway::RequestContext context = threadContext.getNextRequest();
 		
+		Website::Context websiteContext;
+		websiteContext.db = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
+		
 		if(context.shouldShutdown){
 			std::cout << "Stopping thread #" << threadContext.threadIndex << "...\n";
 			return;
@@ -37,44 +40,9 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 			}
 			std::cout << "]\n";
 			
-			if(uri.size() == 1){
-				std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
-				
-				std::optional<Database::ID> pageId = db->getPageId(uri[0]);
-				if(pageId){
-					Database::PageRevision revision = db->getLatestPageRevision(*pageId);
-					
-					context.out << "HTTP/1.1 200 OK\r\n"_AM
-					<< "Content-Type: text/html\r\n\r\n"_AM;
-					
-					context.out << "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
-					<< revision.title << "</title></head><body>"_AM;
-					
-					Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);
-					for(const auto& tok : pageTokens.tokens){
-						//std::cout << Parser::toString(tok) << "\n";
-					}
-					Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens);
-					Parser::convertPageTreeToHtml(context.out, pageTree);
-					context.out << "</body></html>"_AM;
-					
-					threadContext.finishRequest(std::move(context));
-				}
-				else{
-					context.out << "HTTP/1.1 404 NOT FOUND\r\n"_AM
-					<< "Content-Type: text/html\r\n\r\n"_AM
-					<< "<html><body><h1>Page not found</h1></body></html>"_AM;
-					
-					threadContext.finishRequest(std::move(context));
-				}
-			}
-			else{
-				context.out << "HTTP/1.1 200 OK\r\n"_AM
-				<< "Content-Type: text/html\r\n\r\n"_AM
-				<< "<html><body><h1>Hello from the SCP Conversion Project!</h1></body></html>"_AM;
-				
-				threadContext.finishRequest(std::move(context));
-			}
+			handleUri(context, websiteContext, uri);
+			
+			threadContext.finishRequest(std::move(context));
 		}
 	}
 }
@@ -93,3 +61,89 @@ std::vector<std::string> Website::splitUri(std::string uri){
 	
 	return output;
 }
+
+void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCon, std::vector<std::string> uri){
+	
+	bool give404 = true;
+	
+	if(uri.size() == 0){
+		std::optional<Database::ID> pageId = webCon.db->getPageId("main");
+		if(pageId){
+			give404 = false;
+			handlePage(reqCon, webCon, *pageId, {});
+		}
+	}
+	if(uri.size() >= 1){
+		std::optional<Database::ID> pageId = webCon.db->getPageId(uri[0]);
+		
+		std::map<std::string, std::string> parameters;
+		
+		for(int i = 1; i < uri.size(); i += 2){
+			if(i + 1 < uri.size()){
+				parameters[uri[i]] = uri[i + 1];
+			}
+			else{
+				parameters[uri[i]] = "";
+			}
+		}
+		
+		if(pageId){
+			give404 = false;
+			handlePage(reqCon, webCon, *pageId, parameters);
+		}
+	}
+	
+	if(give404){
+		reqCon.out << "HTTP/1.1 404 NOT FOUND\r\n"_AM
+		<< "Content-Type: text/html\r\n\r\n"_AM
+		<< "<html><body><h1>Page not found</h1></body></html>"_AM;
+	}
+	
+	
+	
+}
+
+void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, Database::ID pageId, std::map<std::string, std::string> parameters){
+	
+	Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
+	
+	reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+	<< "Content-Type: text/html\r\n\r\n"_AM
+	<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
+	<< revision.title << "</title></head><body>"_AM;
+	
+	Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);
+	Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens);
+	if(parameters.find("showAnnotatedSource") != parameters.end()){
+		reqCon.out << "<p>"_AM;
+		Parser::convertTokenedPageToHtml(reqCon.out, pageTokens);
+		reqCon.out << "</p>"_AM;
+	}
+	else if(parameters.find("showSource") != parameters.end()){
+		reqCon.out << "<p>"_AM;
+		for(char c : pageTokens.originalPage){
+			if(c == '\n'){
+				reqCon.out << "<br />\n"_AM;
+			}
+			else if(c == ' '){
+				reqCon.out << "&ensp;"_AM;
+			}
+			else{
+				reqCon.out << c;
+			}
+		}
+		reqCon.out << "</p>"_AM;
+	}
+	else{
+		Parser::convertPageTreeToHtml(reqCon.out, pageTree);
+	}
+	reqCon.out << "</body></html>"_AM;
+}
+
+
+
+
+
+
+
+
