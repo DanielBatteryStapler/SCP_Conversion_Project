@@ -994,6 +994,25 @@ namespace Tests{
 				}
 			});
         });
+        
+        tester.add("Parser::makeTreeFromPage Div",[](){
+			assertPageTree(
+			"[[div style=\"color:blue;\"]]\nhello\n[[/div]]",
+			Node{
+				RootPage{},
+				{
+					Node{Div{{{"style", "color:blue;"}}},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"hello"}}
+								}
+							}
+						}
+					}
+				}
+			});
+        });
 	}
 }
 

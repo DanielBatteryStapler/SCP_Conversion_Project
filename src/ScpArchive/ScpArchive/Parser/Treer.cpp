@@ -13,6 +13,10 @@ namespace Parser{
     bool Span::operator==(const Span& nod)const{
         return parameters == nod.parameters;
     }
+    
+    bool Div::operator==(const Div& nod)const{
+        return parameters == nod.parameters;
+    }
 	
     bool Align::operator==(const Align& nod)const{
         return type == nod.type;
@@ -184,6 +188,16 @@ namespace Parser{
                     ss << "}";
 				}
 				break;
+			case Node::Type::Div:
+				{
+					const Div& div = std::get<Div>(nod.node);
+                    ss << "Div:{";
+                    for(auto i = div.parameters.begin(); i != div.parameters.end(); i++){
+                        ss << i->first << ": " << i->second << ", ";
+                    }
+                    ss << "}";
+				}
+				break;
 		}
 		ss << "\n";
 		
@@ -249,6 +263,7 @@ namespace Parser{
             case Node::Type::Align:
             case Node::Type::RootPage:
             case Node::Type::QuoteBox:
+			case Node::Type::Div:
                 return true;
         }
     }
@@ -459,6 +474,7 @@ namespace Parser{
             TreeRule{{Token::Type::Divider}, handleDivider},
             
             TreeRule{{Token::Type::Section, SectionType::Size}, handleSize},
+            TreeRule{{Token::Type::Section, SectionType::Div}, handleDiv},
             TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan},
             TreeRule{{Token::Type::Section, SectionType::Align}, handleAlign}
         };

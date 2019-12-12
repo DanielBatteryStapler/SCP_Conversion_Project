@@ -176,6 +176,18 @@ namespace Parser{
 		}
 		
 		template<>
+		void handleNode<Div>(MarkupOutStream& out, const Node& nod){
+            const Div& node = std::get<Div>(nod.node);
+            out << "<div"_AM;
+            for(auto i = node.parameters.begin(); i != node.parameters.end(); i++){
+                out << " "_AM << i->first << "='"_AM << i->second << "'"_AM;
+            }
+            out << ">"_AM;
+            delegateBranch(out, nod);
+            out << "</div>"_AM;
+		}
+		
+		template<>
 		void handleNode<Align>(MarkupOutStream& out, const Node& nod){
             const Align& node = std::get<Align>(nod.node);
             std::string textAlign;
@@ -245,6 +257,9 @@ namespace Parser{
                     break;
                 case Node::Type::Span:
                     handleNode<Span>(out, nod);
+                    break;
+				case Node::Type::Div:
+                    handleNode<Div>(out, nod);
                     break;
                 case Node::Type::Align:
                     handleNode<Align>(out, nod);

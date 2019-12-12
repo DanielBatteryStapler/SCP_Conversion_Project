@@ -14,6 +14,7 @@ namespace Parser{
     void handleDivider(TreeContext& context, const Token& token);
     
     void handleSpan(TreeContext& context, const Token& token);
+    void handleDiv(TreeContext& context, const Token& token);
     void handleSize(TreeContext& context, const Token& token);
     void handleAlign(TreeContext& context, const Token& token);
 }
