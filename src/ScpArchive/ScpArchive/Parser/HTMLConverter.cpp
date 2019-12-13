@@ -176,6 +176,12 @@ namespace Parser{
 		}
 		
 		template<>
+		void handleNode<Anchor>(MarkupOutStream& out, const Node& nod){
+            const Anchor& node = std::get<Anchor>(nod.node);
+            out << "<a name='"_AM << node.name << "'></a>"_AM;
+		}
+		
+		template<>
 		void handleNode<Div>(MarkupOutStream& out, const Node& nod){
             const Div& node = std::get<Div>(nod.node);
             out << "<div"_AM;
@@ -257,6 +263,9 @@ namespace Parser{
                     break;
                 case Node::Type::Span:
                     handleNode<Span>(out, nod);
+                    break;
+				case Node::Type::Anchor:
+                    handleNode<Anchor>(out, nod);
                     break;
 				case Node::Type::Div:
                     handleNode<Div>(out, nod);

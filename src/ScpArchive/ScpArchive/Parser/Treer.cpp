@@ -14,6 +14,10 @@ namespace Parser{
         return parameters == nod.parameters;
     }
     
+	bool Anchor::operator==(const Anchor& nod)const{
+		return nod.name == name;
+	}
+    
     bool Div::operator==(const Div& nod)const{
         return parameters == nod.parameters;
     }
@@ -188,6 +192,11 @@ namespace Parser{
                     ss << "}";
 				}
 				break;
+			case Node::Type::Anchor:
+                {
+					const Anchor& anchor = std::get<Anchor>(nod.node);
+                    ss << "Anchor:" << anchor.name;
+				}
 			case Node::Type::Div:
 				{
 					const Div& div = std::get<Div>(nod.node);
@@ -236,6 +245,7 @@ namespace Parser{
                 return false;
             case SectionType::Size:
             case SectionType::Span:
+			case SectionType::Anchor:
                 return true;
         }
     }
@@ -493,6 +503,7 @@ namespace Parser{
             
             TreeRule{{Token::Type::Section, SectionType::Size}, handleSize},
             TreeRule{{Token::Type::Section, SectionType::Div}, handleDiv},
+            TreeRule{{Token::Type::Section, SectionType::Anchor}, handleAnchor},
             TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan},
             TreeRule{{Token::Type::Section, SectionType::Align}, handleAlign},
             

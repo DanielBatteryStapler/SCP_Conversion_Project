@@ -28,13 +28,15 @@ namespace Parser{
         };
         
         const std::vector<SectionRule> sectionRules = {
-            //SectionRule{type, matchingNames, subsnameType, moduleType, matchingModules,
+            //SectionRule{type, matchingNames, subnameType, moduleType, matchingModules,
             //    contentType, parameterType, allowInline},
             
             SectionRule{SectionType::Span, {"span"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::Quoted, true},
             SectionRule{SectionType::Size, {"size"}, SubnameType::Parameter, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::None, true},
+			SectionRule{SectionType::Anchor, {"#"}, SubnameType::Parameter, ModuleType::Unknown, {},
+                ContentType::None, ParameterType::None, true},
             
             SectionRule{SectionType::Align, {"<", ">", "=", "=="}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::None, false},

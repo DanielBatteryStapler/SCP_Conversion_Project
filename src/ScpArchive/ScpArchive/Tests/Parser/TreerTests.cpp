@@ -1034,6 +1034,22 @@ namespace Tests{
 				CSS{"\n.test{color:black;}\n"}
 			});
         });
+        
+        tester.add("Parser::makeTreeFromPage Anchor",[](){
+			assertPageTree(
+			"[[# yeah]]you know?",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{Anchor{"yeah"}},
+							Node{PlainText{"you know?"}}
+						}
+					}
+				}
+			});
+        });
 	}
 }
 

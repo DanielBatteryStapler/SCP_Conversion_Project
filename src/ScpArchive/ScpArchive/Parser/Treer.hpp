@@ -17,6 +17,12 @@ namespace Parser{
         bool operator==(const Span& nod)const;
 	};
 	
+	struct Anchor{
+		std::string name;
+		
+		bool operator==(const Anchor& nod)const;
+	};
+	
 	struct Div{
         std::map<std::string, std::string> parameters;
         
@@ -62,8 +68,8 @@ namespace Parser{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Size};
-	using NodeVariant = std::variant<std::monostate, RootPage, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Size>;
+	enum class NodeType{Unknown = 0, RootPage, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
+	using NodeVariant = std::variant<std::monostate, RootPage, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	
 	struct Node{
 		using Type = NodeType;

@@ -177,6 +177,10 @@ namespace Parser{
 		context.cssData.push_back(CSS{sectionComplete.contents});
     }
     
+    void handleAnchor(TreeContext& context, const Token& token){
+		const Section& section = std::get<Section>(token.token);
+		addAsText(context, Node{Anchor{section.mainParameter}});
+    }
     
     
     
