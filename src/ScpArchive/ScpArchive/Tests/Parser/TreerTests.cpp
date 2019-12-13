@@ -6,9 +6,12 @@ namespace Tests{
 	using namespace Parser;
 	
 	namespace{
-		void assertPageTree(std::string source, Node node){
+		void assertPageTree(std::string source, Node node, std::vector<CSS> cssData = {}){
 			PageTree page = makeTreeFromPage(source);
-			assertEquals(node, page.pageRoot);
+			PageTree compare;
+			compare.pageRoot = std::move(node);
+			compare.cssData = std::move(cssData);
+			assertEquals(compare, page);
 		}
 	}
 	
@@ -1011,6 +1014,24 @@ namespace Tests{
 						}
 					}
 				}
+			});
+        });
+        
+        tester.add("Parser::makeTreeFromPage CSS",[](){
+			assertPageTree(
+			"[[module CSS]]\n.test{color:black;}\n[[/module]]\nhello",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"hello"}}
+						}
+					}
+				}
+			},
+			{
+				CSS{"\n.test{color:black;}\n"}
 			});
         });
 	}

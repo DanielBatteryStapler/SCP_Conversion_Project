@@ -212,6 +212,24 @@ namespace Parser{
 		return out << toString(nod);
 	}
 	
+	bool CSS::operator==(const CSS& css)const{
+		return data == css.data;
+	}
+	
+	bool PageTree::operator==(const PageTree& page)const{
+		return page.pageRoot == pageRoot && page.cssData == cssData;
+	}
+	
+	std::ostream& operator<<(std::ostream& out, const PageTree& page){
+		out << toString(page.pageRoot);
+		out << "CSS{\n";
+		for(const CSS& css : page.cssData){
+			out << "    " << css.data << ",\n";
+		}
+		out << "}\n";
+		return out;
+	}
+	
     bool isTextType(SectionType type){
         switch(type){
             default:
@@ -476,7 +494,9 @@ namespace Parser{
             TreeRule{{Token::Type::Section, SectionType::Size}, handleSize},
             TreeRule{{Token::Type::Section, SectionType::Div}, handleDiv},
             TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan},
-            TreeRule{{Token::Type::Section, SectionType::Align}, handleAlign}
+            TreeRule{{Token::Type::Section, SectionType::Align}, handleAlign},
+            
+            TreeRule{{Token::Type::Section, SectionType::Module, ModuleType::CSS}, handleCSS}
         };
 	}
 	
@@ -602,7 +622,8 @@ namespace Parser{
 			popStack(context);
 		}
 		
-		page.pageRoot = context.stack[0];
+		page.pageRoot = std::move(context.stack[0]);
+		page.cssData = std::move(context.cssData);
 		
 		return page;
 	}

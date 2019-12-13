@@ -107,19 +107,24 @@ void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 	
 	Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
 	
-	reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
-	<< "Content-Type: text/html\r\n\r\n"_AM
-	<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
-	<< revision.title << "</title></head><body>"_AM;
-	
 	Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);
 	Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens);
 	if(parameters.find("showAnnotatedSource") != parameters.end()){
+		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+		<< "Content-Type: text/html\r\n\r\n"_AM
+		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
+		<< revision.title << "</title></head><body>"_AM;
+		
 		reqCon.out << "<p>"_AM;
 		Parser::convertTokenedPageToHtml(reqCon.out, pageTokens);
 		reqCon.out << "</p>"_AM;
 	}
 	else if(parameters.find("showSource") != parameters.end()){
+		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+		<< "Content-Type: text/html\r\n\r\n"_AM
+		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
+		<< revision.title << "</title></head><body>"_AM;
+		
 		reqCon.out << "<p>"_AM;
 		for(char c : pageTokens.originalPage){
 			if(c == '\n'){
@@ -135,6 +140,15 @@ void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		reqCon.out << "</p>"_AM;
 	}
 	else{
+		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+		<< "Content-Type: text/html\r\n\r\n"_AM
+		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
+		<< revision.title << "</title>"_AM;
+		for(const auto& css : pageTree.cssData){
+			reqCon.out << "<style>"_AM << allowMarkup(css.data) << "</style>"_AM;///!!!! This allows for code injection!!! there is no sanitation on that CSS!!!
+		}
+		reqCon.out << "</head><body>"_AM;
+		
 		Parser::convertPageTreeToHtml(reqCon.out, pageTree);
 	}
 	reqCon.out << "</body></html>"_AM;

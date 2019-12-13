@@ -78,9 +78,20 @@ namespace Parser{
 	std::string toString(const Node& nod, int tab = 0);
 	std::ostream& operator<<(std::ostream& out, const Node& nod);
 	
+	struct CSS{
+		std::string data;
+		
+		bool operator==(const CSS& css)const;
+	};
+	
 	struct PageTree{
 		Node pageRoot;
+		std::vector<CSS> cssData;
+		
+		bool operator==(const PageTree& page)const;
 	};
+	
+	std::ostream& operator<<(std::ostream& out, const PageTree& page);
 	
 	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage);
 	PageTree makeTreeFromPage(std::string page);
@@ -91,6 +102,8 @@ namespace Parser{
         int newlines;
         std::size_t tokenPos;
         TokenedPage tokenedPage;
+        
+        std::vector<CSS> cssData;
     };
     
     struct TreeRule{
