@@ -4,6 +4,10 @@
 
 namespace Parser{
     namespace{
+        inline void toLower(std::string& str){
+            std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+        }
+        
         inline std::string getSectionContent(const TokenRuleContext& context, std::size_t& pos){
             std::string content;
             {
@@ -52,6 +56,7 @@ namespace Parser{
             if(content.size() > 0 && content[0] == '/'){
                 content = content.substr(1, content.size() - 1);
                 trimString(content);
+                toLower(content);
                 
                 const std::vector<SectionRule> sectionRules = getSectionRules();
                 for(auto i = sectionRules.begin(); i != sectionRules.end(); i++){
@@ -68,7 +73,9 @@ namespace Parser{
                 std::string name;
                 std::string subName;
                 getName(content, name);
+                toLower(name);
                 getName(content, subName);
+                toLower(subName);
                 
                 const std::vector<SectionRule> sectionRules = getSectionRules();
                 for(auto i = sectionRules.begin(); i != sectionRules.end(); i++){
@@ -256,6 +263,7 @@ namespace Parser{
                         std::string endContent = getSectionContent(context, tempPos);
                         endContent = endContent.substr(1, endContent.size() - 1);//remove the first /
                         trimString(endContent);
+                        toLower(endContent);
                         if(std::find(rule.matchingNames.begin(), rule.matchingNames.end(), endContent) != rule.matchingNames.end()){
                             break;
                         }

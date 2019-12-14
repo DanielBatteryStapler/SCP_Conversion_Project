@@ -1000,7 +1000,7 @@ namespace Tests{
         
         tester.add("Parser::makeTreeFromPage Div",[](){
 			assertPageTree(
-			"[[div style=\"color:blue;\"]]\nhello\n[[/div]]",
+			"[[diV style=\"color:blue;\"]]\nhello\n[[/Div]]",
 			Node{
 				RootPage{},
 				{
@@ -1019,7 +1019,7 @@ namespace Tests{
         
         tester.add("Parser::makeTreeFromPage CSS",[](){
 			assertPageTree(
-			"[[module CSS]]\n.test{color:black;}\n[[/module]]\nhello",
+			"[[module Css]]\n.test{color:black;}\n[[/module]]\nhello",
 			Node{
 				RootPage{},
 				{
