@@ -20,6 +20,8 @@
 					<Add directory="ScpArchive/Parser" />
 					<Add directory="ScpArchive/UntestedUtils" />
 					<Add directory="ScpArchive/Tests/Parser" />
+					<Add directory="ScpArchive/Parser/Rules" />
+					<Add directory="ScpArchive/Parser/Rules/RuleSets" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -36,6 +38,8 @@
 					<Add directory="ScpArchive/Parser" />
 					<Add directory="ScpArchive/UntestedUtils" />
 					<Add directory="ScpArchive/Tests/Parser" />
+					<Add directory="ScpArchive/Parser/Rules" />
+					<Add directory="ScpArchive/Parser/Rules/RuleSets" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -76,14 +80,51 @@
 		<Unit filename="ScpArchive/Parser/HTMLConverter.hpp" />
 		<Unit filename="ScpArchive/Parser/Parser.cpp" />
 		<Unit filename="ScpArchive/Parser/Parser.hpp" />
-		<Unit filename="ScpArchive/Parser/SectionRules.cpp" />
-		<Unit filename="ScpArchive/Parser/SectionRules.hpp" />
-		<Unit filename="ScpArchive/Parser/TokenRules.cpp" />
-		<Unit filename="ScpArchive/Parser/TokenRules.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSetUtil.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/AlignRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/AlignRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/AnchorRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/AnchorRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/BasicTextRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/BasicTextRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CSSRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CSSRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CodeRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CodeRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CommentRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CommentRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/DivRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/DivRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/DividerRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/DividerRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/EntityEscapeRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/EntityEscapeRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HeadingRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HeadingRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HyperLinkRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HyperLinkRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IncludeRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IncludeRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/InlineFormatRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/InlineFormatRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ListRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ListRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/LiteralTextRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/LiteralTextRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/NullRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/NullRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/QuoteBoxRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/QuoteBoxRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SectionRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SectionRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SizeRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SizeRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SpanRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SpanRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Treer.cpp" />
 		<Unit filename="ScpArchive/Parser/Treer.hpp" />
-		<Unit filename="ScpArchive/Parser/TreerRules.cpp" />
-		<Unit filename="ScpArchive/Parser/TreerRules.hpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.hpp" />
 		<Unit filename="ScpArchive/Tests/Database/DatabaseTests.cpp" />

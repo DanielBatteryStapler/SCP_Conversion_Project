@@ -1,9 +1,8 @@
 #include "Parser.hpp"
 
-#include <sstream>
+#include "Rules/RuleSet.hpp"
 
-#include "TokenRules.hpp"
-#include "SectionRules.hpp"
+#include <sstream>
 
 namespace Parser{
 	std::string& trimLeft(std::string& s) {
@@ -313,40 +312,6 @@ namespace Parser{
 			}
 			return context;
 		}
-		
-		const std::vector<TokenRule> standardRules = {
-			TokenRule{"carriageReturn", tryCarriageReturn, doCarriageReturn},
-			TokenRule{"comment", tryCommentRule, doCommentRule},
-			TokenRule{"heading", tryHeadingRule, doHeadingRule},
-			TokenRule{"divider", tryDividerRule, doDividerRule},
-			TokenRule{"quoteBoxPrefix", tryQuoteBoxPrefixRule, doQuoteBoxPrefixRule},
-			TokenRule{"listPrefix", tryListPrefixRule, doListPrefixRule},
-			
-			TokenRule{"strike", tryStrikeRule, doStrikeRule},
-			TokenRule{"italics", tryItalicsRule, doItalicsRule},
-			TokenRule{"bold", tryBoldRule, doBoldRule},
-			TokenRule{"underline", tryUnderlineRule, doUnderlineRule},
-			TokenRule{"super", trySuperRule, doSuperRule},
-			TokenRule{"sub", trySubRule, doSubRule},
-			TokenRule{"monospace", tryMonospaceRule, doMonospaceRule},
-			TokenRule{"color", tryColorRule, doColorRule},
-			
-			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
-			
-			TokenRule{"section", trySectionRule, doSectionRule},
-			
-			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},
-			TokenRule{"bareLink", tryBareLinkRule, doBareLinkRule},
-			
-			TokenRule{"entityEscape", tryEntityEscapeRule, doEntityEscapeRule},
-			TokenRule{"literalText", tryLiteralTextRule, doLiteralTextRule}, 
-			TokenRule{"lineBreak", tryLineBreakRule, doLineBreakRule},
-			TokenRule{"escapedNewLine", tryEscapedNewLineRule, doEscapedNewLineRule},
-			TokenRule{"newLine", tryNewLineRule, doNewLineRule},
-			TokenRule{"typography", tryTypographyRule, doTypographyRule},
-			TokenRule{"prelineSpace", tryPrelineSpaceRule, doPrelineSpaceRule},
-			TokenRule{"plainText", tryPlainTextRule, doPlainTextRule}
-		};
 	}
 	
 	TokenedPage tokenizePage(std::string page){
@@ -363,7 +328,7 @@ namespace Parser{
 		
 		page = replaceAll(page, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)}, " ");
 		
-		TokenRuleContext context = applyTokenizingRules(std::move(page), standardRules);
+		TokenRuleContext context = applyTokenizingRules(std::move(page), getTokenRules());
 		
 		TokenedPage output;
 		output.originalPage = std::move(context.page);
@@ -389,23 +354,14 @@ namespace Parser{
 		return output;
 	}
 	
-	namespace{
-		bool check(const std::string& buffer, std::size_t pos, std::string text){
-			if(pos + text.size() > buffer.size()){
-				return false;
-			}
-			std::string temp = buffer.substr(pos, text.size());
-			return text == temp;
-		}
-	}
-	
 	std::vector<std::string> getPageLinks(std::string page){
-		const std::vector<TokenRule> rules = {
-			TokenRule{"comment", tryCommentRule, doCommentRule},
-			TokenRule{"tripleLink", tryTripleLinkRule, doTripleLinkRule},
-			TokenRule{"singleLink", trySingleLinkRule, doSingleLinkRule},
-			TokenRule{"null", tryNullRule, doNullRule}
-		};
+		const std::vector<TokenRule> rules = getTokenRules();
+		/*{
+			TokenRule{tryCommentRule, doCommentRule},
+			TokenRule{tryTripleLinkRule, doTripleLinkRule},
+			TokenRule{trySingleLinkRule, doSingleLinkRule},
+			TokenRule{tryNullRule, doNullRule}
+		};*/
 		
 		TokenRuleContext context = applyTokenizingRules(std::move(page), rules);
 		std::vector<std::string> links;

@@ -112,16 +112,6 @@ namespace Parser{
         std::vector<CSS> cssData;
     };
     
-    struct TreeRule{
-        struct TreeRuleType{
-            Token::Type mainType;
-            SectionType sectionType = SectionType::Unknown;
-            ModuleType moduleType = ModuleType::Unknown;
-        };
-        TreeRuleType type;
-        std::function<void(TreeContext&, const Token&)> handleRule;
-    };
-    
     bool isTextType(SectionType type);
     bool isTextType(const Token& tok);
     bool isTextInsertable(Node::Type type);

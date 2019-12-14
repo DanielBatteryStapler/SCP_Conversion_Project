@@ -160,12 +160,6 @@ namespace Parser{
 		bool nowNewline = false;
 		std::vector<Token> newTokens;
 	};
-	
-	struct TokenRule{
-		std::string name;
-		std::function<bool(const TokenRuleContext&)> tryRule;
-		std::function<TokenRuleResult(const TokenRuleContext&)> doRule;
-	};
 };
 
 #endif // PARSER_HPP

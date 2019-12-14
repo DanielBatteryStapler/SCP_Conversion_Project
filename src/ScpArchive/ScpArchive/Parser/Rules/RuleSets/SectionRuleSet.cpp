@@ -1,58 +1,9 @@
-#include "SectionRules.hpp"
+#include "SectionRuleSet.hpp"
 
 #include <sstream>
 
 namespace Parser{
     namespace{
-        inline bool check(const std::string& buffer, std::size_t pos, std::string text){
-			if(pos + text.size() > buffer.size()){
-				return false;
-			}
-			std::string temp = buffer.substr(pos, text.size());
-			return text == temp;
-		}
-        
-        enum class SubnameType{None, Parameter, Module};
-        enum class ContentType{None, Surround, Contain};
-        enum class ParameterType{None, Quoted, Lined};
-        
-        struct SectionRule{
-            SectionType type;
-            std::vector<std::string> matchingNames;
-            SubnameType subnameType;
-            ModuleType moduleType;
-            std::vector<std::string> matchingModules;
-            ContentType contentType;
-            ParameterType parameterType;
-            bool allowInline;
-        };
-        
-        const std::vector<SectionRule> sectionRules = {
-            //SectionRule{type, matchingNames, subnameType, moduleType, matchingModules,
-            //    contentType, parameterType, allowInline},
-            
-            SectionRule{SectionType::Span, {"span"}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::Quoted, true},
-            SectionRule{SectionType::Size, {"size"}, SubnameType::Parameter, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::None, true},
-			SectionRule{SectionType::Anchor, {"#"}, SubnameType::Parameter, ModuleType::Unknown, {},
-                ContentType::None, ParameterType::None, true},
-            
-            SectionRule{SectionType::Align, {"<", ">", "=", "=="}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::None, false},
-            
-            SectionRule{SectionType::Div, {"div"}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Surround, ParameterType::Quoted, false},
-            
-            SectionRule{SectionType::Include, {"include"}, SubnameType::Parameter, ModuleType::Unknown, {},
-                ContentType::None, ParameterType::Lined, false},
-            
-            SectionRule{SectionType::Code, {"code"}, SubnameType::None, ModuleType::Unknown, {},
-                ContentType::Contain, ParameterType::Quoted, false},
-            SectionRule{SectionType::Module, {"module"}, SubnameType::Module, ModuleType::CSS, {"CSS"},
-                ContentType::Contain, ParameterType::None, false}
-        };
-        
         inline std::string getSectionContent(const TokenRuleContext& context, std::size_t& pos){
             std::string content;
             {
@@ -97,20 +48,21 @@ namespace Parser{
             }
         }
         
-        inline std::vector<SectionRule>::const_iterator findMatchingSection(std::string content){
+        inline const std::optional<SectionRule> findMatchingSection(std::string content){
             if(content.size() > 0 && content[0] == '/'){
                 content = content.substr(1, content.size() - 1);
                 trimString(content);
                 
+                const std::vector<SectionRule> sectionRules = getSectionRules();
                 for(auto i = sectionRules.begin(); i != sectionRules.end(); i++){
                     const SectionRule& rule = *i;
                     if(rule.contentType == ContentType::Surround){
                         if(std::find(rule.matchingNames.begin(), rule.matchingNames.end(), content) != rule.matchingNames.end()){
-                            return i;
+                            return *i;
                         }
                     }
                 }
-                return sectionRules.end();
+                return {};
             }
             else{
                 std::string name;
@@ -118,23 +70,24 @@ namespace Parser{
                 getName(content, name);
                 getName(content, subName);
                 
+                const std::vector<SectionRule> sectionRules = getSectionRules();
                 for(auto i = sectionRules.begin(); i != sectionRules.end(); i++){
                     const SectionRule& rule = *i;
                     if(std::find(rule.matchingNames.begin(), rule.matchingNames.end(), name) != rule.matchingNames.end()){
                         if(rule.subnameType == SubnameType::None){
-                            return i;
+                            return *i;
                         }
                         if(rule.subnameType == SubnameType::Parameter && subName != ""){
-                            return i;
+                            return *i;
                         }
                         if(rule.subnameType == SubnameType::Module){
                             if(std::find(rule.matchingModules.begin(), rule.matchingModules.end(), subName) != rule.matchingModules.end()){
-                                return i;
+                                return *i;
                             }
                         }
                     }
                 }
-                return sectionRules.end();
+                return {};
             }
         }
     }
@@ -144,7 +97,7 @@ namespace Parser{
             if(context.page[context.pagePos] == '[' && context.page[context.pagePos + 1] == '['){
                 std::size_t pos = context.pagePos;
                 std::string content = getSectionContent(context, pos);
-                if(findMatchingSection(content) != sectionRules.end()){
+                if(findMatchingSection(content) != std::nullopt){
                     return true;
                 }
             }
@@ -155,7 +108,7 @@ namespace Parser{
 	TokenRuleResult doSectionRule(const TokenRuleContext& context){
         std::size_t pos = context.pagePos;
         std::string content = getSectionContent(context, pos);
-        const SectionRule& rule = *findMatchingSection(content);
+        const SectionRule rule = *findMatchingSection(content);
         
         TokenRuleResult result;
         
@@ -302,6 +255,7 @@ namespace Parser{
                         std::size_t tempPos = pos;
                         std::string endContent = getSectionContent(context, tempPos);
                         endContent = endContent.substr(1, endContent.size() - 1);//remove the first /
+                        trimString(endContent);
                         if(std::find(rule.matchingNames.begin(), rule.matchingNames.end(), endContent) != rule.matchingNames.end()){
                             break;
                         }

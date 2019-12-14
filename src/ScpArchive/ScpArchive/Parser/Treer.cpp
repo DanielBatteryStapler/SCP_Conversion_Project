@@ -1,11 +1,10 @@
 #include "Treer.hpp"
 
+#include "Rules/RuleSet.hpp"
+
 #include <sstream>
 
-#include "TreerRules.hpp"
-
 namespace Parser{
-
     bool Size::operator==(const Size& nod)const{
         return size == nod.size;
     }
@@ -490,27 +489,6 @@ namespace Parser{
         }
 	}
 	
-	namespace{
-        const std::vector<TreeRule> treeRules = {
-            TreeRule{{Token::Type::InlineFormat}, handleInlineFormat},
-            TreeRule{{Token::Type::PlainText}, handlePlainText},
-            TreeRule{{Token::Type::LiteralText}, handleLiteralText},
-            TreeRule{{Token::Type::LineBreak}, handleLineBreak},
-            TreeRule{{Token::Type::HyperLink}, handleHyperLink},
-            TreeRule{{Token::Type::InlineFormat}, handleInlineFormat},
-            TreeRule{{Token::Type::Heading}, handleHeading},
-            TreeRule{{Token::Type::Divider}, handleDivider},
-            
-            TreeRule{{Token::Type::Section, SectionType::Size}, handleSize},
-            TreeRule{{Token::Type::Section, SectionType::Div}, handleDiv},
-            TreeRule{{Token::Type::Section, SectionType::Anchor}, handleAnchor},
-            TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan},
-            TreeRule{{Token::Type::Section, SectionType::Align}, handleAlign},
-            
-            TreeRule{{Token::Type::Section, SectionType::Module, ModuleType::CSS}, handleCSS}
-        };
-	}
-	
 	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage){
 		PageTree page;
 		
@@ -550,6 +528,8 @@ namespace Parser{
 					popSingle(context, Node::Type::Heading);
 				}
 			}
+			
+			const std::vector<TreeRule> treeRules = getTreeRules();
 			
 			context.newlines = 0;
 			
@@ -625,7 +605,7 @@ namespace Parser{
                 }
 			}
 			if(!found){
-                //throw std::runtime_error("Could not find handling rule for Token");
+                throw std::runtime_error("Could not find handling rule for Token");
 			}
 		}
 		
