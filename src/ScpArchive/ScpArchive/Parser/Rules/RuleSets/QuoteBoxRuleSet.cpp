@@ -1,6 +1,15 @@
 #include "QuoteBoxRuleSet.hpp"
 
 namespace Parser{
+    std::string toStringTokenQuoteBoxPrefix(const TokenVariant& tok){
+        const QuoteBoxPrefix& quoteBoxPrefix = std::get<QuoteBoxPrefix>(tok);
+        return "QuoteBoxPrefix:" + std::to_string(quoteBoxPrefix.degree);
+    }
+    
+    std::string toStringNodeQuoteBox(const NodeVariant& nod){
+        return "QuoteBox";
+    }
+    
     bool tryQuoteBoxPrefixRule(const TokenRuleContext& context){
 		if(context.tokens.size() > 0 && context.tokens.back().getType() == Token::Type::QuoteBoxPrefix){
 			return false;//a quote box prefix cannot directly follow another quote box

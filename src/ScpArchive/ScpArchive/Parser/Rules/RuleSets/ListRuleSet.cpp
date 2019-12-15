@@ -1,6 +1,50 @@
 #include "ListRuleSet.hpp"
 
+#include <sstream>
+
 namespace Parser{
+    std::string toStringTokenListPrefix(const TokenVariant& tok){
+        const ListPrefix& listPrefix = std::get<ListPrefix>(tok);
+        std::stringstream ss;
+        ss << "ListPrefix:";
+        switch(listPrefix.type){
+        default:
+            ss << "Unknown";
+            break;
+        case ListPrefix::Type::Bullet:
+            ss << "Bullet";
+            break;
+        case ListPrefix::Type::Number:
+            ss << "Number";
+            break;
+        }
+        ss << ", " << listPrefix.degree;
+        return ss.str();
+    }
+    
+    std::string toStringNodeList(const NodeVariant& nod){
+        const List& list = std::get<List>(nod);
+        std::stringstream ss;
+        ss << "List:\"";
+        switch(list.type){
+            case List::Type::Unknown:
+                ss << "Unknown";
+                break;
+            case List::Type::Bullet:
+                ss << "Bullet";
+                break;
+            case List::Type::Number:
+                ss << "Number";
+                break;
+            }
+        ss << "\"";
+        return ss.str();
+    }
+    
+    std::string toStringNodeListElement(const NodeVariant& nod){
+        return "ListElement";
+    }
+    
 	bool tryListPrefixRule(const TokenRuleContext& context){
         if(context.wasNewLine){
             std::size_t pos = context.pagePos;

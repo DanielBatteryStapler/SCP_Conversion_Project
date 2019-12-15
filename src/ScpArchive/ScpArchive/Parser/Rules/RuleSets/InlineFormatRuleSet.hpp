@@ -4,7 +4,9 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-	
+    std::string toStringTokenInlineFormat(const TokenVariant& tok);
+    std::string toStringNodeStyleFormat(const NodeVariant& nod);
+    
 	bool tryStrikeRule(const TokenRuleContext& context);
 	TokenRuleResult doStrikeRule(const TokenRuleContext& context);
 	bool tryItalicsRule(const TokenRuleContext& context);
@@ -25,6 +27,9 @@ namespace Parser{
     void handleInlineFormat(TreeContext& context, const Token& token);
 	
 	const inline auto inlineFormatRuleSet = RuleSet{"InlineFormat", {
+	    TokenPrintRule{Token::Type::InlineFormat, toStringTokenInlineFormat},
+	    NodePrintRule{Node::Type::StyleFormat, toStringNodeStyleFormat},
+	    
 		TokenRule{tryStrikeRule, doStrikeRule},
 		TokenRule{tryItalicsRule, doItalicsRule},
 		TokenRule{tryBoldRule, doBoldRule},

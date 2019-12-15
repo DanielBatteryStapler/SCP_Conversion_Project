@@ -7,6 +7,16 @@
 #include "RuleSetUtil.hpp"
 
 namespace Parser{
+	struct TokenPrintRule{
+        Token::Type type;
+        std::function<std::string(const TokenVariant&)> toString;
+	};
+	
+	struct NodePrintRule{
+        Node::Type type;
+        std::function<std::string(const NodeVariant&)> toString;
+	};
+	
 	struct TokenRule{
 		std::function<bool(const TokenRuleContext&)> tryRule;
 		std::function<TokenRuleResult(const TokenRuleContext&)> doRule;
@@ -37,14 +47,16 @@ namespace Parser{
         std::function<void(TreeContext&, const Token&)> handleRule;
     };
 	
-	using RuleVariant = std::variant<TokenRule, SectionRule, TreeRule>;
-	enum class RuleType{TokenRule = 0, SectionRule, TreeRule};
+	using RuleVariant = std::variant<TokenPrintRule, NodePrintRule, TokenRule, SectionRule, TreeRule>;
+	enum class RuleType{TokenPrintRule = 0, NodePrintRule, TokenRule, SectionRule, TreeRule};
 	
 	struct RuleSet{
 		std::string name;
 		std::vector<RuleVariant> rules;
 	};
 	
+	std::vector<TokenPrintRule> getTokenPrintRules();
+	std::vector<NodePrintRule> getNodePrintRules();
 	std::vector<TokenRule> getTokenRules();
 	std::vector<SectionRule> getSectionRules();
 	std::vector<TreeRule> getTreeRules();

@@ -1,6 +1,27 @@
 #include "DividerRuleSet.hpp"
 
 namespace Parser{
+    std::string toStringTokenDivider(const TokenVariant& tok){
+        const Divider& divider = std::get<Divider>(tok);
+        std::string output = "Divider:";
+        switch(divider.type){
+        default:
+            output += "Unknown";
+            break;
+        case Divider::Type::Line:
+            output += "Line";
+            break;
+        case Divider::Type::Clear:
+            output += "Clear";
+            break;
+        }
+        return output;
+    }
+    
+    std::string toStringNodeDivider(const NodeVariant& nod){
+        return toStringTokenDivider(std::get<Divider>(nod));
+    }
+   
     bool tryDividerRule(const TokenRuleContext& context){
 		if(context.wasNewLine){
 			const auto checkFunction = [&context](char c)->bool{

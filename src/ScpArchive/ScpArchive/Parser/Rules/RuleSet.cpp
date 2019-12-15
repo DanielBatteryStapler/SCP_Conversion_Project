@@ -67,6 +67,14 @@ namespace Parser{
 		}
 	}
 	
+	std::vector<TokenPrintRule> getTokenPrintRules(){
+        return getRules<TokenPrintRule, RuleType::TokenPrintRule>();
+	}
+	
+	std::vector<NodePrintRule> getNodePrintRules(){
+        return getRules<NodePrintRule, RuleType::NodePrintRule>();
+	}
+	
 	std::vector<TokenRule> getTokenRules(){
 		return getRules<TokenRule, RuleType::TokenRule>();
 	}

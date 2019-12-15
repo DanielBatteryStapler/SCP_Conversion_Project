@@ -67,145 +67,15 @@ namespace Parser{
 		};
 		
 		printTabs();
-		switch(nod.getType()){
-			case Node::Type::Unknown:
-				ss << "Unknown";
-				break;
-			case Node::Type::RootPage:
-				ss << "RootPage";
-				break;
-			case Node::Type::QuoteBox:
-				ss << "QuoteBox";
-				break;
-            case Node::Type::Align:
-				ss << "Align";
-				break;
-            case Node::Type::List:
-				{
-					const List& list = std::get<List>(nod.node);
-					ss << "List:\"";
-					switch(list.type){
-						case List::Type::Unknown:
-							ss << "Unknown";
-							break;
-						case List::Type::Bullet:
-							ss << "Bullet";
-							break;
-						case List::Type::Number:
-							ss << "Number";
-							break;
-                        }
-					ss << "\"";
-				}
-				break;
-            case Node::Type::ListElement:
-				ss << "ListElement";
-				break;
-			case Node::Type::Paragraph:
-				ss << "Paragraph";
-				break;
-			case Node::Type::Divider:
-				{
-					const Divider& divider = std::get<Divider>(nod.node);
-                    ss << "Divider:";
-                    switch(divider.type){
-					default:
-						ss << "Unknown";
-						break;
-					case Divider::Type::Line:
-						ss << "Line";
-						break;
-					case Divider::Type::Clear:
-						ss << "Clear";
-						break;
-                    }
-				}
-				break;
-			case Node::Type::Heading:
-                {
-					const Heading& heading = std::get<Heading>(nod.node);
-                    ss << "Heading:" << heading.degree << ", " << (heading.hidden?"true":"false");
-				}
-				break;
-			case Node::Type::LineBreak:
-				ss << "LineBreak";
-				break;
-			case Node::Type::PlainText:
-				ss << "PlainText:\"" << std::get<PlainText>(nod.node).text << "\"";
-				break;
-			case Node::Type::LiteralText:
-				ss << "LiteralText:\"" << std::get<LiteralText>(nod.node).text << "\"";
-				break;
-			case Node::Type::HyperLink:
-				{
-					const HyperLink& link = std::get<HyperLink>(nod.node);
-					ss << "HyperLink:\"" << link.shownText << "\", \"" << link.url << "\", " << (link.newWindow?"true":"false");
-				}
-				break;
-			case Node::Type::StyleFormat:
-				{
-					const StyleFormat& format = std::get<StyleFormat>(nod.node);
-					ss << "StyleFormat:\"";
-					switch(format.type){
-						default:
-							ss << "Unknown";
-							break;
-						case StyleFormat::Type::Bold:
-							ss << "Bold";
-							break;
-						case StyleFormat::Type::Italics:
-							ss << "Italics";
-							break;
-						case StyleFormat::Type::Strike:
-							ss << "Strike";
-							break;
-						case StyleFormat::Type::Underline:
-							ss << "Underline";
-							break;
-						case StyleFormat::Type::Super:
-							ss << "Super";
-							break;
-						case StyleFormat::Type::Sub:
-							ss << "Sub";
-							break;
-						case StyleFormat::Type::Color:
-							ss << "Color," << format.color;
-							break;
-					}
-					ss << "\"";
-				}
-				break;
-            case Node::Type::Size:
-				{
-					const Size& size = std::get<Size>(nod.node);
-					ss << "Size:\"" << size.size << "\"";
-				}
-				break;
-            case Node::Type::Span:
-				{
-					const Span& span = std::get<Span>(nod.node);
-                    ss << "Span:{";
-                    for(auto i = span.parameters.begin(); i != span.parameters.end(); i++){
-                        ss << i->first << ": " << i->second << ", ";
-                    }
-                    ss << "}";
-				}
-				break;
-			case Node::Type::Anchor:
-                {
-					const Anchor& anchor = std::get<Anchor>(nod.node);
-                    ss << "Anchor:" << anchor.name;
-				}
-			case Node::Type::Div:
-				{
-					const Div& div = std::get<Div>(nod.node);
-                    ss << "Div:{";
-                    for(auto i = div.parameters.begin(); i != div.parameters.end(); i++){
-                        ss << i->first << ": " << i->second << ", ";
-                    }
-                    ss << "}";
-				}
-				break;
+		{
+            const std::vector<NodePrintRule> nodePrintRules = getNodePrintRules();
+            Node::Type nodType = nod.getType();
+		
+            for(const NodePrintRule& printRule : nodePrintRules){
+                if(printRule.type == nodType){
+                    ss << printRule.toString(nod.node);
+                }
+            }   
 		}
 		ss << "\n";
 		

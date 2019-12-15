@@ -1,6 +1,14 @@
 #include "LiteralTextRuleSet.hpp"
 
 namespace Parser{
+    std::string toStringTokenLiteralText(const TokenVariant& tok){
+        return "LiteralText:\"" + std::get<LiteralText>(tok).text + "\"";
+    }
+    
+    std::string toStringNodeLiteralText(const NodeVariant& nod){
+        return "LiteralText:\"" + std::get<LiteralText>(nod).text + "\"";
+    }
+	
 	bool tryLiteralTextRule(const TokenRuleContext& context){
         if(check(context.page, context.pagePos, "@@")
                 && checkLine(context.page, context.pagePos + 2, "@@")){

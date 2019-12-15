@@ -4,6 +4,15 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
+    std::string toStringTokenPlainText(const TokenVariant& tok);
+    std::string toStringTokenNewLine(const TokenVariant& tok);
+    std::string toStringTokenLineBreak(const TokenVariant& tok);
+    
+    std::string toStringNodePlainText(const NodeVariant& nod);
+    std::string toStringNodeParagraph(const NodeVariant& nod);
+    std::string toStringNodeLineBreak(const NodeVariant& nod);
+    std::string toStringNodeRootPage(const NodeVariant& nod);
+    
     bool tryCarriageReturn(const TokenRuleContext& context);
 	TokenRuleResult doCarriageReturn(const TokenRuleContext& context);
 	
@@ -29,6 +38,15 @@ namespace Parser{
     void handlePlainText(TreeContext& context, const Token& token);
     
     const inline auto basicTextRuleSet = RuleSet{"BasicText", {
+		TokenPrintRule{Token::Type::PlainText, toStringTokenPlainText},
+		TokenPrintRule{Token::Type::NewLine, toStringTokenNewLine},
+		TokenPrintRule{Token::Type::LineBreak, toStringTokenLineBreak},
+		
+		NodePrintRule{Node::Type::PlainText, toStringNodePlainText},
+		NodePrintRule{Node::Type::Paragraph, toStringNodeParagraph},
+		NodePrintRule{Node::Type::LineBreak, toStringNodeLineBreak},
+		NodePrintRule{Node::Type::RootPage, toStringNodeRootPage},
+		
 		TokenRule{tryCarriageReturn, doCarriageReturn},
 		TokenRule{tryLineBreakRule, doLineBreakRule},
 		TokenRule{tryEscapedNewLineRule, doEscapedNewLineRule},

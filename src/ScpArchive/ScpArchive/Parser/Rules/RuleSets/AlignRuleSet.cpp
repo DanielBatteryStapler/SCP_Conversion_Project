@@ -1,6 +1,10 @@
 #include "AlignRuleSet.hpp"
 
 namespace Parser{
+	std::string toStringNodeAlign(const NodeVariant& nod){
+        return "Align";
+	}
+    
     void handleAlign(TreeContext& context, const Token& token){
         handleSectionStartEnd(token,
         [&](const SectionStart& section){

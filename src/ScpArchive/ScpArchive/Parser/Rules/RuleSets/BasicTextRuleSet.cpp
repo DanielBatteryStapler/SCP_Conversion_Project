@@ -1,6 +1,34 @@
 #include "BasicTextRuleSet.hpp"
 
 namespace Parser{
+    std::string toStringTokenPlainText(const TokenVariant& tok){
+        return "PlainText:\"" + std::get<PlainText>(tok).text + "\"";
+    }
+    
+    std::string toStringTokenNewLine(const TokenVariant& tok){
+        return "NewLine";
+    }
+    
+    std::string toStringTokenLineBreak(const TokenVariant& tok){
+        return "LineBreak";
+    }
+    
+    std::string toStringNodePlainText(const NodeVariant& nod){
+        return "PlainText:\"" + std::get<PlainText>(nod).text + "\"";
+    }
+    
+    std::string toStringNodeParagraph(const NodeVariant& nod){
+        return "Paragraph";
+    }
+    
+    std::string toStringNodeLineBreak(const NodeVariant& nod){
+        return "LineBreak";
+    }
+    
+    std::string toStringNodeRootPage(const NodeVariant& nod){
+        return "RootPage";
+    }
+    
     bool tryCarriageReturn(const TokenRuleContext& context){
         return check(context.page, context.pagePos, "\r");
 	}

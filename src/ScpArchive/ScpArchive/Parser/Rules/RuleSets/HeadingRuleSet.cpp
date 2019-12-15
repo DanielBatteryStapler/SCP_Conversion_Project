@@ -1,6 +1,15 @@
 #include "HeadingRuleSet.hpp"
 
 namespace Parser{
+    std::string toStringTokenHeading(const TokenVariant& tok){
+        const Heading& heading = std::get<Heading>(tok);
+        return "Heading:" + heading.degree + std::string{", "} + (heading.hidden?"true":"false");
+    }
+    
+    std::string toStringNodeHeading(const NodeVariant& nod){
+        return toStringTokenHeading(std::get<Heading>(nod));
+    }
+	
 	bool tryHeadingRule(const TokenRuleContext& context){
         if(context.wasNewLine && check(context.page, context.pagePos, "+")){
             std::size_t pos = context.pagePos;

@@ -3,6 +3,44 @@
 #include <sstream>
 
 namespace Parser{
+    std::string toStringTokenSection(const TokenVariant& tok){
+        const Section& section = std::get<Section>(tok);
+        std::stringstream ss;
+        ss << "Section:" << section.typeString << ", " << section.mainParameter << ", {";
+        for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
+            ss << i->first << ": " << i->second << ", ";
+        }
+        ss << "}";
+        return ss.str();
+    }
+    
+    std::string toStringTokenSectionStart(const TokenVariant& tok){
+        const SectionStart& section = std::get<SectionStart>(tok);
+        std::stringstream ss;
+        ss << "SectionStart:" << section.typeString << ", " << section.mainParameter << ", {";
+        for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
+            ss << i->first << ": " << i->second << ", ";
+        }
+        ss << "}";
+        return ss.str();
+    }
+    
+    std::string toStringTokenSectionEnd(const TokenVariant& tok){
+        const SectionEnd& section = std::get<SectionEnd>(tok);
+        return "SectionEnd:" + section.typeString;
+    }
+    
+    std::string toStringTokenSectionComplete(const TokenVariant& tok){
+        const SectionComplete& section = std::get<SectionComplete>(tok);
+        std::stringstream ss;
+        ss << "SectionComplete:" << section.typeString << ", " << section.mainParameter << ", {";
+        for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
+            ss << i->first << ": " << i->second << ", ";
+        }
+        ss << "}";
+        return ss.str();
+    }
+    
     namespace{
         inline void toLower(std::string& str){
             std::transform(str.begin(), str.end(), str.begin(), ::tolower);

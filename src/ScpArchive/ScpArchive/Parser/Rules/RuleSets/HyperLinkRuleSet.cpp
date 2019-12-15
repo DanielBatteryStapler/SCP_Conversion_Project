@@ -1,6 +1,15 @@
 #include "HyperLinkRuleSet.hpp"
 
 namespace Parser{
+    std::string toStringTokenHyperLink(const TokenVariant& tok){
+        const HyperLink& link = std::get<HyperLink>(tok);
+        return "HyperLink:\"" + link.shownText + "\"->\"" + link.url + "\", " + (link.newWindow?"true":"false");
+    }
+    
+    std::string toStringNodeHyperLink(const NodeVariant& nod){
+        return toStringTokenHyperLink(std::get<HyperLink>(nod));
+    }
+	
 	bool tryTripleLinkRule(const TokenRuleContext& context){
 		if(check(context.page, context.pagePos, "[[[") && checkParagraph(context.page, context.pagePos, "]]]")){
 			return true;

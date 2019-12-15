@@ -1,6 +1,79 @@
 #include "InlineFormatRuleSet.hpp"
 
+#include <sstream>
+
 namespace Parser{
+    std::string toStringTokenInlineFormat(const TokenVariant& tok){
+        std::stringstream ss;
+        ss << "InlineFormat:";
+        const InlineFormat& format = std::get<InlineFormat>(tok);
+        switch(format.type){
+            default:
+                ss << "Unknown";
+                break;
+            case InlineFormat::Type::Bold:
+                ss << "Bold";
+                break;
+            case InlineFormat::Type::Italics:
+                ss << "Italics";
+                break;
+            case InlineFormat::Type::Strike:
+                ss << "Strike";
+                break;
+            case InlineFormat::Type::Underline:
+                ss << "Underline";
+                break;
+            case InlineFormat::Type::Super:
+                ss << "Super";
+                break;
+            case InlineFormat::Type::Sub:
+                ss << "Sub";
+                break;
+            case InlineFormat::Type::Monospace:
+                ss << "Monospace";
+                break;
+            case InlineFormat::Type::Color:
+                ss << "Color";
+                break;
+        }
+        ss << "[" << (format.begin?"true":"false") << "," << (format.end?"true":"false") << "," << format.color << "]";
+        return ss.str();
+    }
+    
+    std::string toStringNodeStyleFormat(const NodeVariant& nod){
+        std::stringstream ss;
+        const StyleFormat& format = std::get<StyleFormat>(nod);
+        ss << "StyleFormat:\"";
+        switch(format.type){
+            default:
+                ss << "Unknown";
+                break;
+            case StyleFormat::Type::Bold:
+                ss << "Bold";
+                break;
+            case StyleFormat::Type::Italics:
+                ss << "Italics";
+                break;
+            case StyleFormat::Type::Strike:
+                ss << "Strike";
+                break;
+            case StyleFormat::Type::Underline:
+                ss << "Underline";
+                break;
+            case StyleFormat::Type::Super:
+                ss << "Super";
+                break;
+            case StyleFormat::Type::Sub:
+                ss << "Sub";
+                break;
+            case StyleFormat::Type::Color:
+                ss << "Color," << format.color;
+                break;
+        }
+        ss << "\"";
+        return ss.str();
+    }
+	
 	namespace{
 		inline bool handleTryInlineFormatting(const TokenRuleContext& context, std::string format){
 			if(!check(context.page, context.pagePos, format)){

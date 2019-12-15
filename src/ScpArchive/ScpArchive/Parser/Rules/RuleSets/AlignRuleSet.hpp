@@ -5,9 +5,13 @@
 
 namespace Parser{
 	
+	std::string toStringNodeAlign(const NodeVariant& nod);
+	
     void handleAlign(TreeContext& context, const Token& token);
 	
 	const inline auto alignRuleSet = RuleSet{"Align", {
+		NodePrintRule{Node::Type::Align, toStringNodeAlign},
+		
 		SectionRule{SectionType::Align, {"<", ">", "=", "=="}, SubnameType::None, ModuleType::Unknown, {},
             ContentType::Surround, ParameterType::None, false},
 		

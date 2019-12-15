@@ -109,149 +109,15 @@ namespace Parser{
 	std::string tokenVariantToString(const Token& tok){
 		std::stringstream ss;
 		
-		switch(tok.getType()){
-			default:
-				ss << "Unknown";
-				break;
-            case Token::Type::Section:
-				{
-					const Section& section = std::get<Section>(tok.token);
-                    ss << "Section:" << section.typeString << ", " << section.mainParameter << ", {";
-                    for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
-                        ss << i->first << ": " << i->second << ", ";
-                    }
-                    ss << "}";
-				}
-				break;
-			case Token::Type::SectionStart:
-				{
-					const SectionStart& section = std::get<SectionStart>(tok.token);
-                    ss << "SectionStart:" << section.typeString << ", " << section.mainParameter << ", {";
-                    for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
-                        ss << i->first << ": " << i->second << ", ";
-                    }
-                    ss << "}";
-				}
-				break;
-			case Token::Type::SectionEnd:
-				{
-					const SectionEnd& section = std::get<SectionEnd>(tok.token);
-                    ss << "SectionEnd:" << section.typeString;
-				}
-				break;
-			case Token::Type::SectionComplete:
-				{
-					const SectionComplete& section = std::get<SectionComplete>(tok.token);
-                    ss << "SectionComplete:" << section.typeString << ", " << section.mainParameter << ", {";
-                    for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
-                        ss << i->first << ": " << i->second << ", ";
-                    }
-                    ss << "}";
-				}
-				break;
-			case Token::Type::Divider:
-                {
-					const Divider& divider = std::get<Divider>(tok.token);
-                    ss << "Divider:";
-                    switch(divider.type){
-					default:
-						ss << "Unknown";
-						break;
-					case Divider::Type::Line:
-						ss << "Line";
-						break;
-					case Divider::Type::Clear:
-						ss << "Clear";
-						break;
-                    }
-				}
-				break;
-			case Token::Type::Heading:
-                {
-					const Heading& heading = std::get<Heading>(tok.token);
-                    ss << "Heading:" << heading.degree << ", " << (heading.hidden?"true":"false");
-				}
-				break;
-			case Token::Type::QuoteBoxPrefix:
-				{
-					const QuoteBoxPrefix& quoteBoxPrefix = std::get<QuoteBoxPrefix>(tok.token);
-                    ss << "QuoteBoxPrefix:" << quoteBoxPrefix.degree;
-				}
-				break;
-            case Token::Type::ListPrefix:
-				{
-					const ListPrefix& listPrefix = std::get<ListPrefix>(tok.token);
-                    ss << "ListPrefix:";
-                    switch(listPrefix.type){
-                    default:
-                        ss << "Unknown";
-                        break;
-                    case ListPrefix::Type::Bullet:
-                        ss << "Bullet";
-                        break;
-                    case ListPrefix::Type::Number:
-                        ss << "Number";
-                        break;
-                    }
-                    ss << ", " << listPrefix.degree;
-				}
-				break;
-			case Token::Type::InlineFormat:
-				ss << "InlineFormat:";
-				{
-					const InlineFormat& format = std::get<InlineFormat>(tok.token);
-					switch(format.type){
-						default:
-							ss << "Unknown";
-							break;
-						case InlineFormat::Type::Bold:
-							ss << "Bold";
-							break;
-						case InlineFormat::Type::Italics:
-							ss << "Italics";
-							break;
-						case InlineFormat::Type::Strike:
-							ss << "Strike";
-							break;
-						case InlineFormat::Type::Underline:
-							ss << "Underline";
-							break;
-						case InlineFormat::Type::Super:
-							ss << "Super";
-							break;
-						case InlineFormat::Type::Sub:
-							ss << "Sub";
-							break;
-						case InlineFormat::Type::Monospace:
-							ss << "Monospace";
-							break;
-						case InlineFormat::Type::Color:
-							ss << "Color";
-							break;
-					}
-					ss << "[" << (format.begin?"true":"false") << "," << (format.end?"true":"false") << "," << format.color << "]";
-				}
-				break;
-			case Token::Type::HyperLink:
-				{
-					const HyperLink& link = std::get<HyperLink>(tok.token);
-					ss << "HyperLink:\"" << link.shownText << "\", \"" << link.url << "\", " << (link.newWindow?"true":"false");
-				}
-				break;
-			case Token::Type::LiteralText:
-				ss << "LiteralText:\"" << std::get<LiteralText>(tok.token).text << "\"";
-				break;
-			case Token::Type::PlainText:
-				ss << "PlainText:\"" << std::get<PlainText>(tok.token).text << "\"";
-				break;
-			case Token::Type::LineBreak:
-				ss << "LineBreak";
-				break;
-			case Token::Type::NewLine:
-				ss << "NewLine";
-				break;
+		const std::vector<TokenPrintRule> tokenPrintRules = getTokenPrintRules();
+		Token::Type tokType = tok.getType();
+		
+		for(const TokenPrintRule& printRule : tokenPrintRules){
+            if(printRule.type == tokType){
+                return printRule.toString(tok.token);
+            }
 		}
-		return ss.str();
+		throw std::runtime_error("Attempted to print a Token with no valid TokenPrintRule");
 	}
 	
 	std::string toString(const Token& tok){
