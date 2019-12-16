@@ -8,6 +8,7 @@
 #include "RuleSets/CSSRuleSet.hpp"
 #include "RuleSets/IncludeRuleSet.hpp"
 #include "RuleSets/CodeRuleSet.hpp"
+#include "RuleSets/CollapsibleRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -32,6 +33,7 @@ namespace Parser{
 	    cssRuleSet,
 	    includeRuleSet,
 	    codeRuleSet,
+	    collapsibleRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,

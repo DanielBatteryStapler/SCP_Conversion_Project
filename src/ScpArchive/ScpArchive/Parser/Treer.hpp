@@ -64,12 +64,20 @@ namespace Parser{
 		bool operator==(const QuoteBox& nod)const;
 	};
 	
+	struct Collapsible{
+        std::string closedText;
+        std::string openedText;
+        bool defaultShow;
+        
+        bool operator==(const Collapsible& nod)const;
+	};
+	
 	struct RootPage{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
-	using NodeVariant = std::variant<std::monostate, RootPage, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
+	enum class NodeType{Unknown = 0, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
+	using NodeVariant = std::variant<std::monostate, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	
 	struct Node{
 		using Type = NodeType;

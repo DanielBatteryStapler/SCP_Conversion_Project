@@ -46,6 +46,10 @@ namespace Parser{
 		return true;
 	}
 	
+    bool Collapsible::operator==(const Collapsible& nod)const{
+        return closedText == nod.closedText && openedText == nod.openedText && defaultShow == nod.defaultShow;
+    }
+	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;
 	}
@@ -161,6 +165,7 @@ namespace Parser{
             case Node::Type::RootPage:
             case Node::Type::QuoteBox:
 			case Node::Type::Div:
+            case Node::Type::Collapsible:
                 return true;
         }
     }

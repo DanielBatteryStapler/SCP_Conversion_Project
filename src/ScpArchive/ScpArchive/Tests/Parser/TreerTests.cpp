@@ -1050,6 +1050,42 @@ namespace Tests{
 				}
 			});
         });
+        
+        tester.add("Parser::makeTreeFromPage Collapsible",[](){
+			assertPageTree(
+			"[[collapsible]]\nyes\n[[/collapsible]]",
+			Node{
+				RootPage{},
+				{
+				    Node{Collapsible{"+ show block", "- hide block", false},
+                        {
+                            Node{Paragraph{},
+                                {
+                                    Node{PlainText{"yes"}}
+                                }
+                            }
+                        }
+					}
+				}
+			});
+			
+			assertPageTree(
+			"[[collapsible show=\"A\" hide=\"B\" folded=\"no\"]]\nyes\n[[/collapsible]]",
+			Node{
+				RootPage{},
+				{
+				    Node{Collapsible{"A", "B", true},
+                        {
+                            Node{Paragraph{},
+                                {
+                                    Node{PlainText{"yes"}}
+                                }
+                            }
+                        }
+					}
+				}
+			});
+        });
 	}
 }
 
