@@ -55,4 +55,11 @@ namespace Parser{
         result.newTokens.push_back(Token{prefix, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
         return result;
 	}
+	
+	void toHtmlNodeQuoteBox(const HtmlContext& con, const Node& nod){
+        const QuoteBox& node = std::get<QuoteBox>(nod.node);
+        con.out << "<blockquote>"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</blockquote>"_AM;
+	}
 }

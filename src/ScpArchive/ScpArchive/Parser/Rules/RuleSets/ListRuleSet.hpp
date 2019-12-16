@@ -11,12 +11,18 @@ namespace Parser{
 	bool tryListPrefixRule(const TokenRuleContext& context);
 	TokenRuleResult doListPrefixRule(const TokenRuleContext& context);
 	
+	void toHtmlNodeList(const HtmlContext& con, const Node& nod);
+	void toHtmlNodeListElement(const HtmlContext& con, const Node& nod);
+	
 	const inline auto listRuleSet = RuleSet{"List", {
 	    TokenPrintRule{Token::Type::ListPrefix, toStringTokenListPrefix},
 	    NodePrintRule{Node::Type::List, toStringNodeList},
 	    NodePrintRule{Node::Type::ListElement, toStringNodeListElement},
 	    
-		TokenRule{tryListPrefixRule, doListPrefixRule}
+		TokenRule{tryListPrefixRule, doListPrefixRule},
+		
+		HtmlRule{Node::Type::List, toHtmlNodeList},
+		HtmlRule{Node::Type::ListElement, toHtmlNodeListElement}
 	}};
 	
 }

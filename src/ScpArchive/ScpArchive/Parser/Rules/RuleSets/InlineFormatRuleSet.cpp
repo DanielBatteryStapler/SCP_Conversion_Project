@@ -295,4 +295,51 @@ namespace Parser{
                 break;
         }
     }
+    
+        void toHtmlNodeStyleFormat(const HtmlContext& con, const Node& nod){
+    const StyleFormat& node = std::get<StyleFormat>(nod.node);
+        ///TODO: StyleFormat: update to HTML5
+        std::string startTag;
+        std::string endTag;
+        switch(node.type){
+        default:
+            throw std::runtime_error("Invalid StyleFormat::Type");
+            break;
+        case StyleFormat::Type::Bold:
+            startTag = "b";
+            endTag = "b";
+            break;
+        case StyleFormat::Type::Italics:
+            startTag = "i";
+            endTag = "i";
+            break;
+        case StyleFormat::Type::Strike:
+            startTag = "strike";
+            endTag = "strike";
+            break;
+        case StyleFormat::Type::Sub:
+            startTag = "sub";
+            endTag = "sub";
+            break;
+        case StyleFormat::Type::Super:
+            startTag = "sup";
+            endTag = "sup";
+            break;
+        case StyleFormat::Type::Underline:
+            startTag = "u";
+            endTag = "u";
+            break;
+        case StyleFormat::Type::Monospace:
+            startTag = "span class='Monospaced'";
+            endTag = "span";
+            break;
+        case StyleFormat::Type::Color:
+            startTag = "span style='color:" + node.color + ";'";
+            endTag = "span";
+            break;
+        }
+        con.out << "<"_AM << allowMarkup(startTag) << ">"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</"_AM << allowMarkup(endTag) << ">"_AM;
+	}
 }

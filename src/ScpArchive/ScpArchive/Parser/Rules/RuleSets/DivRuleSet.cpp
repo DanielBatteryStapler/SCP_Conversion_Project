@@ -22,4 +22,15 @@ namespace Parser{
             }
         });
     }
+    
+	void toHtmlNodeDiv(const HtmlContext& con, const Node& nod){
+        const Div& node = std::get<Div>(nod.node);
+        con.out << "<div"_AM;
+        for(auto i = node.parameters.begin(); i != node.parameters.end(); i++){
+            con.out << " "_AM << i->first << "='"_AM << i->second << "'"_AM;
+        }
+        con.out << ">"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</div>"_AM;
+	}
 }

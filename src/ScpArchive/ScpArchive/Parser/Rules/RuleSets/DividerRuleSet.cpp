@@ -75,4 +75,18 @@ namespace Parser{
     void handleDivider(TreeContext& context, const Token& token){
         addAsDiv(context, Node{std::get<Divider>(token.token)});
     }
+    
+	void toHtmlNodeDivider(const HtmlContext& con, const Node& nod){
+        const Divider& node = std::get<Divider>(nod.node);
+        switch(node.type){
+            case Divider::Type::Line:
+                con.out << "<hr />"_AM;
+                break;
+            case Divider::Type::Clear:
+                con.out << "<div class='PageClearer' />"_AM;
+                break;
+            default:
+                throw std::runtime_error("Invalid Divider type");
+        }
+	}
 }

@@ -10,11 +10,15 @@ namespace Parser{
 	bool tryQuoteBoxPrefixRule(const TokenRuleContext& context);
 	TokenRuleResult doQuoteBoxPrefixRule(const TokenRuleContext& context);
 	
+	void toHtmlNodeQuoteBox(const HtmlContext& con, const Node& nod);
+	
 	const inline auto quoteBoxRuleSet = RuleSet{"QuoteBox", {
 		TokenPrintRule{Token::Type::QuoteBoxPrefix, toStringTokenQuoteBoxPrefix},
 		NodePrintRule{Node::Type::QuoteBox, toStringNodeQuoteBox},
 		
-		TokenRule{tryQuoteBoxPrefixRule, doQuoteBoxPrefixRule}
+		TokenRule{tryQuoteBoxPrefixRule, doQuoteBoxPrefixRule},
+		
+		HtmlRule{Node::Type::QuoteBox, toHtmlNodeQuoteBox}
 	}};
 	
 }

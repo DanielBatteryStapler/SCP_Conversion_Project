@@ -17,4 +17,11 @@ namespace Parser{
             }
         });
     }
+    
+	void toHtmlNodeSize(const HtmlContext& con, const Node& nod){
+        const Size& node = std::get<Size>(nod.node);
+        con.out << "<span style='font-size:"_AM << node.size << "'>"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</span>"_AM;
+	}
 }

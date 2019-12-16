@@ -215,4 +215,25 @@ namespace Parser{
     void handleLineBreak(TreeContext& context, const Token& token){
         addAsText(context, Node{std::get<LineBreak>(token.token)});
     }
+    
+    void toHtmlNodeRootPage(const HtmlContext& con, const Node& nod){
+        delegateNodeBranches(con, nod);
+    }
+    
+	void toHtmlNodeParagraph(const HtmlContext& con, const Node& nod){
+        const Paragraph& node = std::get<Paragraph>(nod.node);
+        con.out << "<p>"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</p>"_AM;
+	}
+	
+	void toHtmlNodeLineBreak(const HtmlContext& con, const Node& nod){
+        const LineBreak& node = std::get<LineBreak>(nod.node);
+        con.out << "<br />"_AM;
+	}
+	
+	void toHtmlNodePlainText(const HtmlContext& con, const Node& nod){
+        const PlainText& node = std::get<PlainText>(nod.node);
+        con.out << node.text;
+	}
 }

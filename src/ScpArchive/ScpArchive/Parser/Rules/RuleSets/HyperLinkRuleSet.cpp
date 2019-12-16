@@ -192,4 +192,9 @@ namespace Parser{
     void handleHyperLink(TreeContext& context, const Token& token){
         addAsText(context, Node{std::get<HyperLink>(token.token)});
     }
+    
+    void toHtmlNodeHyperLink(const HtmlContext& con, const Node& nod){
+        const HyperLink& node = std::get<HyperLink>(nod.node);
+        con.out << "<a href='"_AM << node.url << "'>"_AM << node.shownText << "</a>"_AM; 
+    }
 }

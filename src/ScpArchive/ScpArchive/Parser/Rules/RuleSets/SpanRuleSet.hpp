@@ -8,13 +8,17 @@ namespace Parser{
     
     void handleSpan(TreeContext& context, const Token& token);
 	
+	void toHtmlNodeSpan(const HtmlContext& con, const Node& nod);
+	
 	const inline auto spanRuleSet = RuleSet{"Span", {
 	    NodePrintRule{Node::Type::Span, toStringNodeSpan},
 	    
 		SectionRule{SectionType::Span, {"span"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::Quoted, true},
         
-        TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan}
+        TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan},
+        
+        HtmlRule{Node::Type::Span, toHtmlNodeSpan}
 	}};
 	
 }

@@ -10,4 +10,9 @@ namespace Parser{
 		const Section& section = std::get<Section>(token.token);
 		addAsText(context, Node{Anchor{section.mainParameter}});
     }
+    
+    void toHtmlNodeAnchor(const HtmlContext& con, const Node& nod){
+        const Anchor& node = std::get<Anchor>(nod.node);
+        con.out << "<a name='"_AM << node.name << "'></a>"_AM;
+    }
 }

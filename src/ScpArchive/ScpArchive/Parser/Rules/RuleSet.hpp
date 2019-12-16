@@ -3,6 +3,7 @@
 
 #include "../Parser.hpp"
 #include "../Treer.hpp"
+#include "../HTMLConverter.hpp"
 
 #include "RuleSetUtil.hpp"
 
@@ -47,8 +48,13 @@ namespace Parser{
         std::function<void(TreeContext&, const Token&)> handleRule;
     };
 	
-	using RuleVariant = std::variant<TokenPrintRule, NodePrintRule, TokenRule, SectionRule, TreeRule>;
-	enum class RuleType{TokenPrintRule = 0, NodePrintRule, TokenRule, SectionRule, TreeRule};
+	struct HtmlRule{
+        Node::Type type;
+        std::function<void(const HtmlContext&, const Node&)> handleRule;
+	};
+	
+	using RuleVariant = std::variant<TokenPrintRule, NodePrintRule, TokenRule, SectionRule, TreeRule, HtmlRule>;
+	enum class RuleType{TokenPrintRule = 0, NodePrintRule, TokenRule, SectionRule, TreeRule, HtmlRule};
 	
 	struct RuleSet{
 		std::string name;
@@ -60,6 +66,7 @@ namespace Parser{
 	std::vector<TokenRule> getTokenRules();
 	std::vector<SectionRule> getSectionRules();
 	std::vector<TreeRule> getTreeRules();
+	std::vector<HtmlRule> getHtmlRules();
 	
 }
 

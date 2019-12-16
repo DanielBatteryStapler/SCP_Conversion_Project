@@ -25,4 +25,15 @@ namespace Parser{
             }
         });
     }
+    
+	void toHtmlNodeSpan(const HtmlContext& con, const Node& nod){
+        const Span& node = std::get<Span>(nod.node);
+        con.out << "<span"_AM;
+        for(auto i = node.parameters.begin(); i != node.parameters.end(); i++){
+            con.out << " "_AM << i->first << "='"_AM << i->second << "'"_AM;
+        }
+        con.out << ">"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</span>"_AM;
+	}
 }

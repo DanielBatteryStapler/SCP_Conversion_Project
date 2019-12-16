@@ -42,4 +42,9 @@ namespace Parser{
     void handleLiteralText(TreeContext& context, const Token& token){
         addAsText(context, Node{std::get<LiteralText>(token.token)});
     }
+    
+	void toHtmlNodeLiteralText(const HtmlContext& con, const Node& nod){
+        const LiteralText& node = std::get<LiteralText>(nod.node);
+        con.out << node.text;///TODO: this isn't correct, it should have a style that makes some whitespace oddities 
+	}
 }

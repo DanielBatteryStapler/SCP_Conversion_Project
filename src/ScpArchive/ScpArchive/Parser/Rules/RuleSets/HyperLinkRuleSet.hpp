@@ -21,6 +21,8 @@ namespace Parser{
 	TokenRuleResult doBareLinkRule(const TokenRuleContext& context);
 	
     void handleHyperLink(TreeContext& context, const Token& token);
+    
+    void toHtmlNodeHyperLink(const HtmlContext& con, const Node& nod);
 	
 	const inline auto hyperLinkRuleSet = RuleSet{"HyperLink", {
         TokenPrintRule{Token::Type::HyperLink, toStringTokenHyperLink},
@@ -29,7 +31,9 @@ namespace Parser{
         TokenRule{trySingleLinkRule, doSingleLinkRule},
         TokenRule{tryBareLinkRule, doBareLinkRule},
         
-        TreeRule{{Token::Type::HyperLink}, handleHyperLink}
+        TreeRule{{Token::Type::HyperLink}, handleHyperLink},
+        
+        HtmlRule{Node::Type::HyperLink, toHtmlNodeHyperLink}
 	}};
 	
 }

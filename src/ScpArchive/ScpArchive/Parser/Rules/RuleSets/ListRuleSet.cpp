@@ -101,4 +101,30 @@ namespace Parser{
         result.newTokens.push_back(Token{prefix, context.pagePos, pos, context.page.substr(context.pagePos, pos - context.pagePos)});
         return result;
 	}
+	
+	void toHtmlNodeList(const HtmlContext& con, const Node& nod){
+        const List& node = std::get<List>(nod.node);
+        
+        switch(node.type){
+            case List::Type::Bullet:
+                con.out << "<ul>"_AM;
+                delegateNodeBranches(con, nod);
+                con.out << "</ul>"_AM;
+                break;
+            case List::Type::Number:
+                con.out << "<ol>"_AM;
+                delegateNodeBranches(con, nod);
+                con.out << "</ol>"_AM;
+                break;
+            default:
+                throw std::runtime_error("Invalid List type");
+        }
+    }
+	
+	void toHtmlNodeListElement(const HtmlContext& con, const Node& nod){
+        const ListElement& node = std::get<ListElement>(nod.node);
+        con.out << "<li>"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</li>"_AM;
+	}
 }

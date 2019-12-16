@@ -26,6 +26,8 @@ namespace Parser{
 	
     void handleInlineFormat(TreeContext& context, const Token& token);
 	
+	void toHtmlNodeStyleFormat(const HtmlContext& con, const Node& nod);
+	
 	const inline auto inlineFormatRuleSet = RuleSet{"InlineFormat", {
 	    TokenPrintRule{Token::Type::InlineFormat, toStringTokenInlineFormat},
 	    NodePrintRule{Node::Type::StyleFormat, toStringNodeStyleFormat},
@@ -39,7 +41,9 @@ namespace Parser{
 		TokenRule{tryMonospaceRule, doMonospaceRule},
 		TokenRule{tryColorRule, doColorRule},
 		
-        TreeRule{{Token::Type::InlineFormat}, handleInlineFormat}
+        TreeRule{{Token::Type::InlineFormat}, handleInlineFormat},
+        
+        HtmlRule{Node::Type::StyleFormat, toHtmlNodeStyleFormat}
 	}};
 	
 }

@@ -57,4 +57,11 @@ namespace Parser{
         makeDivPushable(context);
         pushStack(context, Node{std::get<Heading>(token.token)});
     }
+    
+	void toHtmlNodeHeading(const HtmlContext& con, const Node& nod){
+        const Heading& node = std::get<Heading>(nod.node);
+        con.out << "<h"_AM << std::to_string(node.degree) << ">"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</h"_AM << std::to_string(node.degree) << ">"_AM;
+	}
 }

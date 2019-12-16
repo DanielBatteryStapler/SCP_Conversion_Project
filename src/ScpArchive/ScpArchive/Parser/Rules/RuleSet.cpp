@@ -86,4 +86,8 @@ namespace Parser{
 	std::vector<TreeRule> getTreeRules(){
 		return getRules<TreeRule, RuleType::TreeRule>();
 	}
+	
+	std::vector<HtmlRule> getHtmlRules(){
+        return getRules<HtmlRule, RuleType::HtmlRule>();
+	}
 }

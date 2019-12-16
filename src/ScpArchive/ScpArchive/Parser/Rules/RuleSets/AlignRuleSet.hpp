@@ -9,6 +9,8 @@ namespace Parser{
 	
     void handleAlign(TreeContext& context, const Token& token);
 	
+	void toHtmlNodeAlign(const HtmlContext& con, const Node& nod);
+	
 	const inline auto alignRuleSet = RuleSet{"Align", {
 		NodePrintRule{Node::Type::Align, toStringNodeAlign},
 		
@@ -16,6 +18,8 @@ namespace Parser{
             ContentType::Surround, ParameterType::None, false},
 		
         TreeRule{{Token::Type::Section, SectionType::Align}, handleAlign},
+        
+        HtmlRule{Node::Type::Align, toHtmlNodeAlign}
 	}};
 	
 }

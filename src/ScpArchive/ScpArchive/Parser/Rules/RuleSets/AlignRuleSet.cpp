@@ -30,4 +30,28 @@ namespace Parser{
             }
         });
     }
+    
+	void toHtmlNodeAlign(const HtmlContext& con, const Node& nod){
+        const Align& node = std::get<Align>(nod.node);
+        std::string textAlign;
+        switch(node.type){
+            case Align::Type::Center:
+                textAlign = "center";
+                break;
+            case Align::Type::Left:
+                textAlign = "left";
+                break;
+            case Align::Type::Right:
+                textAlign = "right";
+                break;
+            case Align::Type::Justify:
+                textAlign = "justify";
+                break;
+            default:
+                throw std::runtime_error("Encountered invalid Align::Type");
+        }
+        con.out << "<div style='text-align:"_AM << textAlign << "'>"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</div>"_AM;
+	}
 }

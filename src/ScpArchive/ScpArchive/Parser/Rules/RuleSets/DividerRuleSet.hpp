@@ -12,13 +12,17 @@ namespace Parser{
 	
     void handleDivider(TreeContext& context, const Token& token);
 	
+	void toHtmlNodeDivider(const HtmlContext& con, const Node& nod);
+	
 	const inline auto dividerRuleSet = RuleSet{"Divider", {
 		TokenPrintRule{Token::Type::Divider, toStringTokenDivider},
 		NodePrintRule{Node::Type::Divider, toStringNodeDivider},
 		
 		TokenRule{tryDividerRule, doDividerRule},
 		
-        TreeRule{{Token::Type::Divider}, handleDivider}
+        TreeRule{{Token::Type::Divider}, handleDivider},
+        
+        HtmlRule{Node::Type::Divider, toHtmlNodeDivider}
 	}};
 	
 }
