@@ -47,7 +47,7 @@ namespace Parser{
 		bool operator==(const SectionComplete& tok)const;
 	};
 	
-    enum class DividerType{Unknown, Line, Clear};
+    enum class DividerType{Unknown, Line, ClearBoth, ClearLeft, ClearRight};
 	
 	struct Divider{
 		using Type = DividerType;

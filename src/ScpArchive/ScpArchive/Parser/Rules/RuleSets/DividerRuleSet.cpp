@@ -11,8 +11,14 @@ namespace Parser{
         case Divider::Type::Line:
             output += "Line";
             break;
-        case Divider::Type::Clear:
-            output += "Clear";
+        case Divider::Type::ClearBoth:
+            output += "ClearBoth";
+            break;
+        case Divider::Type::ClearLeft:
+            output += "ClearLeft";
+            break;
+        case Divider::Type::ClearRight:
+            output += "ClearRight";
             break;
         }
         return output;
@@ -29,6 +35,9 @@ namespace Parser{
 				while(pos < context.page.size()){
 					if(context.page[pos] == '\n'){
 						break;
+					}
+					else if(c == '~' && (context.page[pos] == '<' || context.page[pos] == '>') && (pos + 1 == context.page.size() || context.page[pos + 1] == '\n')){
+                        break;
 					}
 					else if(context.page[pos] != c){
 						return false;
@@ -55,13 +64,19 @@ namespace Parser{
 			divider.type = Divider::Type::Line;
 		}
 		else if(context.page[context.pagePos] == '~'){
-			divider.type = Divider::Type::Clear;
+			divider.type = Divider::Type::ClearBoth;
 		}
 		
 		std::size_t pos = context.pagePos;
 		while(pos < context.page.size()){
 			if(context.page[pos] == '\n'){
 				break;
+			}
+			else if(context.page[pos] == '<'){
+                divider.type = Divider::Type::ClearLeft;
+			}
+			else if(context.page[pos] == '>'){
+                divider.type = Divider::Type::ClearRight;
 			}
 			pos++;
 		}
@@ -82,8 +97,14 @@ namespace Parser{
             case Divider::Type::Line:
                 con.out << "<hr />"_AM;
                 break;
-            case Divider::Type::Clear:
+            case Divider::Type::ClearBoth:
                 con.out << "<div class='PageClearer' />"_AM;
+                break;
+            case Divider::Type::ClearLeft:
+                con.out << "<div class='PageClearerLeft' />"_AM;
+                break;
+            case Divider::Type::ClearRight:
+                con.out << "<div class='PageClearerRight' />"_AM;
                 break;
             default:
                 throw std::runtime_error("Invalid Divider type");

@@ -426,20 +426,39 @@ namespace Tests{
                 Token{PlainText{"yup"}, 12, 15, "yup"}
             });
             
+            assertPageTokenize("~~~~", {
+                Token{Divider{Divider::Type::ClearBoth}, 0, 4, "~~~~"}
+            });
+            assertPageTokenize("~~~~<", {
+                Token{Divider{Divider::Type::ClearLeft}, 0, 5, "~~~~<"}
+            });
+            assertPageTokenize("~~~~>", {
+                Token{Divider{Divider::Type::ClearRight}, 0, 5, "~~~~>"}
+            });
             assertPageTokenize("~~~~\nyup", {
-                Token{Divider{Divider::Type::Clear}, 0, 4, "~~~~"},
+                Token{Divider{Divider::Type::ClearBoth}, 0, 4, "~~~~"},
                 Token{NewLine{}, 4, 5, "\n"},
                 Token{PlainText{"yup"}, 5, 8, "yup"}
             });
             assertPageTokenize("~~~~~~~\nyup", {
-                Token{Divider{Divider::Type::Clear}, 0, 7, "~~~~~~~"},
+                Token{Divider{Divider::Type::ClearBoth}, 0, 7, "~~~~~~~"},
+                Token{NewLine{}, 7, 8, "\n"},
+                Token{PlainText{"yup"}, 8, 11, "yup"}
+            });
+            assertPageTokenize("~~~~~~<\nyup", {
+                Token{Divider{Divider::Type::ClearLeft}, 0, 7, "~~~~~~<"},
+                Token{NewLine{}, 7, 8, "\n"},
+                Token{PlainText{"yup"}, 8, 11, "yup"}
+            });
+            assertPageTokenize("~~~~~~>\nyup", {
+                Token{Divider{Divider::Type::ClearRight}, 0, 7, "~~~~~~>"},
                 Token{NewLine{}, 7, 8, "\n"},
                 Token{PlainText{"yup"}, 8, 11, "yup"}
             });
             assertPageTokenize("huh?\n~~~~~~\nyup", {
 				Token{PlainText{"huh?"}, 0, 4, "huh?"},
 				Token{NewLine{}, 4, 5, "\n"},
-                Token{Divider{Divider::Type::Clear}, 5, 11, "~~~~~~"},
+                Token{Divider{Divider::Type::ClearBoth}, 5, 11, "~~~~~~"},
                 Token{NewLine{}, 11, 12, "\n"},
                 Token{PlainText{"yup"}, 12, 15, "yup"}
             });

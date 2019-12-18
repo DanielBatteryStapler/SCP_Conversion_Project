@@ -465,7 +465,33 @@ namespace Tests{
 							Node{PlainText{"before"}}
 						}
 					},
-					Node{Divider{Divider::Type::Clear}}
+					Node{Divider{Divider::Type::ClearBoth}}
+				}
+			});
+			assertPageTree(
+			"before\n~~~~<",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::ClearLeft}}
+				}
+			});
+			assertPageTree(
+			"before\n~~~~>",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::ClearRight}}
 				}
 			});
 			assertPageTree(
@@ -473,7 +499,7 @@ namespace Tests{
 			Node{
 				RootPage{},
 				{
-					Node{Divider{Divider::Type::Clear}},
+					Node{Divider{Divider::Type::ClearBoth}},
 					Node{Paragraph{},
 						{
 							Node{PlainText{"after"}}
@@ -491,7 +517,7 @@ namespace Tests{
 							Node{PlainText{"before"}}
 						}
 					},
-					Node{Divider{Divider::Type::Clear}},
+					Node{Divider{Divider::Type::ClearBoth}},
 					Node{Paragraph{},
 						{
 							Node{PlainText{"after"}}
@@ -509,7 +535,7 @@ namespace Tests{
 							Node{PlainText{"before"}}
 						}
 					},
-					Node{Divider{Divider::Type::Clear}}
+					Node{Divider{Divider::Type::ClearBoth}}
 				}
 			});
 			assertPageTree(
@@ -517,7 +543,7 @@ namespace Tests{
 			Node{
 				RootPage{},
 				{
-					Node{Divider{Divider::Type::Clear}},
+					Node{Divider{Divider::Type::ClearBoth}},
 					Node{Paragraph{},
 						{
 							Node{PlainText{"after"}}
@@ -537,7 +563,7 @@ namespace Tests{
 									Node{PlainText{"before"}}
 								}
 							},
-							Node{Divider{Divider::Type::Clear}},
+							Node{Divider{Divider::Type::ClearBoth}},
 							Node{Paragraph{},
 								{
 									Node{PlainText{"after"}}
