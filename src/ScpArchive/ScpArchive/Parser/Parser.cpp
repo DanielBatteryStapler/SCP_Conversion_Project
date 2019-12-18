@@ -180,7 +180,7 @@ namespace Parser{
 		}
 	}
 	
-	TokenedPage tokenizePage(std::string page){
+	TokenedPage tokenizePage(std::string page, ParserParameters parameters){
 		//just to save myself some headaches, lets replace all nonbreaking spaces with normal spaces
 		//this might be refactored out in the future if the token rules are updated to deal with nonbreaking spaces more correctly
 		const auto replaceAll = [](std::string str, const std::string& from, const std::string& to)->std::string{
@@ -193,6 +193,11 @@ namespace Parser{
         };
 		
 		page = replaceAll(page, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)}, " ");
+		
+		//for the include parameters, we're just gonna replaceAll on them to make it easy
+		for(auto i = parameters.includeParameters.begin(); i != parameters.includeParameters.end(); i++){
+            page = replaceAll(page, "{$" + i->first + "}", i->second);
+		}
 		
 		TokenRuleContext context = applyTokenizingRules(std::move(page), getTokenRules());
 		

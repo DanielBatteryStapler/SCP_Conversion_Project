@@ -93,6 +93,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CSSRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CodeRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CodeRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CollapsibleRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CollapsibleRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CommentRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CommentRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/DivRuleSet.cpp" />

@@ -4,14 +4,14 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-	
+    
     void handleInclude(TreeContext& context, const Token& token);
 	
 	const inline auto includeRuleSet = RuleSet{"Include", {
-	    SectionRule{SectionType::Include, {"include"}, SubnameType::Parameter, ModuleType::Unknown, {},
-                ContentType::None, ParameterType::Lined, false},
-        
-		TreeRule{{Token::Type::Section, SectionType::Include}, handleInclude}
+		SectionRule{SectionType::Include, {"include"}, SubnameType::Parameter, ModuleType::Unknown, {},
+            ContentType::None, ParameterType::Lined, false},
+		
+        TreeRule{{Token::Type::Section, SectionType::Include}, handleInclude}
 	}};
 	
 }

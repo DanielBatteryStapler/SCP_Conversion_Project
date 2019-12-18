@@ -107,8 +107,11 @@ void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 	
 	Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
 	
-	Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);
-	Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens);
+	Parser::ParserParameters parserParameters;
+	parserParameters.database = webCon.db.get();
+	
+	Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
+	Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
 	if(parameters.find("showAnnotatedSource") != parameters.end()){
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM

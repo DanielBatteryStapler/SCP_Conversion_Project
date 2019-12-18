@@ -364,10 +364,11 @@ namespace Parser{
         }
 	}
 	
-	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage){
+	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage, ParserParameters parameters){
 		PageTree page;
 		
 		TreeContext context;
+		context.parameters = parameters;
 		context.stack.push_back(Node{RootPage{}});//start out with a page root
 		context.newlines = 99;//act like we're already in a bunch of newlines
 		context.tokenedPage = std::move(tokenPage);
@@ -494,8 +495,8 @@ namespace Parser{
 		return page;
 	}
 	
-	PageTree makeTreeFromPage(std::string page){
-		return makeTreeFromTokenedPage(tokenizePage(page));
+	PageTree makeTreeFromPage(std::string page, ParserParameters parameters){
+		return makeTreeFromTokenedPage(tokenizePage(page, parameters), parameters);
 	}
 }
 

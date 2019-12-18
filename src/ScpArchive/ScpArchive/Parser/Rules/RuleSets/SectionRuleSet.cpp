@@ -185,6 +185,20 @@ namespace Parser{
                 }
             }
             
+            const auto setSectionParameter = [&section](std::string key, std::string value){
+                if(section.parameters.find(key) == section.parameters.end()){
+                    section.parameters[key] = value;
+                }
+                else{
+                    //strange behavior where included things get overwritten, I don't understand the exact behavior but this should work so I will do it for now
+                    std::string previousValue = section.parameters[key];
+                    if(check(previousValue, 0, "{$") && check(previousValue, previousValue.size() - 1, "}")){//if this looks like an include parameter
+                        //then we can override it
+                        section.parameters[key] = value;
+                    }
+                }
+            };
+            
             if(rule.parameterType == ParameterType::Lined){
                 std::stringstream parameterStream(content);
                 std::string line;
@@ -193,14 +207,14 @@ namespace Parser{
                     if(line != ""){
                         std::size_t findPos = line.find('=');
                         if(findPos == std::string::npos){
-                            section.parameters[line] == "";
+                            setSectionParameter(line, "");
                         }
                         else{
                             std::string key = line.substr(0, findPos);
                             std::string value = line.substr(findPos + 1, line.size() - findPos - 1);
                             trimString(key);
                             trimString(value);
-                            section.parameters[key] = value;
+                            setSectionParameter(key, value);
                         }
                     }
                 }
@@ -257,15 +271,15 @@ namespace Parser{
                             tpos++;
                             if(tpos < tokens.size() && tokens[tpos].type == HelperToken::Type::Value){
                                 std::string value = tokens[tpos].content;
-                                section.parameters[key] = value;
+                                setSectionParameter(key, value);
                                 tpos++;
                             }
                             else{
-                                section.parameters[key] = "";
+                                setSectionParameter(key, "");
                             }
                         }
                         else{
-                            section.parameters[key] = "";
+                            setSectionParameter(key, "");
                         }
                     }
                     else{

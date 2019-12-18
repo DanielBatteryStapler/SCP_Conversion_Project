@@ -107,8 +107,8 @@ namespace Parser{
 	
 	std::ostream& operator<<(std::ostream& out, const PageTree& page);
 	
-	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage);
-	PageTree makeTreeFromPage(std::string page);
+	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage, ParserParameters parameters = {});
+	PageTree makeTreeFromPage(std::string page, ParserParameters parameters = {});
 	
 	struct TreeContext{
         std::vector<Node> stack;
@@ -118,6 +118,8 @@ namespace Parser{
         TokenedPage tokenedPage;
         
         std::vector<CSS> cssData;
+        
+        ParserParameters parameters;
     };
     
     bool isTextType(SectionType type);

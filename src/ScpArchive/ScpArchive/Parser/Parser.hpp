@@ -8,13 +8,15 @@
 #include <iostream>
 #include <functional>
 
+class Database;
+
 namespace Parser{
 	std::string& trimLeft(std::string& s);
 	std::string& trimRight(std::string& s);
 	std::string& trimString(std::string& s);
 	std::string normalizePageName(std::string link);
 	
-	enum class SectionType{Unknown, Module, Collapsible, Span, Size, Anchor, Align, Div, Include, Code};
+	enum class SectionType{Unknown, Module, Include, Collapsible, Span, Size, Anchor, Align, Div, Code};
 	enum class ModuleType{Unknown, CSS};
 	
 	struct Section{
@@ -145,7 +147,13 @@ namespace Parser{
 		std::string originalPage;
 	};
 	
-	TokenedPage tokenizePage(std::string page);
+	struct ParserParameters{
+        std::map<std::string, std::string> includeParameters;
+        Database* database = nullptr;
+        int includeDepth = 0;
+	};
+	
+	TokenedPage tokenizePage(std::string page, ParserParameters parameters = {});
 	std::vector<std::string> getPageLinks(std::string page);
 	
 	struct TokenRuleContext{
