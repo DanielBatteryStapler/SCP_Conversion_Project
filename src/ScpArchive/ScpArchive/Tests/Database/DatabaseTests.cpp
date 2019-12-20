@@ -232,6 +232,15 @@ namespace Tests{
 			
 			assertEqualsVec({fileId, fileIdB}, db->getPageFiles(pageId));
 			
+			std::string fileData = "BINARY TESTING\0DATA\r\n\r\nWITH WEIRD CHaraCTERS";
+			
+			std::stringstream inputStream(fileData);
+			
+			db->uploadPageFile(fileId, inputStream);
+			std::stringstream outputStream;
+			db->downloadPageFile(fileId, outputStream);
+			assertEquals(fileData, outputStream.str());
+			
 			Database::wipeDatabaseFromMongo(std::move(db));
 		});
 		

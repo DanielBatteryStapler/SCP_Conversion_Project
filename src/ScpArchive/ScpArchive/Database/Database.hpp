@@ -65,6 +65,7 @@ class Database{
 		const std::string pageFilesColDescription = "description";
 		const std::string pageFilesColTimeStamp = "timeStamp";
 		const std::string pageFilesColAuthorId = "authorId";
+		const std::string pageFilesColGridId = "gridId";
 		
 		///not yet implemented
 		const std::string forumGroupsCol = "forumGroups";
@@ -109,6 +110,8 @@ class Database{
 		std::optional<Database::ID> getPageFileId(Database::ID page, std::string name);
 		Database::PageFile getPageFile(Database::ID file);
 		std::vector<Database::ID> getPageFiles(Database::ID page);
+		void uploadPageFile(Database::ID file, std::istream& stream);
+		void downloadPageFile(Database::ID file, std::ostream& stream);
 		
 		Database::ID createForumGroup(Database::ForumGroup group);
 		Database::ForumGroup getForumGroup(Database::ID group);

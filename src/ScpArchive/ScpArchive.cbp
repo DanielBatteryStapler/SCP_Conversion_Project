@@ -107,6 +107,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HeadingRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HyperLinkRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HyperLinkRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ImageRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ImageRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IncludeRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IncludeRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/InlineFormatRuleSet.cpp" />

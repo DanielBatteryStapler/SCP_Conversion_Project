@@ -19,6 +19,8 @@ class MarkupOutStream{
 		MarkupOutStream& operator<<(const MarkupOutStream::MarkupOutString& str);
 		MarkupOutStream& operator<<(MarkupOutStream::MarkupOutString&& str);
 		
+		std::ostream* getUnsafeRawOutputStream();
+		
 	private:
 		std::ostream* outStream;
 		

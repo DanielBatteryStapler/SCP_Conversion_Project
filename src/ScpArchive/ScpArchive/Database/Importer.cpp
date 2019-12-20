@@ -62,6 +62,17 @@ namespace Importer{
 		}
 	}
 	
+	void importFullArchive(Database* database, std::string archiveDirectory){
+		Importer::ImportMap map;
+		Importer::importBasicPageDataFromFolder(database, map, archiveDirectory + "pages/");
+		
+        //Importer::importForumGroups(database, map, Json::loadJsonFromFile(archiveDirectory + ""));
+        //Importer::importThread(database, map, Json::loadJsonFromFile(archiveDirectory + ""));
+        
+        //Importer::performPageDataLinksFromFolder(database, map, archiveDirectory + "pages/");
+        Importer::uploadPageFilesFromFolder(database, map, archiveDirectory + "pages/");
+	}
+	
 	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups){
 		for(nlohmann::json jGroup : forumGroups){
             Database::ForumGroup group;
@@ -119,6 +130,17 @@ namespace Importer{
 		}
 	}
 	
+	void performPageDataLinksFromFolder(Database* database, ImportMap& map, std::string pagesDirectory){
+        for(boost::filesystem::directory_iterator i(pagesDirectory); i != boost::filesystem::directory_iterator(); i++){
+			if(boost::filesystem::is_directory(i->path())){
+				std::cout << "Linking " << i->path().string() << "\n";
+				nlohmann::json pageJson = Json::loadJsonFromFile(i->path().string() + "/data.json");
+				linkPageParent(database, map, pageJson);
+				linkPageDiscussionThread(database, map, pageJson);
+			}
+		}
+	}
+	
 	void linkPageParent(Database* database, ImportMap& map, nlohmann::json pageData){
 		if(pageData["parent"].get<std::string>() != ""){
 			database->setPageParent(map.getPageMap(pageData["id"].get<std::string>()), map.getPageMap(pageData["parent"].get<std::string>()));
@@ -129,7 +151,20 @@ namespace Importer{
 		
 	}
 	
-	void uploadPageFiles(Database* database, ImportMap& map, nlohmann::json pageData){
-		
+	void uploadPageFilesFromFolder(Database* database, ImportMap& map, std::string pagesDirectory){
+        for(boost::filesystem::directory_iterator i(pagesDirectory); i != boost::filesystem::directory_iterator(); i++){
+			if(boost::filesystem::is_directory(i->path())){
+				std::cout << "Uploading files for " << i->path().string() << "\n";
+                uploadPageFiles(database, map, Json::loadJsonFromFile(i->path().string() + "/data.json"), i->path().string());
+			}
+		}
+	}
+	
+	void uploadPageFiles(Database* database, ImportMap& map, nlohmann::json pageData, std::string pageDirectory){
+		for(nlohmann::json file : pageData["files"]){
+			Database::ID fileId = map.getFileMap(file["id"].get<std::string>());
+			std::ifstream fileStream(pageDirectory + "/files/" + file["id"].get<std::string>());
+			database->uploadPageFile(fileId, fileStream);
+		}
 	}
 }

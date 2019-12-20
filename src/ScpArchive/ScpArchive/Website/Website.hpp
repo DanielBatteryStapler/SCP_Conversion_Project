@@ -18,7 +18,7 @@ class Website{
 		static void threadProcess(Gateway::ThreadContext threadContext);
 		static std::vector<std::string> splitUri(std::string uri);
 		static void handleUri(Gateway::RequestContext& reqCon, Website::Context& webCon, std::vector<std::string> uri);
-		static void handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, Database::ID pageId, std::map<std::string, std::string> parameters);
+		static void handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters);
 };
 
 #endif // WEBSITE_HPP

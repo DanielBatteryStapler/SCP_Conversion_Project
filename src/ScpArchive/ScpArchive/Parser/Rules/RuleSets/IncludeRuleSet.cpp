@@ -28,8 +28,7 @@ namespace Parser{
             return;
         }
         Database::PageRevision pageRevision = db->getLatestPageRevision(*pageId);
-        ParserParameters parameters;
-        parameters.database = db;
+        ParserParameters parameters = context.parameters;
         parameters.includeParameters = section.parameters;
         parameters.includeDepth = context.parameters.includeDepth + 1;
         PageTree pageTree = Parser::makeTreeFromPage(pageRevision.sourceCode, parameters);

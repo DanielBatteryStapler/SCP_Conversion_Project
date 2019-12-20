@@ -99,6 +99,10 @@ MarkupOutStream& MarkupOutStream::operator<<(MarkupOutStream::MarkupOutString&& 
 	return *this;
 }
 
+std::ostream* MarkupOutStream::getUnsafeRawOutputStream(){
+    return outStream;
+}
+
 MarkupOutStream::MarkupOutString::MarkupOutString(std::string str):
 	buffer(str){
 	

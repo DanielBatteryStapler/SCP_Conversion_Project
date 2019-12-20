@@ -1,8 +1,31 @@
 #include "AlignRuleSet.hpp"
 
+#include <sstream>
+
 namespace Parser{
 	std::string toStringNodeAlign(const NodeVariant& nod){
-        return "Align";
+        const Align& align = std::get<Align>(nod);
+        
+        std::stringstream ss;
+        ss << "Align:";
+        switch(align.type){
+        case Align::Type::Unknown:
+            ss << "Unknown";
+            break;
+        case Align::Type::Center:
+            ss << "Center";
+            break;
+        case Align::Type::Left:
+            ss << "Left";
+            break;
+        case Align::Type::Right:
+            ss << "Right";
+            break;
+        case Align::Type::Justify:
+            ss << "Justify";
+            break;
+        }
+        return ss.str();
 	}
     
     void handleAlign(TreeContext& context, const Token& token){

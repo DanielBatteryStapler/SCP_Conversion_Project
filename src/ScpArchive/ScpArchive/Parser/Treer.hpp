@@ -72,12 +72,28 @@ namespace Parser{
         bool operator==(const Collapsible& nod)const;
 	};
 	
+	struct Image{
+        std::string source;
+        bool newWindow;
+        std::string link;
+        std::string alt;
+        std::string title;
+        std::string width;
+        std::string height;
+        std::string style;
+        std::string cssClass;
+        enum class AlignmentType{Default, Center, Left, Right, FloatLeft, FloatRight};
+        AlignmentType alignment = AlignmentType::Default;
+        
+        bool operator==(const Image& nod)const;
+	};
+	
 	struct RootPage{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
-	using NodeVariant = std::variant<std::monostate, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
+	enum class NodeType{Unknown = 0, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, Image, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
+	using NodeVariant = std::variant<std::monostate, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, Image, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	
 	struct Node{
 		using Type = NodeType;

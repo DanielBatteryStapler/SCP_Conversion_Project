@@ -29,7 +29,7 @@ namespace Importer{
         Database::ID getCategoryMap(std::string raw);
     };
     
-	void importFullArchive(Database* database, std::string archiveDirectory);//unimplemented
+	void importFullArchive(Database* database, std::string archiveDirectory);
 	
 	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups);
 	void importThread(Database* database, ImportMap& map, nlohmann::json threadData);
@@ -37,9 +37,12 @@ namespace Importer{
 	void importBasicPageDataFromFolder(Database* database, ImportMap& map, std::string pagesDirectory);
 	void importBasicPageData(Database* database, ImportMap& map, nlohmann::json pageData);
 	
+	void performPageDataLinksFromFolder(Database* database, ImportMap& map, std::string pagesDirectory);
 	void linkPageParent(Database* database, ImportMap& map, nlohmann::json pageData);
 	void linkPageDiscussionThread(Database* database, ImportMap& map, nlohmann::json pageData);
-	void uploadPageFiles(Database* database, ImportMap& map, nlohmann::json pageData);
+	
+	void uploadPageFilesFromFolder(Database* database, ImportMap& map, std::string pagesDirectory);
+	void uploadPageFiles(Database* database, ImportMap& map, nlohmann::json pageData, std::string pageDirectory);
 }
 
 #endif // IMPORTER_HPP

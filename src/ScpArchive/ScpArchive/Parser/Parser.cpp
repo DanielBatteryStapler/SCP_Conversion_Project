@@ -36,7 +36,7 @@ namespace Parser{
 					//do nothing
 				}
 				else{
-				output += '-';
+                    output += '-';
 				}
 			}
 		}

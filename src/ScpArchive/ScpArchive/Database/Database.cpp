@@ -120,10 +120,10 @@ std::optional<Database::ID> Database::getPageDiscussion(Database::ID id){
 
 void Database::setPageDiscussion(Database::ID id, std::optional<Database::ID> discussion){
     if(discussion){
-        database[pagesCol].find_one_and_update(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColDiscussion, oid(*discussion)}}}}));
+        database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColDiscussion, oid(*discussion)}}}}));
     }
     else{
-        database[pagesCol].find_one_and_update(toBson({{colId, oid(id)}}), toBson({{"$unset", {{pagesColDiscussion, ""}}}}));
+        database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$unset", {{pagesColDiscussion, ""}}}}));
     }
 }
 
@@ -142,10 +142,10 @@ std::optional<Database::ID> Database::getPageParent(Database::ID id){
 
 void Database::setPageParent(Database::ID id, std::optional<Database::ID> parent){
     if(parent){
-        database[pagesCol].find_one_and_update(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColParent, oid(*parent)}}}}));
+        database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColParent, oid(*parent)}}}}));
     }
     else{
-        database[pagesCol].find_one_and_update(toBson({{colId, oid(id)}}), toBson({{"$unset", {{pagesColParent, ""}}}}));
+        database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$unset", {{pagesColParent, ""}}}}));
     }
 }
 
@@ -158,7 +158,7 @@ std::vector<std::string> Database::getPageTags(Database::ID id){
 }
 
 void Database::setPageTags(Database::ID id, std::vector<std::string> tags){
-    database[pagesCol].find_one_and_update(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColTags, tags}}}}));
+    database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColTags, tags}}}}));
 }
 
 Database::ID Database::createPageRevision(Database::ID page, Database::PageRevision revision){
@@ -287,6 +287,27 @@ std::vector<Database::ID> Database::getPageFiles(Database::ID page){
 	}
 	
 	return output;
+}
+
+void Database::uploadPageFile(Database::ID file, std::istream& stream){
+    auto result = database[pageFilesCol].find(toBson({{colId, oid(file)}}));
+	auto doc = fromBson(*result.begin());
+	
+	if(!doc[pageFilesColGridId].is_null()){
+        throw std::runtime_error("attempted to upload a file but a file has already been uploaded to that object");
+	}
+	
+	Database::ID gridId = gridfs.upload_from_stream("", &stream).id().get_oid().value;
+	
+	database[pageFilesCol].update_one(toBson({{colId, oid(file)}}), toBson({{"$set", {{pageFilesColGridId, oid(gridId)}}}}));
+}
+
+void Database::downloadPageFile(Database::ID file, std::ostream& stream){
+    auto result = database[pageFilesCol].find(toBson({{colId, oid(file)}}));
+	auto doc = fromBson(*result.begin());
+	
+	Database::ID gridId = getOid(doc[pageFilesColGridId]);
+	gridfs.download_to_stream(bsoncxx::types::value(bsoncxx::types::b_oid{gridId}), &stream);
 }
 
 Database::ID Database::createForumGroup(Database::ForumGroup group){

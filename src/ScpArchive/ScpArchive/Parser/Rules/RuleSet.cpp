@@ -9,6 +9,7 @@
 #include "RuleSets/IncludeRuleSet.hpp"
 #include "RuleSets/CodeRuleSet.hpp"
 #include "RuleSets/CollapsibleRuleSet.hpp"
+#include "RuleSets/ImageRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -34,6 +35,7 @@ namespace Parser{
 	    includeRuleSet,
 	    codeRuleSet,
 	    collapsibleRuleSet,
+	    imageRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,
@@ -91,5 +93,35 @@ namespace Parser{
 	
 	std::vector<HtmlRule> getHtmlRules(){
         return getRules<HtmlRule, RuleType::HtmlRule>();
+	}
+	
+	void printFullRuleSetList(){
+        for(const RuleSet& ruleSet : ruleSets){
+            std::cout << ruleSet.name << ":\n";
+            for(const RuleVariant& rule : ruleSet.rules){
+                std::cout << "\t";
+                switch(getType(rule)){
+                    case RuleType::HtmlRule:
+                        std::cout << "HtmlRule";
+                        break;
+                    case RuleType::NodePrintRule:
+                        std::cout << "NodePrintRule";
+                        break;
+                    case RuleType::SectionRule:
+                        std::cout << "SectionRule";
+                        break;
+                    case RuleType::TokenPrintRule:
+                        std::cout << "TokenPrintRule";
+                        break;
+                    case RuleType::TokenRule:
+                        std::cout << "TokenRule";
+                        break;
+                    case RuleType::TreeRule:
+                        std::cout << "TreeRule";
+                        break;
+                }
+                std::cout << "\n";
+            }
+        }
 	}
 }

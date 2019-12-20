@@ -16,6 +16,8 @@
 #include "Parser/Treer.hpp"
 #include "Parser/HTMLConverter.hpp"
 
+#include "RuleSet.hpp"
+
 int main(int argc, char** argv){
 	
 	mongocxx::instance instance{};//this needs to exist for the entire program so mongodb works
@@ -23,6 +25,8 @@ int main(int argc, char** argv){
 	if(argc == 2 && std::string(argv[1]) == "--runCustomTest"){
        // Tests::runAllTests();
         
+        Parser::printFullRuleSetList();
+        /*
         std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
 
         std::optional<Database::ID> pageId = db->getPageId("scp-001");
@@ -51,12 +55,12 @@ int main(int argc, char** argv){
         else{
             std::cout << "Cannot find page\n";
         }
-        
+        */
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--runTests"){
 		Tests::runAllTests();
 	}
-	else if(argc == 2 && std::string(argv[1]) == "--importPages"){
+	else if(argc == 2 && std::string(argv[1]) == "--importData"){
 		std::cout << "Are you sure you want to overwrite database \"" << Config::getProductionDatabaseName() << "\"?(y/n):\n";
 		std::string temp;
 		std::getline(std::cin, temp);
@@ -67,8 +71,7 @@ int main(int argc, char** argv){
 		
 		std::unique_ptr<Database> database = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
 		database->cleanAndInitDatabase();
-		Importer::ImportMap map;
-		Importer::importBasicPageDataFromFolder(database.get(), map, "/home/daniel/File Collections/scpArchive/fullArchive/pages/");
+		Importer::importFullArchive(database.get(), "/home/daniel/File Collections/scpArchive/fullArchive/");
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--runWebsite"){
 		Website::run();

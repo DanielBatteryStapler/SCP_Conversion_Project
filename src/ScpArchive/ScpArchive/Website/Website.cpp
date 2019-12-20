@@ -70,27 +70,43 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
 		std::optional<Database::ID> pageId = webCon.db->getPageId("main");
 		if(pageId){
 			give404 = false;
-			handlePage(reqCon, webCon, *pageId, {});
+			handlePage(reqCon, webCon, "main", *pageId, {});
 		}
 	}
-	if(uri.size() >= 1){
-		std::optional<Database::ID> pageId = webCon.db->getPageId(uri[0]);
-		
-		std::map<std::string, std::string> parameters;
-		
-		for(int i = 1; i < uri.size(); i += 2){
-			if(i + 1 < uri.size()){
-				parameters[uri[i]] = uri[i + 1];
-			}
-			else{
-				parameters[uri[i]] = "";
-			}
-		}
-		
-		if(pageId){
-			give404 = false;
-			handlePage(reqCon, webCon, *pageId, parameters);
-		}
+	else{
+        if(uri.size() >= 2 && uri[0] == "__system"){
+            if(uri.size() == 4 && uri[1] == "pageFile"){
+                std::optional<Database::ID> pageId = webCon.db->getPageId(uri[2]);
+                if(pageId){
+                    std::optional<Database::ID> fileId = webCon.db->getPageFileId(*pageId, uri[3]);
+                    if(fileId){
+                        give404 = false;
+                        reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+                        << "Content-Type: image\r\n\r\n"_AM;
+                        webCon.db->downloadPageFile(*fileId, *reqCon.out.getUnsafeRawOutputStream());
+                    }
+                }
+            }
+        }
+        else{
+            std::optional<Database::ID> pageId = webCon.db->getPageId(uri[0]);
+            
+            std::map<std::string, std::string> parameters;
+            
+            for(int i = 1; i < uri.size(); i += 2){
+                if(i + 1 < uri.size()){
+                    parameters[uri[i]] = uri[i + 1];
+                }
+                else{
+                    parameters[uri[i]] = "";
+                }
+            }
+            
+            if(pageId){
+                give404 = false;
+                handlePage(reqCon, webCon, uri[0], *pageId, parameters);
+            }
+        }
 	}
 	
 	if(give404){
@@ -103,12 +119,13 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
 	
 }
 
-void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, Database::ID pageId, std::map<std::string, std::string> parameters){
+void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
 	
 	Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
 	
 	Parser::ParserParameters parserParameters;
 	parserParameters.database = webCon.db.get();
+	parserParameters.pageName = pageName;
 	
 	Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
 	Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);

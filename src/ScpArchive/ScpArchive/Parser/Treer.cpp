@@ -49,6 +49,12 @@ namespace Parser{
     bool Collapsible::operator==(const Collapsible& nod)const{
         return closedText == nod.closedText && openedText == nod.openedText && defaultShow == nod.defaultShow;
     }
+    
+    bool Image::operator==(const Image& nod)const{
+        return source == nod.source && newWindow == nod.newWindow && link == nod.link
+        && alt == nod.alt && title == nod.title && width == nod.width && height == nod.height
+        && style == nod.style && cssClass == nod.cssClass && alignment == nod.alignment;
+    }
 	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;

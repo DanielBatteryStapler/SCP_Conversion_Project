@@ -68,6 +68,7 @@ namespace Parser{
 	std::vector<TreeRule> getTreeRules();
 	std::vector<HtmlRule> getHtmlRules();
 	
+	void printFullRuleSetList();
 }
 
 #endif // RULESET_HPP
