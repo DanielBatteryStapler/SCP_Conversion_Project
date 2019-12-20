@@ -55,6 +55,10 @@ namespace Parser{
         && alt == nod.alt && title == nod.title && width == nod.width && height == nod.height
         && style == nod.style && cssClass == nod.cssClass && alignment == nod.alignment;
     }
+		
+    bool Code::operator==(const Code& nod)const{
+        return nod.contents == contents;
+    }
 	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;
@@ -105,7 +109,7 @@ namespace Parser{
 	}
 	
 	bool PageTree::operator==(const PageTree& page)const{
-		return page.pageRoot == pageRoot && page.cssData == cssData;
+		return page.pageRoot == pageRoot && page.cssData == cssData && page.codeData == codeData;
 	}
 	
 	std::ostream& operator<<(std::ostream& out, const PageTree& page){
@@ -113,6 +117,11 @@ namespace Parser{
 		out << "CSS{\n";
 		for(const CSS& css : page.cssData){
 			out << "    " << css.data << ",\n";
+		}
+		out << "}\n";
+		out << "Code{\n";
+		for(const Code& code : page.codeData){
+			out << "    " << code.contents << ",\n";
 		}
 		out << "}\n";
 		return out;
@@ -497,6 +506,7 @@ namespace Parser{
 		
 		page.pageRoot = std::move(context.stack[0]);
 		page.cssData = std::move(context.cssData);
+		page.codeData = std::move(context.codeData);
 		
 		return page;
 	}

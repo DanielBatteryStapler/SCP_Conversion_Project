@@ -6,11 +6,12 @@ namespace Tests{
 	using namespace Parser;
 	
 	namespace{
-		void assertPageTree(std::string source, Node node, std::vector<CSS> cssData = {}){
+		void assertPageTree(std::string source, Node node, std::vector<CSS> cssData = {}, std::vector<Code> codeData = {}){
 			PageTree page = makeTreeFromPage(source);
 			PageTree compare;
 			compare.pageRoot = std::move(node);
 			compare.cssData = std::move(cssData);
+			compare.codeData = std::move(codeData);
 			assertEquals(compare, page);
 		}
 	}
@@ -1111,6 +1112,24 @@ namespace Tests{
 					}
 				}
 			});
+        });
+        
+        ///TODO: write test for include(going to be annoying) and images(not that bad but still annoying)
+        
+        tester.add("Parser::makeTreeFromPage Code",[](){
+			assertPageTree(
+			"yeah\n[[code]]\nsome code...\n[[/code]]",
+			Node{
+				RootPage{},
+				{
+                    Node{Paragraph{},
+                        {
+                            Node{PlainText{"yeah"}}
+                        }
+                    },
+                    Node{Code{"\nsome code...\n"}}
+				}
+			}, {}, {Code{"\nsome code...\n"}});
         });
 	}
 }

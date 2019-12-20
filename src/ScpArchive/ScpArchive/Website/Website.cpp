@@ -103,8 +103,9 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
             }
             
             if(pageId){
-                give404 = false;
-                handlePage(reqCon, webCon, uri[0], *pageId, parameters);
+                if(handlePage(reqCon, webCon, uri[0], *pageId, parameters)){
+                    give404 = false;
+                }
             }
         }
 	}
@@ -119,7 +120,7 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
 	
 }
 
-void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
+bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
 	
 	Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
 	
@@ -159,10 +160,26 @@ void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		}
 		reqCon.out << "</p>"_AM;
 	}
+	else if(parameters.find("code") != parameters.end()){
+        int codeNum;
+        try{
+            codeNum = std::stoi(parameters.find("code")->second) - 1;
+        }
+        catch(std::exception& e){
+            return false;
+        }
+        if(codeNum < 0 || pageTree.codeData.size() <= codeNum){
+            return false;
+        }
+        reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+		<< "Content-Type: text\r\n\r\n"_AM;
+		
+		(*reqCon.out.getUnsafeRawOutputStream()) << pageTree.codeData[codeNum].contents;
+	}
 	else{
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM
-		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
+		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/component:theme/code/1'><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
 		<< revision.title << "</title>"_AM;
 		for(const auto& css : pageTree.cssData){
 			reqCon.out << "<style>"_AM << allowMarkup(css.data) << "</style>"_AM;///!!!! This allows for code injection!!! there is no sanitation on that CSS!!!
@@ -172,6 +189,7 @@ void Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		Parser::convertPageTreeToHtml(reqCon.out, pageTree);
 	}
 	reqCon.out << "</body></html>"_AM;
+	return true;
 }
 
 

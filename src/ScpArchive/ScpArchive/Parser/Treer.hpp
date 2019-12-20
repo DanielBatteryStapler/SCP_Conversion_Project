@@ -87,13 +87,19 @@ namespace Parser{
         
         bool operator==(const Image& nod)const;
 	};
-	
+    
+    struct Code{
+        std::string contents;
+        
+        bool operator==(const Code& nod)const;
+    };
+    
 	struct RootPage{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, Image, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
-	using NodeVariant = std::variant<std::monostate, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, Image, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
+	enum class NodeType{Unknown = 0, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, Image, Code, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
+	using NodeVariant = std::variant<std::monostate, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, Heading, Divider, Image, Code, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	
 	struct Node{
 		using Type = NodeType;
@@ -117,6 +123,7 @@ namespace Parser{
 	struct PageTree{
 		Node pageRoot;
 		std::vector<CSS> cssData;
+		std::vector<Code> codeData;
 		
 		bool operator==(const PageTree& page)const;
 	};
@@ -134,6 +141,7 @@ namespace Parser{
         TokenedPage tokenedPage;
         
         std::vector<CSS> cssData;
+        std::vector<Code> codeData;
         
         ParserParameters parameters;
     };
