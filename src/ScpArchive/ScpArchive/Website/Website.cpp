@@ -171,8 +171,14 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         if(codeNum < 0 || pageTree.codeData.size() <= codeNum){
             return false;
         }
-        reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
-		<< "Content-Type: text\r\n\r\n"_AM;
+        if(pageTree.codeData[codeNum].type == "css"){
+            reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+            << "Content-Type: text/css\r\n\r\n"_AM;
+        }
+        else{
+            reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+            << "Content-Type: text/plain\r\n\r\n"_AM;
+        }
 		
 		(*reqCon.out.getUnsafeRawOutputStream()) << pageTree.codeData[codeNum].contents;
 	}

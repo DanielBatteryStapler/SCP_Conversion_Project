@@ -1118,7 +1118,7 @@ namespace Tests{
         
         tester.add("Parser::makeTreeFromPage Code",[](){
 			assertPageTree(
-			"yeah\n[[code]]\nsome code...\n[[/code]]",
+			"yeah\n[[code type=\"CsS\"]]\nsome code...\n[[/code]]",
 			Node{
 				RootPage{},
 				{
@@ -1129,7 +1129,7 @@ namespace Tests{
                     },
                     Node{Code{"\nsome code...\n"}}
 				}
-			}, {}, {Code{"\nsome code...\n"}});
+			}, {}, {Code{"\nsome code...\n", "css"}});
         });
 	}
 }

@@ -104,6 +104,28 @@ namespace Parser{
 	
 	void toHtmlNodeImage(const HtmlContext& con, const Node& nod){
         const Image& image = std::get<Image>(nod.node);
+        if(image.alignment != Image::AlignmentType::Default){
+            con.out << "<div class='"_AM;
+            switch(image.alignment){
+                case Image::AlignmentType::Center:
+                    con.out << "ImageCenter";
+                    break;
+                case Image::AlignmentType::Left:
+                    con.out << "ImageLeft";
+                    break;
+                case Image::AlignmentType::Right:
+                    con.out << "ImageRight";
+                    break;
+                case Image::AlignmentType::FloatLeft:
+                    con.out << "ImageFloatLeft";
+                    break;
+                case Image::AlignmentType::FloatRight:
+                    con.out << "ImageFloatRight";
+                    break;
+            }
+            con.out << "'>"_AM;
+        }
+        
         if(image.link != ""){
             con.out << "<a href='"_AM << image.link << "'>"_AM;
         }
@@ -127,10 +149,17 @@ namespace Parser{
         if(image.cssClass != ""){
             con.out << " class='"_AM << image.cssClass << "'"_AM;
         }
+        else{
+            con.out << " class='image'"_AM;
+        }
         con.out << " />"_AM;
         
         if(image.link != ""){
             con.out << "</a>"_AM;
+        }
+        
+        if(image.alignment != Image::AlignmentType::Default){
+            con.out << "</div>"_AM;
         }
 	}
 }

@@ -90,6 +90,7 @@ namespace Parser{
     
     struct Code{
         std::string contents;
+        std::string type;
         
         bool operator==(const Code& nod)const;
     };

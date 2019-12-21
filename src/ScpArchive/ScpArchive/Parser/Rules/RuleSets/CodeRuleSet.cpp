@@ -10,6 +10,10 @@ namespace Parser{
         const SectionComplete& section = std::get<SectionComplete>(token.token);
         
         Code code;
+        if(section.parameters.find("type") != section.parameters.end()){
+            code.type = section.parameters.find("type")->second;
+            std::transform(code.type.begin(), code.type.end(), code.type.begin(), ::tolower);
+        }
         code.contents = section.contents;
         addAsDiv(context, Node{code});
         context.codeData.push_back(code);

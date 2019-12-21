@@ -57,7 +57,7 @@ namespace Parser{
     }
 		
     bool Code::operator==(const Code& nod)const{
-        return nod.contents == contents;
+        return nod.contents == contents;// && nod.type == type;
     }
 	
 	bool RootPage::operator==(const RootPage& nod)const{
@@ -121,7 +121,7 @@ namespace Parser{
 		out << "}\n";
 		out << "Code{\n";
 		for(const Code& code : page.codeData){
-			out << "    " << code.contents << ",\n";
+			out << "    " << code.type << " -> " << code.contents << ",\n";
 		}
 		out << "}\n";
 		return out;
