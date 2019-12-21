@@ -1131,6 +1131,31 @@ namespace Tests{
 				}
 			}, {}, {Code{"\nsome code...\n", "css"}});
         });
+        
+        tester.add("Parser::makeTreeFromPage CenterText",[](){
+			assertPageTree(
+			"yeah\n= this\nworks",
+			Node{
+				RootPage{},
+				{
+                    Node{Paragraph{},
+                        {
+                            Node{PlainText{"yeah"}}
+                        }
+                    },
+                    Node{CenterText{},
+                        {
+                            Node{PlainText{"this"}}
+                        }
+                    },
+                    Node{Paragraph{},
+                        {
+                            Node{PlainText{"works"}}
+                        }
+                    }
+				}
+			});
+        });
 	}
 }
 

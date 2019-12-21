@@ -610,5 +610,12 @@ namespace Tests{
                 Token{Section{SectionType::Include, "include", ModuleType::Unknown, "page", {{"option", "true"}}}, 0, 28, "[[include\npage\noption=true]]"}
             });
         });
+        
+        tester.add("Parser::tokenizePage CenterText", [](){
+            assertPageTokenize("= help", {
+                Token{CenterText{}, 0, 2, "= "},
+                Token{PlainText{"help"}, 2, 6, "help"}
+            });
+        });
 	}
 }

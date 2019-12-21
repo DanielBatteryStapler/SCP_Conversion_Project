@@ -90,6 +90,10 @@ namespace Parser{
 		return text == tok.text;
 	}
 	
+	bool CenterText::operator==(const CenterText& tok)const{
+        return true;
+	}
+	
 	bool LineBreak::operator==(const LineBreak& tok)const{
 		return true;
 	}

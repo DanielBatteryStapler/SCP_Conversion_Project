@@ -111,6 +111,10 @@ namespace Parser{
 		bool operator==(const PlainText& tok)const;
 	};
 	
+	struct CenterText{
+        bool operator==(const CenterText& tok)const;
+	};
+	
 	struct LineBreak{
 		bool operator==(const LineBreak& tok)const;
 	};
@@ -119,10 +123,10 @@ namespace Parser{
 		bool operator==(const NewLine& tok)const;
 	};
 	
-	enum class TokenType{Unknown = 0, Section, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, ListPrefix, 
+	enum class TokenType{Unknown = 0, Section, SectionStart, SectionEnd, SectionComplete, Divider, Heading, CenterText, QuoteBoxPrefix, ListPrefix, 
 						InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
 	
-	using TokenVariant = std::variant<std::monostate, Section, SectionStart, SectionEnd, SectionComplete, Divider, Heading, QuoteBoxPrefix, ListPrefix, 
+	using TokenVariant = std::variant<std::monostate, Section, SectionStart, SectionEnd, SectionComplete, Divider, Heading, CenterText, QuoteBoxPrefix, ListPrefix, 
                                         InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine>;
 	struct Token{
 		using Type = TokenType;

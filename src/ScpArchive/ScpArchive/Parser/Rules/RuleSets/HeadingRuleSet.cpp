@@ -3,7 +3,7 @@
 namespace Parser{
     std::string toStringTokenHeading(const TokenVariant& tok){
         const Heading& heading = std::get<Heading>(tok);
-        return "Heading:" + heading.degree + std::string{", "} + (heading.hidden?"true":"false");
+        return "Heading:" + std::to_string(heading.degree) + std::string{", "} + (heading.hidden?"true":"false");
     }
     
     std::string toStringNodeHeading(const NodeVariant& nod){

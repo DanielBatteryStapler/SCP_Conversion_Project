@@ -33,7 +33,6 @@ namespace Parser{
 		return true;
 	}
 	
-	
     bool List::operator==(const List& nod)const{
         return type == nod.type;
     }
@@ -163,6 +162,7 @@ namespace Parser{
             default:
                 return false;
             case Node::Type::Paragraph:
+            case Node::Type::CenterText:
             case Node::Type::Heading:
             case Node::Type::ListElement:
             case Node::Type::StyleFormat:
@@ -417,6 +417,11 @@ namespace Parser{
 			else if(isInside(context, Node::Type::Heading)){
 				if(context.newlines > 0){
 					popSingle(context, Node::Type::Heading);
+				}
+			}
+			else if(isInside(context, Node::Type::CenterText)){
+				if(context.newlines > 0){
+					popSingle(context, Node::Type::CenterText);
 				}
 			}
 			
