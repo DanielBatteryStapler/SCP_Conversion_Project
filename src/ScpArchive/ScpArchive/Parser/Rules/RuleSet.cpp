@@ -10,6 +10,7 @@
 #include "RuleSets/CodeRuleSet.hpp"
 #include "RuleSets/CollapsibleRuleSet.hpp"
 #include "RuleSets/ImageRuleSet.hpp"
+#include "RuleSets/IftagsRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -36,6 +37,7 @@ namespace Parser{
 	    codeRuleSet,
 	    collapsibleRuleSet,
 	    imageRuleSet,
+	    iftagsRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,

@@ -16,7 +16,7 @@ namespace Parser{
 	std::string& trimString(std::string& s);
 	std::string normalizePageName(std::string link);
 	
-	enum class SectionType{Unknown, Module, Include, Image, Collapsible, Span, Size, Anchor, Align, Div, Code};
+	enum class SectionType{Unknown, Module, Iftags, Include, Image, Collapsible, Span, Size, Anchor, Align, Div, Code};
 	enum class ModuleType{Unknown, CSS};
 	
 	struct Section{
@@ -149,6 +149,7 @@ namespace Parser{
 	
 	struct ParserParameters{
 	    std::string pageName;
+	    std::vector<std::string> pageTags;
         std::map<std::string, std::string> includeParameters;
         Database* database = nullptr;
         int includeDepth = 0;

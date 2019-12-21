@@ -606,6 +606,9 @@ namespace Tests{
                 Token{NewLine{}, 106, 107, "\n"},
                 Token{SectionComplete{SectionType::Code, "code", ModuleType::Unknown, "", {}, "inside"}, 107, 130, "[[code]]inside[[/code]]"},
             });
+            assertPageTokenize("[[include\npage\noption=true]]", {
+                Token{Section{SectionType::Include, "include", ModuleType::Unknown, "page", {{"option", "true"}}}, 0, 28, "[[include\npage\noption=true]]"}
+            });
         });
 	}
 }

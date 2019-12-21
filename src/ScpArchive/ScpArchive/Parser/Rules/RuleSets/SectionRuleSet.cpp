@@ -78,7 +78,14 @@ namespace Parser{
         }
         
         inline void getName(std::string& content, std::string& name){
-            std::size_t findPos = content.find(' ');
+            std::size_t findPos = std::string::npos;
+            for(std::size_t pos = 0; pos < content.size(); pos++){
+                if(isspace(content[pos])){
+                    findPos = pos;
+                    break;
+                }
+            }
+            
             if(findPos != std::string::npos){
                 name = content.substr(0, findPos);
                 content.erase(0, findPos);

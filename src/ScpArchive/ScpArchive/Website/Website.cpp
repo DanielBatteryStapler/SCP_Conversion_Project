@@ -127,6 +127,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 	Parser::ParserParameters parserParameters;
 	parserParameters.database = webCon.db.get();
 	parserParameters.pageName = pageName;
+	parserParameters.pageTags = webCon.db->getPageTags(pageId);
 	
 	Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
 	Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
