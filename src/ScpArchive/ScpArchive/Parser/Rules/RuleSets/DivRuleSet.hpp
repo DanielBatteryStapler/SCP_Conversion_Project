@@ -13,7 +13,7 @@ namespace Parser{
 	const inline auto divRuleSet = RuleSet{"Div", {
         NodePrintRule{Node::Type::Div, toStringNodeDiv},
         
-        SectionRule{SectionType::Div, {"div"}, SubnameType::None, ModuleType::Unknown, {},
+        SectionRule{SectionType::Div, {"div", "div_"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::Quoted, false},
 		
         TreeRule{{Token::Type::Section, SectionType::Div}, handleDiv},

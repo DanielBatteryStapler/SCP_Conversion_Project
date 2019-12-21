@@ -13,7 +13,7 @@ namespace Parser{
 	const inline auto spanRuleSet = RuleSet{"Span", {
 	    NodePrintRule{Node::Type::Span, toStringNodeSpan},
 	    
-		SectionRule{SectionType::Span, {"span"}, SubnameType::None, ModuleType::Unknown, {},
+		SectionRule{SectionType::Span, {"span", "span_"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::Quoted, true},
         
         TreeRule{{Token::Type::Section, SectionType::Span}, handleSpan},
