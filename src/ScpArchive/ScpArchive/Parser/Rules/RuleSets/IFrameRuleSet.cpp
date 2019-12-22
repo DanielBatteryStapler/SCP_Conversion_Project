@@ -24,10 +24,10 @@ namespace Parser{
 	
 	void toHtmlNodeIFrame(const HtmlContext& con, const Node& nod){
         const IFrame& iframe = std::get<IFrame>(nod.node);
-        con.out << "<iframe src='"_AM << iframe.source << "' "_AM;
+        con.out << "<iframe src='"_AM << iframe.source << "' align "_AM;
         for(auto i = iframe.parameters.begin(); i != iframe.parameters.end(); i++){
             con.out << i->first << "='"_AM << i->second << "' "_AM;
         }
-        con.out << "></iframe>"_AM;
+        con.out << "class style></iframe>"_AM;
 	}
 }

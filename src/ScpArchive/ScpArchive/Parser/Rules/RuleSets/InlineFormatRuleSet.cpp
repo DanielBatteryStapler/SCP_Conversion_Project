@@ -201,21 +201,26 @@ namespace Parser{
 		
 		InlineFormat token;
 		token.type = InlineFormat::Type::Color;
-		if(checkLine(context.page, context.pagePos, "|")){
-			token.begin = true;
-			token.end = false;
-			end += 2;
-			while(context.page[end] != '|'){
-				end++;
-			}
-			token.color = context.page.substr(begin + 2, end - begin - 2);
-			token.color.erase(remove(token.color.begin(),token.color.end(),' '),token.color.end());//remove all whitespace
-			end++;
-		}
-		else{
-			end += 2;
-			token.begin = false;
-			token.end = true;
+		{
+            std::size_t pos = context.pagePos + 2;
+            while(true){
+                if(pos + 1 >= context.page.size() || check(context.page, pos, "\n") || check(context.page, pos, "##")){
+                    end += 2;
+                    token.begin = false;
+                    token.end = true;
+                    break;
+                }
+                else if(check(context.page, pos, "|")){
+                    token.begin = true;
+                    token.end = false;
+                    end = pos;
+                    token.color = context.page.substr(begin + 2, end - begin - 2);
+                    token.color.erase(remove(token.color.begin(),token.color.end(),' '),token.color.end());//remove all whitespace
+                    end++;
+                    break;
+                }
+                pos++;
+            }
 		}
 		
 		TokenRuleResult result;
@@ -334,7 +339,28 @@ namespace Parser{
             endTag = "span";
             break;
         case StyleFormat::Type::Color:
-            startTag = "span style='color:" + node.color + ";'";
+            {
+                bool isHexColor = (node.color.size() == 6);
+                for(char c : node.color){
+                    switch(tolower(c)){
+                        case '0':case '1':case '2':case '3':case '4':
+                        case '5':case '6':case '7':case '8':case '9':
+                        case 'a':case 'b':case 'c':case 'd':case 'e':
+                        case 'f':
+                            break;
+                        default:
+                            isHexColor = false;
+                            break;
+                    }
+                }
+                
+                if(isHexColor){
+                    startTag = "span style='color:#" + node.color + ";'";///TODO: this might allow for code injection, make sure this is fixed!
+                }
+                else{
+                    startTag = "span style='color:" + node.color + ";'";
+                }
+            }
             endTag = "span";
             break;
         }

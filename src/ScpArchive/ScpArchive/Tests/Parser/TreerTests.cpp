@@ -264,6 +264,47 @@ namespace Tests{
 					}
 				}
 			});
+			
+			assertPageTree(
+			"##blue|text##posttext##",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{StyleFormat{StyleFormat::Type::Color, "blue"},
+								{
+									Node{PlainText{"text"}}
+								}
+							},
+							Node{PlainText{"posttext##"}}
+						}
+					}
+				}
+			});
+			
+			assertPageTree(
+			"##blue|text## and then ##red|text##",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{StyleFormat{StyleFormat::Type::Color, "blue"},
+								{
+									Node{PlainText{"text"}}
+								}
+							},
+							Node{PlainText{" and then "}},
+							Node{StyleFormat{StyleFormat::Type::Color, "red"},
+								{
+									Node{PlainText{"text"}}
+								}
+							}
+						}
+					}
+				}
+			});
 		});
 		
 		tester.add("Parser::makeTreeFromPage StyleFormat Advanced", [](){

@@ -98,13 +98,13 @@ namespace Parser{
                 con.out << "<hr />"_AM;
                 break;
             case Divider::Type::ClearBoth:
-                con.out << "<div class='PageClearer' />"_AM;
+                con.out << "<div class='PageClearer'></div>"_AM;
                 break;
             case Divider::Type::ClearLeft:
-                con.out << "<div class='PageClearerLeft' />"_AM;
+                con.out << "<div class='PageClearerLeft'></div>"_AM;
                 break;
             case Divider::Type::ClearRight:
-                con.out << "<div class='PageClearerRight' />"_AM;
+                con.out << "<div class='PageClearerRight'></div>"_AM;
                 break;
             default:
                 throw std::runtime_error("Invalid Divider type");
