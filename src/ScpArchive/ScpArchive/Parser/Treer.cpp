@@ -59,6 +59,10 @@ namespace Parser{
         return nod.contents == contents;// && nod.type == type;
     }
 	
+	bool IFrame::operator==(const IFrame& nod)const{
+        return nod.source == source && nod.parameters == parameters; 
+	}
+	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;
 	}

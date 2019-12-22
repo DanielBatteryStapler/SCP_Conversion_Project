@@ -91,6 +91,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/BasicTextRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CSSRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CSSRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CenterTextRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CenterTextRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CodeRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CodeRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/CollapsibleRuleSet.cpp" />
@@ -107,6 +109,10 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HeadingRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HyperLinkRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HyperLinkRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IFrameRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IFrameRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IftagsRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IftagsRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ImageRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ImageRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IncludeRuleSet.cpp" />
