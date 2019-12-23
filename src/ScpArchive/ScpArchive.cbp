@@ -135,6 +135,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SizeRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SpanRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SpanRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TabViewRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TabViewRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Treer.cpp" />
 		<Unit filename="ScpArchive/Parser/Treer.hpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />

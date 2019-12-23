@@ -1197,6 +1197,40 @@ namespace Tests{
 				}
 			});
         });
+        
+        
+        tester.add("Parser::makeTreeFromPage TabView",[](){
+			assertPageTree(
+			"[[tabview]]\n[[tab Title A]]\ncontents A\n[[/tab]]\n[[tab title B]]\n-----\ncontents Bee\n[[/tab]][[/tabview]]",
+			Node{
+				RootPage{},
+				{
+                    Node{TabView{},
+                        {
+                            Node{Tab{"Title A"},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{"contents A"}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{Tab{"title B"},
+                                {
+                                    Node{Divider{Divider::Type::Line}},
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{"contents Bee"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+				}
+			});
+        });
 	}
 }
 

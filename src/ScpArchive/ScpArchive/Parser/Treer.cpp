@@ -67,6 +67,14 @@ namespace Parser{
         return nod.contents == contents;
 	}
 	
+	bool TabView::operator==(const TabView& nod)const{
+        return true;
+	}
+	
+	bool Tab::operator==(const Tab& nod)const{
+        return title == nod.title;
+	}
+	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;
 	}
@@ -153,6 +161,7 @@ namespace Parser{
             case Token::Type::LiteralText:
             case Token::Type::InlineFormat:
             case Token::Type::HyperLink:
+            case Token::Type::LineBreak:
                 return true;
             case Token::Type::Section:
                 return isTextType(std::get<Section>(tok.token).type);
@@ -189,6 +198,7 @@ namespace Parser{
             case Node::Type::QuoteBox:
 			case Node::Type::Div:
             case Node::Type::Collapsible:
+            case Node::Type::Tab:
                 return true;
         }
     }

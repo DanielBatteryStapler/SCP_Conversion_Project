@@ -13,6 +13,7 @@
 #include "RuleSets/IftagsRuleSet.hpp"
 #include "RuleSets/IFrameRuleSet.hpp"
 #include "RuleSets/HTMLRuleSet.hpp"
+#include "RuleSets/TabViewRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -43,6 +44,7 @@ namespace Parser{
 	    iftagsRuleSet,
 	    iframeRuleSet,
 	    htmlRuleSet,
+	    tabViewRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,

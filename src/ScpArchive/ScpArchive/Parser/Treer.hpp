@@ -108,12 +108,21 @@ namespace Parser{
         bool operator==(const HTML& nod)const;
     };
     
+    struct TabView{
+        bool operator==(const TabView& nod)const;
+    };
+    
+    struct Tab{
+        std::string title;
+        bool operator==(const Tab& nod)const;
+    };
+    
 	struct RootPage{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
-	using NodeVariant = std::variant<std::monostate, RootPage, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
+	enum class NodeType{Unknown = 0, RootPage, TabView, Tab, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
+	using NodeVariant = std::variant<std::monostate, RootPage, TabView, Tab, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	
 	struct Node{
 		using Type = NodeType;
