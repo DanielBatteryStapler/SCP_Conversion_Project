@@ -38,7 +38,7 @@ namespace Parser{
         bool foundBlock = false;
         travelPageTreeNodes(context.stack.back(), [&foundBlock, &footnotes](Node& node)->bool{
             Node::Type type = node.getType();
-            if(type == Node::Type::FootNoteBlock){
+            if(type == Node::Type::FootNoteBlock || type == Node::Type::TableOfContents){
                 foundBlock = true;
                 return false;
             }
@@ -46,7 +46,6 @@ namespace Parser{
                 FootNote& footnote = std::get<FootNote>(node.node);
                 footnote.number = footnotes.size() + 1;
                 footnotes.push_back(node);
-                return false;
             }
             return true;
         });

@@ -34,7 +34,7 @@ namespace Parser{
         std::vector<Node> headings;
         travelPageTreeNodes(context.stack.back(), [&headings](Node& node)->bool{
             Node::Type type = node.getType();
-            if(type == Node::Type::TableOfContents){
+            if(type == Node::Type::TableOfContents || type == Node::Type::FootNoteBlock){
                 return false;
             }
             if(type == Node::Type::Heading){
@@ -43,7 +43,6 @@ namespace Parser{
                     heading.tocNumber = headings.size();
                     headings.push_back(node);
                 }
-                return false;
             }
             return true;
         });
