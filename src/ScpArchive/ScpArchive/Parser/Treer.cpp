@@ -63,6 +63,10 @@ namespace Parser{
         return nod.source == source && nod.parameters == parameters; 
 	}
 	
+	bool HTML::operator==(const HTML& nod)const{
+        return nod.contents == contents;
+	}
+	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;
 	}

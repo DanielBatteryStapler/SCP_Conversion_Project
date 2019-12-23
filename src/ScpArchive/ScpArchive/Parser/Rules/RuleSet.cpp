@@ -12,6 +12,7 @@
 #include "RuleSets/ImageRuleSet.hpp"
 #include "RuleSets/IftagsRuleSet.hpp"
 #include "RuleSets/IFrameRuleSet.hpp"
+#include "RuleSets/HTMLRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -41,6 +42,7 @@ namespace Parser{
 	    imageRuleSet,
 	    iftagsRuleSet,
 	    iframeRuleSet,
+	    htmlRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,

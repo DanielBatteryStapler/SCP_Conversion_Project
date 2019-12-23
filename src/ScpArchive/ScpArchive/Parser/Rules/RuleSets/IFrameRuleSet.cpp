@@ -26,7 +26,12 @@ namespace Parser{
         const IFrame& iframe = std::get<IFrame>(nod.node);
         con.out << "<iframe src='"_AM << iframe.source << "' align "_AM;
         for(auto i = iframe.parameters.begin(); i != iframe.parameters.end(); i++){
-            con.out << i->first << "='"_AM << i->second << "' "_AM;
+            if(i->first == "id" && check(i->second, 0, "u-") == false){
+                con.out << " "_AM << i->first << "='u-"_AM << i->second << "'"_AM;
+            }
+            else{
+                con.out << " "_AM << i->first << "='"_AM << i->second << "'"_AM;
+            }
         }
         con.out << "class style></iframe>"_AM;
 	}

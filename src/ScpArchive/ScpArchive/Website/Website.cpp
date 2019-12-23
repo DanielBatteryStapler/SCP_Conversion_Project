@@ -186,7 +186,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 	else{
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM
-		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/component:theme/code/1'><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
+		<< "<!DOCTYPE html><html><head><meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'><link rel='stylesheet' type='text/css' href='/component:theme/code/1'><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
 		<< revision.title << "</title>"_AM;
 		for(const auto& css : pageTree.cssData){
 			reqCon.out << "<style>"_AM << allowMarkup(css.data) << "</style>"_AM;///!!!! This allows for code injection!!! there is no sanitation on that CSS!!!
