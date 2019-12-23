@@ -15,6 +15,7 @@
 #include "RuleSets/HTMLRuleSet.hpp"
 #include "RuleSets/TabViewRuleSet.hpp"
 #include "RuleSets/TableOfContentsRuleSet.hpp"
+#include "RuleSets/FootNoteRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -47,6 +48,7 @@ namespace Parser{
 	    htmlRuleSet,
 	    tabViewRuleSet,
 	    tableOfContentsRuleSet,
+	    footNoteRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,

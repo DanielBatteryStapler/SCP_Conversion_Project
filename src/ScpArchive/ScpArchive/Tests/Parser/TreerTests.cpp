@@ -1256,6 +1256,157 @@ namespace Tests{
 				}
 			});
         });
+        
+        tester.add("Parser::makeTreeFromPage FootNotes",[](){
+			assertPageTree(
+			"hey[[footnote]]you know?[[/footnote]]that's[[footnote]]just[[/footnote]]\n[[footnoteblock title=\"custom tItle\"]]",
+			Node{
+				RootPage{},
+				{
+                    Node{Paragraph{},
+                        {
+                            Node{PlainText{"hey"}},
+                            Node{FootNote{1},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{"you know?"}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{PlainText{"that's"}},
+                            Node{FootNote{2},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{"just"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    Node{FootNoteBlock{"custom tItle"},
+                        {
+                            Node{FootNote{1},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{"you know?"}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{FootNote{2},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{"just"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+				}
+			});
+			
+			assertPageTree(
+			"> in a quote[[footnote]] not\nin quote anymore[[/footnote]] still in\n> quote",
+			Node{
+				RootPage{},
+				{
+                    Node{QuoteBox{},
+                        {
+                            Node{Paragraph{},
+                                {
+                                    Node{PlainText{"in a quote"}},
+                                    Node{FootNote{1},
+                                        {
+                                            Node{Paragraph{},
+                                                {
+                                                    Node{PlainText{" not"}},
+                                                    Node{LineBreak{}},
+                                                    Node{PlainText{"in quote anymore"}}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    Node{PlainText{" still in"}},
+                                    Node{LineBreak{}},
+                                    Node{PlainText{"quote"}}
+                                }
+                            }
+                        }
+                    },
+                    Node{FootNoteBlock{"Footnotes"},
+                        {
+                            Node{FootNote{1},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{" not"}},
+                                            Node{LineBreak{}},
+                                            Node{PlainText{"in quote anymore"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+				}
+			});
+			
+			assertPageTree(
+			"* in a list[[footnote]] not\nin list anymore[[/footnote]] still in\n* list",
+			Node{
+				RootPage{},
+				{
+                    Node{List{List::Type::Bullet},
+                        {
+                            Node{ListElement{},
+                                {
+                                    Node{PlainText{"in a list"}},
+                                    Node{FootNote{1},
+                                        {
+                                            Node{Paragraph{},
+                                                {
+                                                    Node{PlainText{" not"}},
+                                                    Node{LineBreak{}},
+                                                    Node{PlainText{"in list anymore"}}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    Node{PlainText{" still in"}},
+                                }
+                            },
+                            Node{ListElement{},
+                                {
+                                    Node{PlainText{"list"}}
+                                }
+                            }
+                        }
+                    },
+                    Node{FootNoteBlock{"Footnotes"},
+                        {
+                            Node{FootNote{1},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{" not"}},
+                                            Node{LineBreak{}},
+                                            Node{PlainText{"in list anymore"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+				}
+			});
+        });
 	}
 }
 

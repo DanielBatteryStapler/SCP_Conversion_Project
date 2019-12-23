@@ -53,9 +53,6 @@ namespace Parser{
                 node.branches = headings;
                 return false;
             }
-            if(type == Node::Type::Heading){
-                return false;
-            }
             return true;
         });
 	}

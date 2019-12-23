@@ -123,12 +123,26 @@ namespace Parser{
         bool operator==(const TableOfContents& nod)const;
     };
     
+    struct FootNote{
+        unsigned int number;
+        bool operator==(const FootNote& nod)const;
+    };
+    
+    struct FootNoteBlock{
+        std::string title;
+        bool operator==(const FootNoteBlock& nod)const;
+    };
+    
 	struct RootPage{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, TableOfContents, TabView, Tab, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
-	using NodeVariant = std::variant<std::monostate, RootPage, TableOfContents, TabView, Tab, Collapsible, QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code, LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
+	enum class NodeType{Unknown = 0, RootPage, FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
+        QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
+        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
+	using NodeVariant = std::variant<std::monostate, RootPage, FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
+        QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
+        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	
 	struct Node{
 		using Type = NodeType;

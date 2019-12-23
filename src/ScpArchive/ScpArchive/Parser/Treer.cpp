@@ -79,6 +79,14 @@ namespace Parser{
         return alignment == nod.alignment;
     }
 	
+    bool FootNoteBlock::operator==(const FootNoteBlock& nod)const{
+        return title == nod.title;
+    }
+    
+    bool FootNote::operator==(const FootNote& nod)const{
+        return number == nod.number;
+    }
+	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;
 	}
@@ -153,6 +161,7 @@ namespace Parser{
             case SectionType::Size:
             case SectionType::Span:
 			case SectionType::Anchor:
+            case SectionType::FootNote:
                 return true;
         }
     }
@@ -203,6 +212,7 @@ namespace Parser{
 			case Node::Type::Div:
             case Node::Type::Collapsible:
             case Node::Type::Tab:
+            case Node::Type::FootNote:
                 return true;
         }
     }
@@ -219,9 +229,14 @@ namespace Parser{
     }
     
     bool isInside(TreeContext& context, Node::Type type){
-        for(const Node& i : context.stack){
-            if(i.getType() == type){
+        for(auto i = context.stack.rbegin(); i != context.stack.rend(); i++){
+            if(i->getType() == type){
                 return true;
+            }
+            if(i->getType() == Node::Type::Collapsible || i->getType() == Node::Type::FootNote){
+                ///isinside's "vision" is blocked by some kinds of nodes
+                ///e.g. it is impossible to end a [[=]] inside of a [[collapsible]]
+                return false;
             }
         }
         return false;
@@ -306,9 +321,12 @@ namespace Parser{
         void handleQuoteBoxNesting(TreeContext& context, std::size_t pos){
             const auto countQuoteBoxes = [](TreeContext& context)->unsigned int{
                 unsigned int count = 0;
-                for(const Node& node : context.stack){
-                    if(node.getType() == Node::Type::QuoteBox){
+                for(auto i = context.stack.rbegin(); i != context.stack.rend(); i++){
+                    if(i->getType() == Node::Type::QuoteBox){
                         count++;
+                    }
+                    else if(i->getType() == Node::Type::FootNote){
+                        break;//quotebox stuff can't penetrate inside of a footnote
                     }
                 }
                 return count;
@@ -338,9 +356,12 @@ namespace Parser{
         void handleListNesting(TreeContext& context, std::size_t pos){
             const auto countLists = [](TreeContext& context)->unsigned int{
                 unsigned int count = 0;
-                for(const Node& node : context.stack){
-                    if(node.getType() == Node::Type::List){
+                for(auto i = context.stack.rbegin(); i != context.stack.rend(); i++){
+                    if(i->getType() == Node::Type::List){
                         count++;
+                    }
+                    else if(i->getType() == Node::Type::FootNote){
+                        break;//list stuff can't penetrate inside of a footnote
                     }
                 }
                 return count;
