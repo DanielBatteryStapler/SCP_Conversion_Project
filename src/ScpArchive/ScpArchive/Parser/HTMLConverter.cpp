@@ -24,7 +24,7 @@ namespace Parser{
 	std::string getUniqueHtmlId(const HtmlContext& con){
         std::size_t uniqueId = con.uniqueId;
         con.uniqueId++;
-        return std::to_string(uniqueId);
+        return "unique-id-" + std::to_string(uniqueId);
 	}
 	
 	void convertPageTreeToHtml(MarkupOutStream& out, const PageTree& tree){

@@ -60,7 +60,7 @@ namespace Parser{
     
 	void toHtmlNodeHeading(const HtmlContext& con, const Node& nod){
         const Heading& node = std::get<Heading>(nod.node);
-        con.out << "<h"_AM << std::to_string(node.degree) << ">"_AM;
+        con.out << "<h"_AM << std::to_string(node.degree) << " id='toc"_AM << std::to_string(node.tocNumber) << "'>"_AM;
         delegateNodeBranches(con, nod);
         con.out << "</h"_AM << std::to_string(node.degree) << ">"_AM;
 	}

@@ -74,6 +74,10 @@ namespace Parser{
 	bool Tab::operator==(const Tab& nod)const{
         return title == nod.title;
 	}
+		
+    bool TableOfContents::operator==(const TableOfContents& nod)const{
+        return alignment == nod.alignment;
+    }
 	
 	bool RootPage::operator==(const RootPage& nod)const{
 		return true;
@@ -525,6 +529,13 @@ namespace Parser{
 		
 		while(context.stack.size() > 1){
 			popStack(context);
+		}
+		
+		{
+            std::vector<PostTreeRule> postTreeRules = getPostTreeRules();
+            for(const PostTreeRule& rule : postTreeRules){
+                rule.rule(context);
+            }
 		}
 		
 		page.pageRoot = std::move(context.stack[0]);

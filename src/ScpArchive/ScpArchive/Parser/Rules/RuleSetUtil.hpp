@@ -62,6 +62,14 @@ namespace Parser{
             endFunc(std::get<SectionEnd>(token.token));
         }
     }
+    
+    inline static void travelPageTreeNodes(Node& root, std::function<bool(Node& node)> func){
+        if(func(root)){
+            for(Node& branch : root.branches){
+                travelPageTreeNodes(branch, func);
+            }
+        }
+    }
 }
 
 #endif // RULEFUNCTIONS_HPP

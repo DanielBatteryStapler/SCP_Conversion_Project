@@ -1231,6 +1231,31 @@ namespace Tests{
 				}
 			});
         });
+			
+        tester.add("Parser::makeTreeFromPage TableOfContents",[](){
+			assertPageTree(
+			"[[toc]]\n+ heading\n++ sub-heading\n+* hidden heading\n[[f>toc]]",
+			Node{
+				RootPage{},
+				{
+                    Node{TableOfContents{TableOfContents::AlignmentType::Default},
+                        {
+                            Node{Heading{1, false}, {Node{PlainText{"heading"}}}},
+                            Node{Heading{2, false}, {Node{PlainText{"sub-heading"}}}}
+                        }
+                    },
+                    Node{Heading{1, false}, {Node{PlainText{"heading"}}}},
+                    Node{Heading{2, false}, {Node{PlainText{"sub-heading"}}}},
+                    Node{Heading{1, true}, {Node{PlainText{"hidden heading"}}}},
+                    Node{TableOfContents{TableOfContents::AlignmentType::FloatRight},
+                        {
+                            Node{Heading{1, false}, {Node{PlainText{"heading"}}}},
+                            Node{Heading{2, false}, {Node{PlainText{"sub-heading"}}}}
+                        }
+                    }
+				}
+			});
+        });
 	}
 }
 

@@ -14,6 +14,7 @@
 #include "RuleSets/IFrameRuleSet.hpp"
 #include "RuleSets/HTMLRuleSet.hpp"
 #include "RuleSets/TabViewRuleSet.hpp"
+#include "RuleSets/TableOfContentsRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -45,6 +46,7 @@ namespace Parser{
 	    iframeRuleSet,
 	    htmlRuleSet,
 	    tabViewRuleSet,
+	    tableOfContentsRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,
@@ -101,6 +103,10 @@ namespace Parser{
 		return getRules<TreeRule, RuleType::TreeRule>();
 	}
 	
+	std::vector<PostTreeRule> getPostTreeRules(){
+		return getRules<PostTreeRule, RuleType::PostTreeRule>();
+	}
+	
 	std::vector<HtmlRule> getHtmlRules(){
         return getRules<HtmlRule, RuleType::HtmlRule>();
 	}
@@ -128,6 +134,9 @@ namespace Parser{
                         break;
                     case RuleType::TreeRule:
                         std::cout << "TreeRule";
+                        break;
+                    case RuleType::PostTreeRule:
+                        std::cout << "PostTreeRule";
                         break;
                 }
                 std::cout << "\n";

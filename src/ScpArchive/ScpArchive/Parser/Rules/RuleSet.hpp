@@ -48,13 +48,17 @@ namespace Parser{
         std::function<void(TreeContext&, const Token&)> handleRule;
     };
 	
+	struct PostTreeRule{
+        std::function<void(TreeContext&)> rule;
+	};
+	
 	struct HtmlRule{
         Node::Type type;
         std::function<void(const HtmlContext&, const Node&)> handleRule;
 	};
 	
-	using RuleVariant = std::variant<TokenPrintRule, NodePrintRule, TokenRule, SectionRule, TreeRule, HtmlRule>;
-	enum class RuleType{TokenPrintRule = 0, NodePrintRule, TokenRule, SectionRule, TreeRule, HtmlRule};
+	using RuleVariant = std::variant<TokenPrintRule, NodePrintRule, TokenRule, SectionRule, TreeRule, PostTreeRule, HtmlRule>;
+	enum class RuleType{TokenPrintRule = 0, NodePrintRule, TokenRule, SectionRule, TreeRule, PostTreeRule, HtmlRule};
 	
 	struct RuleSet{
 		std::string name;
@@ -66,6 +70,7 @@ namespace Parser{
 	std::vector<TokenRule> getTokenRules();
 	std::vector<SectionRule> getSectionRules();
 	std::vector<TreeRule> getTreeRules();
+	std::vector<PostTreeRule> getPostTreeRules();
 	std::vector<HtmlRule> getHtmlRules();
 	
 	void printFullRuleSetList();
