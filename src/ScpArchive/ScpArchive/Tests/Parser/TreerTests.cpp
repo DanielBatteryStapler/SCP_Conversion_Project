@@ -305,6 +305,30 @@ namespace Tests{
 					}
 				}
 			});
+			
+			assertPageTree(
+			"AA|##grey|AAAA##|AA|##grey|A##",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+						    Node{PlainText{"AA|"}},
+							Node{StyleFormat{StyleFormat::Type::Color, "grey"},
+								{
+									Node{PlainText{"AAAA"}}
+								}
+							},
+							Node{PlainText{"|AA|"}},
+							Node{StyleFormat{StyleFormat::Type::Color, "grey"},
+								{
+									Node{PlainText{"A"}}
+								}
+							}
+						}
+					}
+				}
+			});
 		});
 		
 		tester.add("Parser::makeTreeFromPage StyleFormat Advanced", [](){

@@ -204,19 +204,19 @@ namespace Parser{
 		{
             std::size_t pos = context.pagePos + 2;
             while(true){
-                if(pos + 1 >= context.page.size() || check(context.page, pos, "\n") || check(context.page, pos, "##")){
-                    end += 2;
-                    token.begin = false;
-                    token.end = true;
-                    break;
-                }
-                else if(check(context.page, pos, "|")){
+                if(check(context.page, pos, "|") && context.pagePos + 2 - pos > 0){//there must be some content between the ## and the |
                     token.begin = true;
                     token.end = false;
                     end = pos;
                     token.color = context.page.substr(begin + 2, end - begin - 2);
                     token.color.erase(remove(token.color.begin(),token.color.end(),' '),token.color.end());//remove all whitespace
                     end++;
+                    break;
+                }
+                else if(pos + 1 >= context.page.size() || check(context.page, pos, "\n") || check(context.page, pos, "##") || check(context.page, pos, "|")){
+                    end += 2;
+                    token.begin = false;
+                    token.end = true;
                     break;
                 }
                 pos++;
