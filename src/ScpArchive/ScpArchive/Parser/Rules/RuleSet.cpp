@@ -27,6 +27,7 @@
 #include "RuleSets/QuoteBoxRuleSet.hpp"
 #include "RuleSets/DividerRuleSet.hpp"
 #include "RuleSets/CenterTextRuleSet.hpp"
+#include "RuleSets/TableRuleSet.hpp"
 #include "RuleSets/HeadingRuleSet.hpp"
 #include "RuleSets/CommentRuleSet.hpp"
 #include "RuleSets/NullRuleSet.hpp"
@@ -56,6 +57,7 @@ namespace Parser{
 	    dividerRuleSet,
 	    quoteBoxRuleSet,
 	    listRuleSet,
+	    tableRuleSet,
 	    inlineFormatRuleSet,
 	    tripleHyperLinkRuleSet,
 		sectionRuleSet,

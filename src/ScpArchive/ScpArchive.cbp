@@ -141,6 +141,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TabViewRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TableOfContentsRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TableOfContentsRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TableRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TableRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Treer.cpp" />
 		<Unit filename="ScpArchive/Parser/Treer.hpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />

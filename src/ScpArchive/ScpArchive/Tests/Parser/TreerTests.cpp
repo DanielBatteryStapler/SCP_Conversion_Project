@@ -1431,6 +1431,91 @@ namespace Tests{
 				}
 			});
         });
+        
+        tester.add("Parser::makeTreeFromPage Table",[](){
+			assertPageTree(
+			"||~ header||~not||\n"
+            "||<not||> is||\n"
+            "||||= center||\n"
+            "||< left ||\n"
+            "||",
+			Node{RootPage{},
+			    {
+                    Node{Table{},
+                        {
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Header, 1},
+                                        {
+                                            Node{PlainText{"header"}}
+                                        }
+                                    },
+                                    Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                        {
+                                            Node{PlainText{"~not"}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                        {
+                                            Node{PlainText{"<not"}}
+                                        }
+                                    },
+                                    Node{TableElement{TableElement::AlignmentType::Right, 1},
+                                        {
+                                            Node{PlainText{"is"}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Center, 2},
+                                        {
+                                            Node{PlainText{"center"}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Left, 1},
+                                        {
+                                            Node{PlainText{"left "}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+			    }
+			});
+			
+			assertPageTree(
+			"not||~a||> table||"
+			,
+			Node{RootPage{},
+                {
+                    Node{Paragraph{},
+                        {
+                            Node{PlainText{"not||~a||> table||"}}
+                        }
+                    }
+                }
+			});
+
+        });
 	}
 }
 

@@ -83,6 +83,18 @@ namespace Parser{
         return title == nod.title;
     }
     
+    bool Table::operator==(const Table& nod)const{
+        return true;
+    }
+    
+    bool TableRow::operator==(const TableRow& nod)const{
+        return true;
+    }
+    
+    bool TableElement::operator==(const TableElement& nod)const{
+        return alignment == nod.alignment && span == nod.span;
+    }
+    
     bool FootNote::operator==(const FootNote& nod)const{
         return number == nod.number;
     }
@@ -198,6 +210,7 @@ namespace Parser{
             case Node::Type::StyleFormat:
             case Node::Type::Size:
             case Node::Type::Span:
+            case Node::Type::TableElement:
                 return true;
         }
     }

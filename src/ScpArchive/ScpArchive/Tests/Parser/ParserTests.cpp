@@ -617,5 +617,40 @@ namespace Tests{
                 Token{PlainText{"help"}, 2, 6, "help"}
             });
         });
+        
+        tester.add("Parser::tokenizePage TableMarker", [](){
+            assertPageTokenize(
+            "||~ header||~not||\n"
+            "||<not||> is||\n"
+            "||||= center||\n"
+            "||< left ||\n"
+            "||", {
+                Token{TableMarker{TableMarker::Type::Start, TableMarker::AlignmentType::Header, 1}, 0, 4, "||~ "},
+                Token{PlainText{"header"}, 4, 10, "header"},
+                Token{TableMarker{TableMarker::Type::Middle, TableMarker::AlignmentType::Default, 1}, 10, 12, "||"},
+                Token{PlainText{"~not"}, 12, 16, "~not"},
+                Token{TableMarker{TableMarker::Type::End, TableMarker::AlignmentType::Default, 1}, 16, 18, "||"},
+                Token{NewLine{}, 18, 19, "\n"},
+                
+                Token{TableMarker{TableMarker::Type::Start, TableMarker::AlignmentType::Default, 1}, 19, 21, "||"},
+                Token{PlainText{"<not"}, 21, 25, "<not"},
+                Token{TableMarker{TableMarker::Type::Middle, TableMarker::AlignmentType::Right, 1}, 25, 29, "||> "},
+                Token{PlainText{"is"}, 29, 31, "is"},
+                Token{TableMarker{TableMarker::Type::End, TableMarker::AlignmentType::Default, 1}, 31, 33, "||"},
+                Token{NewLine{}, 33, 34, "\n"},
+                
+                Token{TableMarker{TableMarker::Type::Start, TableMarker::AlignmentType::Center, 2}, 34, 40, "||||= "},
+                Token{PlainText{"center"}, 40, 46, "center"},
+                Token{TableMarker{TableMarker::Type::End, TableMarker::AlignmentType::Default, 1}, 46, 48, "||"},
+                Token{NewLine{}, 48, 49, "\n"},
+                
+                Token{TableMarker{TableMarker::Type::Start, TableMarker::AlignmentType::Left, 1}, 49, 53, "||< "},
+                Token{PlainText{"left "}, 53, 58, "left "},
+                Token{TableMarker{TableMarker::Type::End, TableMarker::AlignmentType::Default, 1}, 58, 60, "||"},
+                Token{NewLine{}, 60, 61, "\n"},
+                
+                Token{TableMarker{TableMarker::Type::StartEnd, TableMarker::AlignmentType::Default, 1}, 61, 63, "||"}
+            });
+        });
 	}
 }

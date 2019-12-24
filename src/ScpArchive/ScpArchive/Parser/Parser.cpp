@@ -78,6 +78,10 @@ namespace Parser{
 		return type == tok.type && begin == tok.begin && end == tok.end && color == tok.color;
 	}
 	
+	bool TableMarker::operator==(const TableMarker& tok)const{
+        return type == tok.type && alignment == tok.alignment && span == tok.span;
+	}
+	
 	bool HyperLink::operator==(const HyperLink& tok)const{
 		return shownText == tok.shownText && url == tok.url && newWindow == tok.newWindow;
 	}

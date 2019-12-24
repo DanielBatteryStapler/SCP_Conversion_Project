@@ -93,6 +93,16 @@ namespace Parser{
 		bool operator==(const InlineFormat& tok)const;
 	};
 	
+	struct TableMarker{
+        enum class Type{Start, Middle, End, StartEnd};
+        Type type;
+        enum class AlignmentType{Default, Header, Left, Right, Center};
+        AlignmentType alignment;
+        unsigned int span;
+        
+        bool operator==(const TableMarker& tok)const;
+	};
+	
 	struct HyperLink{
 		std::string shownText;
 		std::string url;
@@ -126,10 +136,10 @@ namespace Parser{
 	};
 	
 	enum class TokenType{Unknown = 0, Section, SectionStart, SectionEnd, SectionComplete, Divider, Heading, CenterText, QuoteBoxPrefix, ListPrefix, 
-						InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
+						TableMarker, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine};
 	
 	using TokenVariant = std::variant<std::monostate, Section, SectionStart, SectionEnd, SectionComplete, Divider, Heading, CenterText, QuoteBoxPrefix, ListPrefix, 
-                                        InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine>;
+                                        TableMarker, InlineFormat, HyperLink, LiteralText, PlainText, LineBreak, NewLine>;
 	struct Token{
 		using Type = TokenType;
 		using Variant = TokenVariant;

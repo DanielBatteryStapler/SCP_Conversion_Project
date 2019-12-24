@@ -133,14 +133,29 @@ namespace Parser{
         bool operator==(const FootNoteBlock& nod)const;
     };
     
+    struct Table{
+        bool operator==(const Table& nod)const;
+    };
+    
+    struct TableRow{
+        bool operator==(const TableRow& nod)const;
+    };
+    
+    struct TableElement{
+        using AlignmentType = TableMarker::AlignmentType;
+        AlignmentType alignment;
+        unsigned int span;
+        bool operator==(const TableElement& nod)const;
+    };
+    
 	struct RootPage{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
+	enum class NodeType{Unknown = 0, RootPage, Table, TableRow, TableElement, FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
         QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
-	using NodeVariant = std::variant<std::monostate, RootPage, FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
+	using NodeVariant = std::variant<std::monostate, RootPage, Table, TableRow, TableElement, FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
         QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	
