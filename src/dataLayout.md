@@ -32,6 +32,7 @@
 - description: <fileDescription>
 - timeStamp: <timeStamp>
 - authorId: <fileUploaderId> (null if account is deleted)
+- gridId: <idToGridFsFile> (null if no file has been uploaded yet)
 
 ## forumGroups:
 - _id: <forumGroupId>
