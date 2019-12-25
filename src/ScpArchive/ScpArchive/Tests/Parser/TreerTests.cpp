@@ -1514,7 +1514,120 @@ namespace Tests{
                     }
                 }
 			});
-
+            
+            assertPageTree(
+			"||tablea||\n"
+			"\n"
+			"||tableb||"
+			,
+			Node{RootPage{},
+                {
+                    Node{Table{},
+                        {
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                        {
+                                            Node{PlainText{"tablea"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    Node{Table{},
+                        {
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                        {
+                                            Node{PlainText{"tableb"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+			});
+			
+			
+            assertPageTree(
+			"> ||tablea||\n"
+			"> \n"
+			"> ||tableb||"
+			,
+			Node{RootPage{},
+                {
+                    Node{QuoteBox{},
+                        {
+                            Node{Table{},
+                                {
+                                    Node{TableRow{},
+                                        {
+                                            Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                                {
+                                                    Node{PlainText{"tablea"}}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            Node{Table{},
+                                {
+                                    Node{TableRow{},
+                                        {
+                                            Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                                {
+                                                    Node{PlainText{"tableb"}}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+			});
+			
+			assertPageTree(
+			"||tablea||   \n"
+			"\n"
+			"||tableb||is ignored"
+			,
+			Node{RootPage{},
+                {
+                    Node{Table{},
+                        {
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                        {
+                                            Node{PlainText{"tablea"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    Node{Table{},
+                        {
+                            Node{TableRow{},
+                                {
+                                    Node{TableElement{TableElement::AlignmentType::Default, 1},
+                                        {
+                                            Node{PlainText{"tableb"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+			});
+            
         });
 	}
 }

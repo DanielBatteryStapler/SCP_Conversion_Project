@@ -433,6 +433,25 @@ namespace Parser{
                 }
             }
         }
+        
+        void handleTable(TreeContext& context, int newlines){
+            if(isInside(context, Node::Type::Table)){
+                if(newlines > 0){
+                    //don't popStack(context) the TableElement off, literally delete the TableElement and all of its branches
+                    //(I'm not joking, this is really what wikidot does)
+                    if(isInside(context, Node::Type::TableElement)){
+                        while(context.stack.back().getType() != Node::Type::TableElement){
+                            popStack(context);
+                        }
+                        context.stack.pop_back();
+                        popSingle(context,Node::Type::TableRow);//and then pop the row off
+                    }
+                }
+                if(newlines > 1){
+                    popSingle(context, Node::Type::Table);
+                }
+			}
+        }
 	}
 	
 	PageTree makeTreeFromTokenedPage(TokenedPage tokenPage, ParserParameters parameters){
@@ -470,16 +489,18 @@ namespace Parser{
 					popSingle(context, Node::Type::Paragraph);
 				}
 			}
-			else if(isInside(context, Node::Type::Heading)){
+			if(isInside(context, Node::Type::Heading)){
 				if(context.newlines > 0){
 					popSingle(context, Node::Type::Heading);
 				}
 			}
-			else if(isInside(context, Node::Type::CenterText)){
+            if(isInside(context, Node::Type::CenterText)){
 				if(context.newlines > 0){
 					popSingle(context, Node::Type::CenterText);
 				}
 			}
+			handleTable(context, context.newlines);
+            
 			
 			const std::vector<TreeRule> treeRules = getTreeRules();
 			
@@ -560,6 +581,8 @@ namespace Parser{
                 throw std::runtime_error("Could not find handling rule for Token");
 			}
 		}
+		
+        handleTable(context, 1);//this is to handle a weird edge case where a table needs to ignore the very last element
 		
 		while(context.stack.size() > 1){
 			popStack(context);
