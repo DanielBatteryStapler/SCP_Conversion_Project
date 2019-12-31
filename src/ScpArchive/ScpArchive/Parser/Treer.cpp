@@ -95,6 +95,18 @@ namespace Parser{
         return alignment == nod.alignment && span == nod.span;
     }
     
+    bool AdvTable::operator==(const AdvTable& nod)const{
+        return nod.parameters == parameters;
+    }
+    
+    bool AdvTableRow::operator==(const AdvTableRow& nod)const{
+        return nod.parameters == parameters;
+    }
+    
+    bool AdvTableElement::operator==(const AdvTableElement& nod)const{
+        return nod.parameters == parameters && nod.isHeader == isHeader;
+    }
+    
     bool FootNote::operator==(const FootNote& nod)const{
         return number == nod.number;
     }
@@ -226,6 +238,7 @@ namespace Parser{
             case Node::Type::Collapsible:
             case Node::Type::Tab:
             case Node::Type::FootNote:
+            case Node::Type::AdvTableElement:
                 return true;
         }
     }

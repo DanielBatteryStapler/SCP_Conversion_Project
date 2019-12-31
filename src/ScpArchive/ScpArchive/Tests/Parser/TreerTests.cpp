@@ -1627,7 +1627,59 @@ namespace Tests{
                     }
                 }
 			});
-            
+        });
+        
+        tester.add("Parser::makeTreeFromPage AdvTable",[](){
+            assertPageTree(
+			"[[table attr=\"data1\"]]\n"
+			"[[row attr=\"data2\"]]\n"
+			"[[hcell attr=\"data3\"]]\n"
+			"hello\n"
+			"[[/hcell]]\n"
+			"[[/row]]\n"
+			"[[row]]\n"
+			"[[cell attr=\"data4\"]]\n"
+			"hello b\n"
+			"------\n"
+			"[[/cell]]\n"
+			"[[/row]]\n"
+			"[[/table]]\n"
+			,
+			Node{RootPage{},
+                {
+                    Node{AdvTable{{{"attr", "data1"}}},
+                        {
+                            Node{AdvTableRow{{{"attr", "data2"}}},
+                                {
+                                    Node{AdvTableElement{true, {{"attr", "data3"}}},
+                                        {
+                                            Node{Paragraph{},
+                                                {
+                                                    Node{PlainText{"hello"}}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            Node{AdvTableRow{},
+                                {
+                                    Node{AdvTableElement{false, {{"attr", "data4"}}},
+                                        {
+                                            Node{Paragraph{},
+                                                {
+                                                    Node{PlainText{"hello b"}}
+                                                }
+                                            },
+                                            Node{Divider{Divider::Type::Line}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+			});
         });
 	}
 }

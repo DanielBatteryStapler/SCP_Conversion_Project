@@ -148,14 +148,32 @@ namespace Parser{
         bool operator==(const TableElement& nod)const;
     };
     
+    struct AdvTable{
+        std::map<std::string, std::string> parameters;
+        bool operator==(const AdvTable& nod)const;
+    };
+    
+    struct AdvTableRow{
+        std::map<std::string, std::string> parameters;
+        bool operator==(const AdvTableRow& nod)const;
+    };
+    
+    struct AdvTableElement{
+        bool isHeader;
+        std::map<std::string, std::string> parameters;
+        bool operator==(const AdvTableElement& nod)const;
+    };
+    
 	struct RootPage{
 		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, Table, TableRow, TableElement, FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
+	enum class NodeType{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
+        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
         QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
-	using NodeVariant = std::variant<std::monostate, RootPage, Table, TableRow, TableElement, FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
+	using NodeVariant = std::variant<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
+        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
         QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	
