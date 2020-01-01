@@ -20,6 +20,9 @@ namespace Parser{
         case Divider::Type::ClearRight:
             output += "ClearRight";
             break;
+        case Divider::Type::Seperator:
+            output += "Seperator";
+            break;
         }
         return output;
     }
@@ -53,6 +56,9 @@ namespace Parser{
 			else if(check(context.page, context.pagePos, "~~~~")){
 				return checkFunction('~');
 			}
+			else if(check(context.page, context.pagePos, "====")){
+				return checkFunction('====');
+			}
 		}
 		return false;
 	}
@@ -65,6 +71,9 @@ namespace Parser{
 		}
 		else if(context.page[context.pagePos] == '~'){
 			divider.type = Divider::Type::ClearBoth;
+		}
+		else if(context.page[context.pagePos] == '='){
+			divider.type = Divider::Type::Seperator;
 		}
 		
 		std::size_t pos = context.pagePos;
@@ -105,6 +114,9 @@ namespace Parser{
                 break;
             case Divider::Type::ClearRight:
                 con.out << "<div class='PageClearerRight'></div>"_AM;
+                break;
+            case Divider::Type::Seperator:
+                //has no effect on html
                 break;
             default:
                 throw std::runtime_error("Invalid Divider type");

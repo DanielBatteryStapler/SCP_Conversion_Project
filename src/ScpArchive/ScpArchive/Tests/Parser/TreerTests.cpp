@@ -473,6 +473,24 @@ namespace Tests{
 				}
 			});
 			assertPageTree(
+			"before\n====\nafter",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{PlainText{"before"}}
+						}
+					},
+					Node{Divider{Divider::Type::Seperator}},
+					Node{Paragraph{},
+						{
+							Node{PlainText{"after"}}
+						}
+					}
+				}
+			});
+			assertPageTree(
 			"before\n------",
 			Node{
 				RootPage{},

@@ -1,6 +1,7 @@
 #include "Parser.hpp"
 
 #include "Rules/RuleSet.hpp"
+#include "Templater.hpp"
 
 #include <sstream>
 
@@ -175,7 +176,24 @@ namespace Parser{
 						TokenRuleResult result = rule.doRule(context);
 						context.pagePos = result.newPos;
 						context.wasNewLine = result.nowNewline;
-						context.tokens.insert(context.tokens.end(), result.newTokens.begin(), result.newTokens.end());
+						//make sure to merge plain text tokens together
+						for(const Token& tok : result.newTokens){
+                            if(context.tokens.size() > 0){
+                                Token& back = context.tokens.back();
+                                if(back.getType() == Token::Type::PlainText && tok.getType() == Token::Type::PlainText
+                                        && back.sourceEnd == tok.sourceStart){
+                                    PlainText& backText = std::get<PlainText>(back.token);
+                                    const PlainText& tokText = std::get<PlainText>(tok.token);
+                                    backText.text += tokText.text;
+                                    back.source += tok.source;
+                                    back.sourceEnd = tok.sourceEnd;
+                                    
+                                    continue;
+                                }
+                            }
+                            context.tokens.push_back(tok);
+                        }
+						//context.tokens.insert(context.tokens.end(), result.newTokens.begin(), result.newTokens.end());
 						
 						break;
 					}
@@ -184,14 +202,13 @@ namespace Parser{
 					throw std::runtime_error("All parsing rules failed, this should not be possible");
 				}
 			}
+		
 			return context;
 		}
 	}
 	
-	TokenedPage tokenizePage(std::string page, ParserParameters parameters){
-		//just to save myself some headaches, lets replace all nonbreaking spaces with normal spaces
-		//this might be refactored out in the future if the token rules are updated to deal with nonbreaking spaces more correctly
-		const auto replaceAll = [](std::string str, const std::string& from, const std::string& to)->std::string{
+	namespace{
+        std::string replaceAll(std::string str, const std::string& from, const std::string& to){
             size_t start_pos = 0;
             while((start_pos = str.find(from, start_pos)) != std::string::npos) {
                 str.replace(start_pos, from.length(), to);
@@ -199,36 +216,20 @@ namespace Parser{
             }
             return str;
         };
-		
+	}
+	
+	TokenedPage tokenizePage(std::string page, ParserParameters parameters){
+		//just to save myself some headaches, lets replace all nonbreaking spaces with normal spaces
+		//this might be refactored out in the future if the token rules are updated to deal with nonbreaking spaces more correctly
 		page = replaceAll(page, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)}, " ");
 		
-		//for the include parameters, we're just gonna replaceAll on them to make it easy
-		for(auto i = parameters.includeParameters.begin(); i != parameters.includeParameters.end(); i++){
-            page = replaceAll(page, "{$" + i->first + "}", i->second);
-		}
+		page = applyIncludeParameters(page, parameters.includeParameters);
 		
 		TokenRuleContext context = applyTokenizingRules(std::move(page), getTokenRules());
 		
 		TokenedPage output;
 		output.originalPage = std::move(context.page);
-		
-		//merge all PlainText Tokens
-		for(const Token& tok : context.tokens){
-			if(output.tokens.size() > 0){
-				Token& back = output.tokens.back();
-				if(back.getType() == Token::Type::PlainText && tok.getType() == Token::Type::PlainText
-						&& back.sourceEnd == tok.sourceStart){
-					PlainText& backText = std::get<PlainText>(back.token);
-					const PlainText& tokText = std::get<PlainText>(tok.token);
-					backText.text += tokText.text;
-					back.source += tok.source;
-					back.sourceEnd = tok.sourceEnd;
-					
-					continue;
-				}
-			}
-			output.tokens.push_back(tok);
-		}
+		output.tokens = std::move(context.tokens);
 		
 		return output;
 	}

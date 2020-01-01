@@ -13,14 +13,14 @@ namespace Parser{
                     switch(tag[0]){
                         case '-':
                             tag = tag.substr(1, tag.size() - 1);
-                            if(std::find(context.parameters.pageTags.begin(), context.parameters.pageTags.end(), tag) != context.parameters.pageTags.end()){
+                            if(std::find(context.parameters.page.tags.begin(), context.parameters.page.tags.end(), tag) != context.parameters.page.tags.end()){
                                 condition = false;
                             }
                             break;
                         case '+':
                             tag = tag.substr(1, tag.size() - 1);
                         default:
-                            if(std::find(context.parameters.pageTags.begin(), context.parameters.pageTags.end(), tag) == context.parameters.pageTags.end()){
+                            if(std::find(context.parameters.page.tags.begin(), context.parameters.page.tags.end(), tag) == context.parameters.page.tags.end()){
                                 condition = false;
                             }
                             break;

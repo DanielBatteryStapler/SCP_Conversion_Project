@@ -143,6 +143,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TableOfContentsRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TableRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/TableRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Templater.cpp" />
+		<Unit filename="ScpArchive/Parser/Templater.hpp" />
 		<Unit filename="ScpArchive/Parser/Treer.cpp" />
 		<Unit filename="ScpArchive/Parser/Treer.hpp" />
 		<Unit filename="ScpArchive/Tests/AutomatedTester.cpp" />
@@ -159,6 +161,8 @@
 		<Unit filename="ScpArchive/Tests/HTTP/MarkupOutStreamTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Parser/ParserTests.cpp" />
 		<Unit filename="ScpArchive/Tests/Parser/ParserTests.hpp" />
+		<Unit filename="ScpArchive/Tests/Parser/TemplaterTests.cpp" />
+		<Unit filename="ScpArchive/Tests/Parser/TemplaterTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Parser/TreerTests.cpp" />
 		<Unit filename="ScpArchive/Tests/Parser/TreerTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Tests.cpp" />

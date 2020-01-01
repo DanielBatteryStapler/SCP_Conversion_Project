@@ -24,7 +24,7 @@ namespace Parser{
             const std::size_t length = std::string(":scp-wiki:").size();
             pageName = pageName.substr(length, pageName.size() - length);
         }
-        if(pageName == context.parameters.pageName){
+        if(pageName == context.parameters.page.name){
             makeDivPushable(context);
             addAsText(context, Node{PlainText{"Include failed: recursive include is not allowed"}});
             makeDivPushable(context);

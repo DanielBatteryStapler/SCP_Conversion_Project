@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "RuleSet.hpp"
+
 namespace Parser{
     inline static bool check(const std::string& buffer, std::size_t pos, std::string text){
         if(pos + text.size() > buffer.size()){

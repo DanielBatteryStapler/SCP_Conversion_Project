@@ -9,6 +9,7 @@
 
 #include "Parser/ParserTests.hpp"
 #include "Parser/TreerTests.hpp"
+#include "Parser/TemplaterTests.hpp"
 
 namespace Tests{
 	void runAllTests(){
@@ -16,6 +17,7 @@ namespace Tests{
 		
 		addParserTests(tester);
 		addTreerTests(tester);
+		addTemplaterTests(tester);
 		
 		addHtmlEntityTests(tester);
 		addMarkupOutStreamTests(tester);

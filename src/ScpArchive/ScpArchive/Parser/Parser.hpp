@@ -48,7 +48,7 @@ namespace Parser{
 		bool operator==(const SectionComplete& tok)const;
 	};
 	
-    enum class DividerType{Unknown, Line, ClearBoth, ClearLeft, ClearRight};
+    enum class DividerType{Unknown, Line, ClearBoth, ClearLeft, ClearRight, Seperator};
 	
 	struct Divider{
 		using Type = DividerType;
@@ -164,16 +164,17 @@ namespace Parser{
 		std::string originalPage;
 	};
 	
+	struct PageInfo{
+        std::string name;
+        std::vector<std::string> tags;
+	};
+	
 	struct ParserParameters{
-	    std::string pageName;
-	    std::vector<std::string> pageTags;
+	    PageInfo page;
         std::map<std::string, std::string> includeParameters;
         Database* database = nullptr;
         int includeDepth = 0;
 	};
-	
-	TokenedPage tokenizePage(std::string page, ParserParameters parameters = {});
-	std::vector<std::string> getPageLinks(std::string page);
 	
 	struct TokenRuleContext{
 		std::string page;
@@ -187,6 +188,9 @@ namespace Parser{
 		bool nowNewline = false;
 		std::vector<Token> newTokens;
 	};
+	
+	TokenedPage tokenizePage(std::string page, ParserParameters parameters = {});
+	std::vector<std::string> getPageLinks(std::string page);
 };
 
 #endif // PARSER_HPP

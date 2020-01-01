@@ -96,7 +96,7 @@ namespace Parser{
             newImage.source = "__system/pageFile" + source;
         }
         else{
-            newImage.source = "__system/pageFile/" + context.parameters.pageName + "/" + urlEncode(source);
+            newImage.source = "__system/pageFile/" + context.parameters.page.name + "/" + urlEncode(source);
         }
         
         addAsDiv(context, Node{newImage});

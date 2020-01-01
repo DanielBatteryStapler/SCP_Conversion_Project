@@ -426,6 +426,9 @@ namespace Tests{
                 Token{PlainText{"yup"}, 12, 15, "yup"}
             });
             
+            assertPageTokenize("====", {
+                Token{Divider{Divider::Type::Seperator}, 0, 4, "===="}
+            });
             assertPageTokenize("~~~~", {
                 Token{Divider{Divider::Type::ClearBoth}, 0, 4, "~~~~"}
             });
@@ -439,6 +442,11 @@ namespace Tests{
                 Token{Divider{Divider::Type::ClearBoth}, 0, 4, "~~~~"},
                 Token{NewLine{}, 4, 5, "\n"},
                 Token{PlainText{"yup"}, 5, 8, "yup"}
+            });
+            assertPageTokenize("=======\nyup", {
+                Token{Divider{Divider::Type::Seperator}, 0, 7, "======="},
+                Token{NewLine{}, 7, 8, "\n"},
+                Token{PlainText{"yup"}, 8, 11, "yup"}
             });
             assertPageTokenize("~~~~~~~\nyup", {
                 Token{Divider{Divider::Type::ClearBoth}, 0, 7, "~~~~~~~"},
