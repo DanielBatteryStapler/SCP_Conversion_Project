@@ -124,7 +124,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 	
 	Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
 	
-	Parser::ParserParameters parserParameters;
+	Parser::ParserParameters parserParameters = {};
 	parserParameters.database = webCon.db.get();
 	parserParameters.page.name = pageName;
 	parserParameters.page.tags = webCon.db->getPageTags(pageId);

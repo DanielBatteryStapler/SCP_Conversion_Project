@@ -107,6 +107,10 @@ namespace Parser{
         return nod.parameters == parameters && nod.isHeader == isHeader;
     }
     
+    bool Rate::operator==(const Rate& nod)const{
+        return rating == nod.rating;
+    }
+    
     bool FootNote::operator==(const FootNote& nod)const{
         return number == nod.number;
     }

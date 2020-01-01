@@ -164,16 +164,21 @@ namespace Parser{
         bool operator==(const AdvTableElement& nod)const;
     };
     
+    struct Rate{
+        int rating;
+        bool operator==(const Rate& nod)const;
+    };
+    
 	struct RootPage{
 		bool operator==(const RootPage& nod)const;
 	};
 	
 	enum class NodeType{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
-        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
+        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate,
         QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
 	using NodeVariant = std::variant<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
-        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible,
+        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate,
         QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
 	

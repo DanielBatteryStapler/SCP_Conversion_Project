@@ -131,6 +131,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/NullRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/QuoteBoxRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/QuoteBoxRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/RateRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/RateRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SectionRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SectionRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SizeRuleSet.cpp" />
