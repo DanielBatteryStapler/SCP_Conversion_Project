@@ -171,6 +171,21 @@ namespace Tests{
             assertPageTokenize("[#toc go here]", {
                 Token{HyperLink{"go here", "#toc", false}, 0, 14, "[#toc go here]"}
             });
+            assertPageTokenize("[/ main]", {
+                Token{HyperLink{"main", "/", false}, 0, 8, "[/ main]"}
+            });
+            assertPageTokenize("[/page here]", {
+                Token{HyperLink{"here", "/page", false}, 0, 12, "[/page here]"}
+            });
+            assertPageTokenize("[*#toc go here]", {
+                Token{HyperLink{"go here", "#toc", true}, 0, 15, "[*#toc go here]"}
+            });
+            assertPageTokenize("[*/ main]", {
+                Token{HyperLink{"main", "/", true}, 0, 9, "[*/ main]"}
+            });
+            assertPageTokenize("[*/page here]", {
+                Token{HyperLink{"here", "/page", true}, 0, 13, "[*/page here]"}
+            });
             
             ///TODO: these don't actually work in wikidot, singleLinks must have a specified shownName
             assertPageTokenize("[https://google.com]", {

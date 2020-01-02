@@ -73,7 +73,7 @@ namespace Parser{
 	}
 	
 	bool trySingleLinkRule(const TokenRuleContext& context){
-		if(checkLine(context.page, context.pagePos, "]")){
+		if(context.page[context.pagePos] == '[' && checkLine(context.page, context.pagePos, "]")){
 			if(check(context.page, context.pagePos, "[https://")){
 				return true;
 			}
@@ -83,6 +83,9 @@ namespace Parser{
 			if(check(context.page, context.pagePos, "[#")){
 				return true;
 			}
+			if(check(context.page, context.pagePos, "[/")){
+				return true;
+			}
 			if(check(context.page, context.pagePos, "[*https://")){
 				return true;
 			}
@@ -90,6 +93,9 @@ namespace Parser{
 				return true;
 			}
 			if(check(context.page, context.pagePos, "[*#")){
+				return true;
+			}
+			if(check(context.page, context.pagePos, "[*/")){
 				return true;
 			}
 		}
