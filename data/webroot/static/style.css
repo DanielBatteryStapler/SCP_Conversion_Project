@@ -1,0 +1,152 @@
+
+@import url('/__system/pageFile/component:theme/font-bauhaus.css');
+
+/*for the overall page layout*/
+body{
+	padding: 0px;
+	margin: 0px;
+}
+
+#fullPageContainer{
+}
+
+#pageHeaderBackground{
+	background-repeat: repeat-x;
+	background-image: linear-gradient(0deg, rgb(100, 46, 44) 0%, rgb(12, 12, 12) 90%, rgb(12, 12, 12));
+	width: 100%;
+}
+
+#pageHeader{
+	max-width:50rem;
+	margin-left:auto;
+	margin-right:auto;
+	
+	display: grid;
+	grid-template-columns: 15px auto auto 1fr;
+	grid-template-rows: auto auto;
+	grid-template-areas:
+		". image title ."
+		". image subtitle .";
+	grid-column-gap: 0px;
+}
+
+#headerImage{
+	grid-area: image;
+}
+
+#headerTitle{
+	grid-area: title;
+	font-family: BauhausLTDemi, sans-serif;
+	padding: 0px;
+	padding-top: 20px;
+	font-size: 2.3rem;
+	margin: 0px;
+	margin-bottom: -35px;
+	color: #F0F0F0;
+}
+
+#headerTitle a{
+	color: inherit;
+}
+
+#headerSubtitle{
+	grid-area: subtitle;
+	font-family: "Trebuchet MS", sans-serif;
+	padding: 0px;
+	margin: 0px;
+	color: white;
+	font-size: 1rem;
+}
+
+#pageBody{
+	max-width:60rem;
+	margin-left:auto;
+	margin-right:auto;
+	
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: auto;
+	grid-template-areas:
+		"sideBar article";
+}
+
+#sideBar{
+	grid-area: sideBar;
+	width: 18rem;
+	position: relative;
+}
+
+#article{
+	grid-area: article;
+	font-family:'Liberation Sans', sans-serif;
+}
+
+#articleTitle{
+	font-size: 2rem;
+	color: #901;
+	border-style: solid;
+	border-width: 0px 0px 2px 0px;
+	border-color: gray;
+	margin: 5px 0px 20px 0px;
+	padding-bottom: 5px;
+}
+
+/*for the things in the article*/
+h1{margin-top:1rem;margin-bottom:0.5rem;font-size:2rem;}
+h2{margin-bottom:0.5rem;font-size:1.3rem;}
+h3{margin-bottom:0.5rem;font-size:1.1rem;}
+h4{margin-bottom:0.5rem;font-size:1rem;}
+h5{margin-bottom:0.5rem;font-size:0.8rem;}
+h6{margin-bottom:0.5rem;font-size:0.7rem;}
+
+p{line-height:1.25;}
+li{line-height:1.25;}
+
+.PageClearer{display:block;clear:both;}
+.PageClearerLeft{display:block;clear:left;}
+.PageClearerRight{display:block;clear:right;}
+blockquote{border-width:1px;border-style:dashed;border-color:black;padding-left:1rem;padding-right:1rem;}
+code{display:block;border-width:1px;border-style:dashed;border-color:gray;background-color:lightgray;}
+.Monospaced{font-family:'Liberation Mono', monospace;font-size:inherit;}
+.CodeBlock{border-width:1px;border-style:solid;border-color:black;font-family:'Liberation Mono', monospace;}
+
+#toc{max-width:30em;border-style:solid;border-width:1px;border-color:black;}
+
+img{border-width:0px;}
+.image{display:inline-block;}
+.ImageCenter{text-align:center;}
+.ImageLeft{text-align:left;}
+.ImageRight{text-align:right;}
+.ImageFloatLeft{float:left;}
+.ImageFloatRight{float:right;}
+
+table{border-collapse:collapse;margin:0.5rem;empty-cells:show;}
+tr{border-collapse:collapse;}
+td{border-collapse:collapse;border-style:solid;border-width:1px;border-color:black;padding:0.5rem;}
+th{border-collapse:collapse;border-style:solid;border-width:1px;border-color:black;padding:0.5rem;}
+
+/*Collapsible stuff*/
+.CollapsibleContainer{clear:both;}
+.CollapsibleContent{display:none;}
+.CollapsibleHiddenText{cursor:pointer;color:blue;}
+.CollapsibleHiddenText:hover{text-decoration:underline;}
+.CollapsibleShownText{cursor:pointer;color:blue;display:none;}
+.CollapsibleShownText:hover{text-decoration:underline;}
+.CollapsibleContainer>input[type=checkbox]{display:none;}
+/*when the collapsible is opened*/
+input[type=checkbox]:checked~.CollapsibleContent{display:block;}
+input[type=checkbox]:checked~.CollapsibleHiddenText{display:none;}
+input[type=checkbox]:checked~.CollapsibleShownText{display:block;}
+
+/*TabView stuff*/
+.TabView{}
+.TabViewButtons{}
+.TabViewButton{cursor:pointer;border-style:solid;border-color:black;border-width:1px;border-bottom-width:0px;display:inline-block;padding:2px;margin-right:0.5rem;}
+.TabViewButton:hover{text-decoration:underline;}
+.TabView>input[type=radio]{display:none;}
+.TabSection{padding:0.5rem;padding-top:0px;display:none;border-style:solid;border-color:black;border-width:1px;overflow:hidden;}
+.TabSectionTitle{display:inline-block;padding:2px;padding-left:4rem;font-family:monospace;}
+/*for showing the selected tab*/
+input[type=radio]:checked+.TabSection{display:block;}
+
+.rate-points{color:white;padding:4px;}

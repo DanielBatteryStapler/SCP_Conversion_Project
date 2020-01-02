@@ -78,11 +78,19 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
             if(uri.size() == 4 && uri[1] == "pageFile"){
                 std::optional<Database::ID> pageId = webCon.db->getPageId(uri[2]);
                 if(pageId){
-                    std::optional<Database::ID> fileId = webCon.db->getPageFileId(*pageId, uri[3]);
+                    std::string fileName = uri[3];
+                    std::optional<Database::ID> fileId = webCon.db->getPageFileId(*pageId, fileName);
                     if(fileId){
                         give404 = false;
-                        reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
-                        << "Content-Type: image\r\n\r\n"_AM;
+                        if(fileName.size() > 4 && fileName.substr(fileName.size() - 4, 4) == ".css"){
+                                std::cout << "IS CSS\n";
+                            reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+                            << "Content-Type: text/css\r\n\r\n"_AM;
+                        }
+                        else{
+                            reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+                            << "Content-Type: image\r\n\r\n"_AM;
+                        }
                         webCon.db->downloadPageFile(*fileId, *reqCon.out.getUnsafeRawOutputStream());
                     }
                 }
@@ -121,17 +129,16 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
 }
 
 bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
-	
-	Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
-	
-	Parser::ParserParameters parserParameters = {};
-	parserParameters.database = webCon.db.get();
-	parserParameters.page.name = pageName;
-	parserParameters.page.tags = webCon.db->getPageTags(pageId);
-	
-	Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
-	Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
 	if(parameters.find("showAnnotatedSource") != parameters.end()){
+		Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
+        
+        Parser::ParserParameters parserParameters = {};
+        parserParameters.database = webCon.db.get();
+        parserParameters.page.name = pageName;
+        parserParameters.page.tags = webCon.db->getPageTags(pageId);
+        
+        Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
+		
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM
 		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
@@ -139,16 +146,20 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		
 		reqCon.out << "<p>"_AM;
 		Parser::convertTokenedPageToHtml(reqCon.out, pageTokens);
-		reqCon.out << "</p>"_AM;
+		reqCon.out << "</p>"_AM
+        << "</body></html>"_AM;
+        return true;
 	}
 	else if(parameters.find("showSource") != parameters.end()){
+        Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
+		
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM
 		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
 		<< revision.title << "</title></head><body>"_AM;
 		
 		reqCon.out << "<p>"_AM;
-		for(char c : pageTokens.originalPage){
+		for(char c : revision.sourceCode){
 			if(c == '\n'){
 				reqCon.out << "<br />\n"_AM;
 			}
@@ -159,9 +170,21 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 				reqCon.out << c;
 			}
 		}
-		reqCon.out << "</p>"_AM;
+		reqCon.out << "</p>"_AM
+        << "</body></html>"_AM;
+        return true;
 	}
 	else if(parameters.find("code") != parameters.end()){
+        Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
+        
+        Parser::ParserParameters parserParameters = {};
+        parserParameters.database = webCon.db.get();
+        parserParameters.page.name = pageName;
+        parserParameters.page.tags = webCon.db->getPageTags(pageId);
+        
+        Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
+        Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
+        
         int codeNum;
         try{
             codeNum = std::stoi(parameters.find("code")->second) - 1;
@@ -182,21 +205,103 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         }
 		
 		(*reqCon.out.getUnsafeRawOutputStream()) << pageTree.codeData[codeNum].contents;
+		return true;
 	}
-	else{
-		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
-		<< "Content-Type: text/html\r\n\r\n"_AM
-		<< "<!DOCTYPE html><html><head><meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'><link rel='stylesheet' type='text/css' href='/component:theme/code/1'><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
-		<< revision.title << "</title>"_AM;
-		for(const auto& css : pageTree.cssData){
-			reqCon.out << "<style>"_AM << allowMarkup(css.data) << "</style>"_AM;///!!!! This allows for code injection!!! there is no sanitation on that CSS!!!
-		}
-		reqCon.out << "</head><body>"_AM;
+	else if(parameters.find("css") != parameters.end()){
+        Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
+        
+        Parser::ParserParameters parserParameters = {};
+        parserParameters.database = webCon.db.get();
+        parserParameters.page.name = pageName;
+        parserParameters.page.tags = webCon.db->getPageTags(pageId);
+        
+        Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
+        Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
+        
+        int cssNum;
+        try{
+            cssNum = std::stoi(parameters.find("css")->second) - 1;
+        }
+        catch(std::exception& e){
+            return false;
+        }
+        if(cssNum < 0 || pageTree.cssData.size() <= cssNum){
+            return false;
+        }
+        
+        reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+        << "Content-Type: text/css\r\n\r\n"_AM;
 		
-		Parser::convertPageTreeToHtml(reqCon.out, pageTree);
+		(*reqCon.out.getUnsafeRawOutputStream()) << pageTree.cssData[cssNum].data;
+		return true;
 	}
-	reqCon.out << "</body></html>"_AM;
-	return true;
+	else{//if nothing special is being asked for, then just send a standard formatted article
+		return handleFormattedArticle(reqCon, webCon, pageName, pageId, parameters);
+	}
+}
+
+bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
+    
+    Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
+    
+    Parser::ParserParameters parserParameters = {};
+    parserParameters.database = webCon.db.get();
+    parserParameters.page.name = pageName;
+    parserParameters.page.tags = webCon.db->getPageTags(pageId);
+    
+    Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
+    Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
+    
+    reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+    << "Content-Type: text/html\r\n\r\n"_AM
+    << "<!DOCTYPE html><html><head>"_AM
+    << "<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'>"_AM
+    << "<link rel='stylesheet' type='text/css' href='/component:theme/code/1'>"_AM
+    << "<link rel='stylesheet' type='text/css' href='/static/style.css'>"_AM
+    << "<meta charset='UTF-8'>"_AM
+    << "<title>"_AM << revision.title << "</title>"_AM;
+    for(std::size_t i = 0; i < pageTree.cssData.size(); i++){
+        reqCon.out << "<link rel='stylesheet' type='text/css' href='/"_AM << pageName << "/css/"_AM << std::to_string(i) << "'>"_AM;
+    }
+    reqCon.out << "</head><body>"_AM;
+    
+    reqCon.out << "<div id='fullPageContainer'>"_AM
+    << "<div id='pageHeaderBackground'>"_AM
+    << "<div id='pageHeader'>"_AM
+    << "<img id='headerImage' src='/static/logo.png'>"_AM
+    << "<h1 id='headerTitle'><a href='/'>SCP Conversion Project</a></h1>"_AM
+    << "<h2 id='headerSubtitle'>Converting and Archiving the SCP Wiki</h2>"_AM
+    << "</div></div>"_AM
+    << "<div id='pageBody'>"_AM
+    << "<div id='sideBar'><div id='side-bar'>"_AM;
+    {//side bar content
+        std::string sideBarPageName = "nav:side";
+        
+        std::optional<Database::ID> sideBarId = webCon.db->getPageId(sideBarPageName);
+        
+        if(sideBarId){
+            Database::PageRevision sideBarRevision = webCon.db->getLatestPageRevision(*sideBarId);
+            
+            Parser::TokenedPage sideBarTokens = Parser::tokenizePage(sideBarRevision.sourceCode, parserParameters);
+            Parser::PageTree sideBarTree = Parser::makeTreeFromTokenedPage(sideBarTokens, parserParameters);
+            
+            Parser::convertPageTreeToHtml(reqCon.out, sideBarTree);
+        }
+        else{
+            reqCon.out << "Side bar content unavailable";
+        }
+        
+    }
+    reqCon.out << "</div></div>"_AM;
+    //the actual article html
+    reqCon.out << "<div id='article'>"_AM
+    << "<div id='articleTitle'>"_AM << revision.title << "</div>"_AM;
+    Parser::convertPageTreeToHtml(reqCon.out, pageTree);
+    reqCon.out << "</div>"_AM
+    << "</div></div>"_AM
+    << "</body></html>"_AM;
+    
+    return true;
 }
 
 
