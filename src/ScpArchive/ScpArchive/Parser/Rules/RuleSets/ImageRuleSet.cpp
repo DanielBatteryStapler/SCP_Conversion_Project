@@ -99,7 +99,7 @@ namespace Parser{
             newImage.source = "__system/pageFile/" + context.parameters.page.name + "/" + urlEncode(source);
         }
         
-        addAsDiv(context, Node{newImage});
+        addAsText(context, Node{newImage});
     }
 	
 	void toHtmlNodeImage(const HtmlContext& con, const Node& nod){

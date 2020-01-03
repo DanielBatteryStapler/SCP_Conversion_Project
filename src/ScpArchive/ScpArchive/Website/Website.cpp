@@ -83,7 +83,6 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
                     if(fileId){
                         give404 = false;
                         if(fileName.size() > 4 && fileName.substr(fileName.size() - 4, 4) == ".css"){
-                                std::cout << "IS CSS\n";
                             reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
                             << "Content-Type: text/css\r\n\r\n"_AM;
                         }
@@ -142,12 +141,12 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM
 		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
-		<< revision.title << "</title></head><body>"_AM;
+		<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM;
 		
 		reqCon.out << "<p>"_AM;
 		Parser::convertTokenedPageToHtml(reqCon.out, pageTokens);
 		reqCon.out << "</p>"_AM
-        << "</body></html>"_AM;
+        << "</div></body></html>"_AM;
         return true;
 	}
 	else if(parameters.find("showSource") != parameters.end()){
@@ -156,7 +155,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM
 		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
-		<< revision.title << "</title></head><body>"_AM;
+		<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM;
 		
 		reqCon.out << "<p>"_AM;
 		for(char c : revision.sourceCode){
@@ -171,7 +170,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 			}
 		}
 		reqCon.out << "</p>"_AM
-        << "</body></html>"_AM;
+        << "</div></body></html>"_AM;
         return true;
 	}
 	else if(parameters.find("code") != parameters.end()){
@@ -272,9 +271,9 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     << "<h1 id='headerTitle'><a href='/'>SCP Conversion Project</a></h1>"_AM
     << "<h2 id='headerSubtitle'>Converting and Archiving the SCP Wiki</h2>"_AM
     << "</div></div>"_AM
-    << "<div id='pageBody'>"_AM
-    << "<div id='sideBar'><div id='side-bar'>"_AM;
+    << "<div id='pageBody'>"_AM;
     {//side bar content
+        reqCon.out << "<div id='sideBar'><div id='side-bar'>"_AM;
         std::string sideBarPageName = "nav:side";
         
         std::optional<Database::ID> sideBarId = webCon.db->getPageId(sideBarPageName);
@@ -290,16 +289,29 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         else{
             reqCon.out << "Side bar content unavailable";
         }
-        
+        reqCon.out << "</div></div>"_AM;
     }
-    reqCon.out << "</div></div>"_AM;
-    //the actual article html
-    reqCon.out << "<div id='article'>"_AM
-    << "<div id='articleTitle'>"_AM << revision.title << "</div>"_AM;
-    Parser::convertPageTreeToHtml(reqCon.out, pageTree);
-    reqCon.out << "</div>"_AM
+    {//the actual article html
+        reqCon.out << "<div id='article'>"_AM
+        << "<div id='articleTitle'>"_AM << revision.title << "</div>"_AM;
+        Parser::convertPageTreeToHtml(reqCon.out, pageTree);
+        reqCon.out << "</div>"_AM;
+    }
+    {//footer
+        reqCon.out << "<div id='articleFooter'>"_AM
+        << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
+        << "<a class='item' href='/"_AM << pageName  << "/showSource'>Raw Source</a>"_AM
+        << "</div>"_AM;
+    }
+    reqCon.out << "</div>"_AM //id='pageBody'
+    << "<div id='pageFooterBackground'><div id='pageFooter'>"_AM
+    << "<div id='pageFooterPoweredBy'>"_AM
+    << "Powered by the <a href='/'>SCP Conversion Project</a><br>"_AM
+    << "</div><div id='pageFooterCopyright'>"_AM
+    << "Unless otherwise stated, the content of this page is licensed under <a href='https://creativecommons.org/licenses/by-sa/3.0/'>Creative Commons Attribution-ShareAlike 3.0 License</a>"_AM
+    << "</div>"_AM
     << "</div></div>"_AM
-    << "</body></html>"_AM;
+    << "</div></body></html>"_AM;
     
     return true;
 }
