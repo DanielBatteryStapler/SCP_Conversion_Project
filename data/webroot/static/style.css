@@ -8,6 +8,13 @@ body{
 }
 
 #fullPageContainer{
+	background-color: white;
+}
+
+#sourceCodeBox{
+	max-width:50rem;
+	margin-left:auto;
+	margin-right:auto;
 }
 
 #pageHeaderBackground{
@@ -65,14 +72,16 @@ body{
 	
 	display: grid;
 	grid-template-columns: auto 1fr;
-	grid-template-rows: auto;
+	grid-template-rows: auto auto;
 	grid-template-areas:
-		"sideBar article";
+		"sideBar article"
+		"sideBar footer";
 }
 
 #sideBar{
 	grid-area: sideBar;
 	width: 18rem;
+	min-height: 75rem;
 	position: relative;
 }
 
@@ -89,6 +98,44 @@ body{
 	border-color: gray;
 	margin: 5px 0px 20px 0px;
 	padding-bottom: 5px;
+}
+
+#articleFooter{
+	grid-area: footer;
+	margin: 20px;
+	padding: 5px;
+	border-style: solid;
+	border-width: 2px 0px 0px 0px;
+	border-color: gray;
+}
+
+#articleFooter .item{
+	display: inline-block;
+	margin: 5px;
+}
+
+#pageFooterBackground{
+	margin-top: 10rem;
+	background-color: #555555;
+}
+
+#pageFooter{
+	max-width:60rem;
+	margin-left:auto;
+	margin-right:auto;
+	
+	padding: 10px 0px 10px 0px;
+
+	color: white;
+}
+#pageFooter a{
+	color: lightblue;
+}
+#pageFooterPoweredBy{
+	margin: 5px;
+}
+#pageFooterCopyright{
+	margin: 5px;
 }
 
 /*for the things in the article*/
@@ -119,6 +166,9 @@ img{border-width:0px;}
 .ImageRight{text-align:right;}
 .ImageFloatLeft{float:left;}
 .ImageFloatRight{float:right;}
+.scp-image-block > p {
+	margin: 0px !important;
+}
 
 table{border-collapse:collapse;margin:0.5rem;empty-cells:show;}
 tr{border-collapse:collapse;}
