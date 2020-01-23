@@ -506,7 +506,7 @@ namespace Scraper{
 		
 		nlohmann::json tags = nlohmann::json::array();
 		
-		std::size_t pos = 0;
+		std::size_t pos = rawPage.find("<div class=\"page-tags\">");
 		while(true){
 			std::string tag;
 			pos = getData(rawPage, "/system:page-tags/tag/", "#pages", pos, tag);
