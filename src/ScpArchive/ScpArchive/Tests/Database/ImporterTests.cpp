@@ -118,10 +118,9 @@ namespace Tests{
 
 	void addImporterTests(Tester& tester){
 		tester.add("Importer::importForumGroups", [](){
-			Importer::ImportMap map;
-			
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			db->cleanAndInitDatabase();
+			Importer::ImportMap map(db.get());
 			
 			importForumGroups(db.get(), map, testForumGroups);
 			
@@ -143,14 +142,13 @@ namespace Tests{
                 }
 			}
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Importer::importBasicPageData", [](){
-			Importer::ImportMap map;
-			
-			std::unique_ptr<Database> database = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
 			database->cleanAndInitDatabase();
+			Importer::ImportMap map(database.get());
 			
 			Importer::importBasicPageData(database.get(), map, testPageA);
 			
@@ -201,14 +199,13 @@ namespace Tests{
 				}
 			}
 			
-			Database::wipeDatabaseFromMongo(std::move(database));
+			Database::eraseDatabase(std::move(database));
 		});
 		
 		tester.add("Importer::linkPageParent", [](){
-			Importer::ImportMap map;
-			
-			std::unique_ptr<Database> database = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
 			database->cleanAndInitDatabase();
+			Importer::ImportMap map(database.get());
 			
 			Importer::importBasicPageData(database.get(), map, testPageA);
 			Database::ID pageAId = *database->getPageId(testPageA["name"].get<std::string>());
@@ -227,12 +224,14 @@ namespace Tests{
 			assertTrue(*database->getPageParent(pageAId) == pageBId);
 			assertTrue(database->getPageParent(pageBId) == std::nullopt);
 			
-			Database::wipeDatabaseFromMongo(std::move(database));
+			Database::eraseDatabase(std::move(database));
 		});
 		
 		tester.add("Importer::ImportMap", [](){
 			{
-				Importer::ImportMap importMap;
+				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
+				database->cleanAndInitDatabase();
+				Importer::ImportMap importMap(database.get());
 				
 				Database::ID idA = Database::ID("507f1f77bcf86cd799439011");//just some valid, but meaningless test ids
 				Database::ID idB = Database::ID("507f191e810c19729de860ea");
@@ -252,7 +251,9 @@ namespace Tests{
 				assertEquals(idB, importMap.getThreadMap(rawB));
 			}
 			{
-				Importer::ImportMap importMap;
+				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
+				database->cleanAndInitDatabase();
+				Importer::ImportMap importMap(database.get());
 				
 				Database::ID idA = Database::ID("507f1f77bcf86cd799439011");//just some valid, but meaningless test ids
 				Database::ID idB = Database::ID("507f191e810c19729de860ea");
@@ -272,7 +273,9 @@ namespace Tests{
 				assertEquals(idB, importMap.getCategoryMap(rawB));
 			}
 			{
-				Importer::ImportMap importMap;
+				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
+				database->cleanAndInitDatabase();
+				Importer::ImportMap importMap(database.get());
 				
 				Database::ID idA = Database::ID("507f1f77bcf86cd799439011");//just some valid, but meaningless test ids
 				Database::ID idB = Database::ID("507f191e810c19729de860ea");
@@ -292,7 +295,9 @@ namespace Tests{
 				assertEquals(idB, importMap.getPageMap(rawB));
 			}
 			{
-				Importer::ImportMap importMap;
+				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
+				database->cleanAndInitDatabase();
+				Importer::ImportMap importMap(database.get());
 				
 				Database::ID idA = Database::ID("507f1f77bcf86cd799439011");//just some valid, but meaningless test ids
 				Database::ID idB = Database::ID("507f191e810c19729de860ea");

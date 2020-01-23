@@ -5,11 +5,16 @@
 
 namespace Config{
 	std::string getTestingDatabaseName();
-	
+    
+    std::string getImportMapFileName();
+    
 	unsigned int getNumberOfThreadsForGateway();
 	std::string	getProductionDatabaseName();
 	std::string getFastCGISocket();
 	std::string getWebsiteDomainName();
+	
+	std::string getDatabaseUser();
+	std::string getDatabasePassword();
 }
 
 #endif // CONFIG_HPP

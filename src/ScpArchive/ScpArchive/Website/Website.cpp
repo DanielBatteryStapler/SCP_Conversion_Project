@@ -22,7 +22,7 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 		Gateway::RequestContext context = threadContext.getNextRequest();
 		
 		Website::Context websiteContext;
-		websiteContext.db = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
+		websiteContext.db = Database::connectToDatabase(Config::getProductionDatabaseName());
 		
 		if(context.shouldShutdown){
 			std::cout << "Stopping thread #" << threadContext.threadIndex << "...\n";

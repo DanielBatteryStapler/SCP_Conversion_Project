@@ -6,15 +6,15 @@
 
 namespace Tests{
 	void addDatabaseTests(Tester& tester){
-		tester.add("Database::connectToMongoDatabase", [](){
+		tester.add("Database::connectToDatabase", [](){
 			//make that just making a connection doesn't cause an exception
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			db->getNumberOfPages();//make sure that a very simple command completes without error
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::createPage", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -24,11 +24,11 @@ namespace Tests{
 			
 			assertTrue(db->createPage("test-page-a") == std::nullopt);
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::cleanAndInitDatabase", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -40,11 +40,11 @@ namespace Tests{
 			
 			assertTrue(db->getPageId("test-page-a") == std::nullopt);
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::getNumberOfPages", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -56,11 +56,11 @@ namespace Tests{
 			db->createPage("test-page-b");
 			assertEquals(2, db->getNumberOfPages());
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::getPageList", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -72,11 +72,11 @@ namespace Tests{
 			db->createPage("test-page-b");
 			assertEqualsVec({a,b}, db->getPageList());
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::getPageName", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -85,11 +85,11 @@ namespace Tests{
 			assertEquals("test-page-a", db->getPageName(a));
 			assertEquals("test-page-b", db->getPageName(b));
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::setPageParent", [](){
-            std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+            std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -104,11 +104,11 @@ namespace Tests{
             assertTrue(std::nullopt == db->getPageParent(*pageA));
             assertTrue(std::nullopt == db->getPageParent(*pageB));
             
-            Database::wipeDatabaseFromMongo(std::move(db));
+            Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::setPageDiscussion", [](){
-            std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+            std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -120,11 +120,11 @@ namespace Tests{
             db->setPageDiscussion(*pageA, std::nullopt);
             assertTrue(std::nullopt == db->getPageDiscussion(*pageA));
             
-            Database::wipeDatabaseFromMongo(std::move(db));
+            Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::setPageTags", [](){
-            std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+            std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -135,11 +135,11 @@ namespace Tests{
             db->setPageTags(*pageA, {"yeet"});
             assertEqualsVec({"yeet"}, db->getPageTags(*pageA));
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::createPageRevision", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -155,11 +155,11 @@ namespace Tests{
 			revId = db->createPageRevision(pageId, rev);
 			assertEquals(rev.title, db->getPageRevision(revId).title);
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::getPageRevisions", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -179,11 +179,11 @@ namespace Tests{
 			
 			assertEqualsVec({revId, revIdb}, db->getPageRevisions(pageId));
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::getLatestPageRevision", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -199,11 +199,11 @@ namespace Tests{
 			revId = db->createPageRevision(pageId, rev);
 			assertEquals(rev.title, db->getLatestPageRevision(pageId).title);
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::createPageFile", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -241,11 +241,11 @@ namespace Tests{
 			db->downloadPageFile(fileId, outputStream);
 			assertEquals(fileData, outputStream.str());
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::createForumGroup", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -271,11 +271,11 @@ namespace Tests{
 			assertEquals(groupB.title, db->getForumGroup(groupBId).title);
 			assertEquals(groupB.description, db->getForumGroup(groupBId).description);
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 		
 		tester.add("Database::createForumCategory", [](){
-			std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getTestingDatabaseName());
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
 			
@@ -327,7 +327,7 @@ namespace Tests{
 			assertEquals(categoryC.title, db->getForumCategory(categoryCId).title);
 			assertEquals(categoryC.description, db->getForumCategory(categoryCId).description);
 			
-			Database::wipeDatabaseFromMongo(std::move(db));
+			Database::eraseDatabase(std::move(db));
 		});
 	}
 }

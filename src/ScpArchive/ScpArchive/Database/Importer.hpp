@@ -10,11 +10,11 @@
 
 namespace Importer{
     
-    struct ImportMap{
-		std::map<std::string, Database::ID> pageMap;
-		std::map<std::string, Database::ID> fileMap;
-        std::map<std::string, Database::ID> threadMap;
-        std::map<std::string, Database::ID> categoryMap;
+    struct ImportMap{///TODO: switch this to use the database to keep track of everything, so it can be saved for later use
+	public:
+        enum class MapType:short{Page=0, File=1, Thread=2, Category=3};
+		
+		ImportMap(Database* database);
         
         void setPageMap(std::string raw, Database::ID id);
         Database::ID getPageMap(std::string raw);
@@ -27,6 +27,9 @@ namespace Importer{
         
         void setCategoryMap(std::string raw, Database::ID id);
         Database::ID getCategoryMap(std::string raw);
+        
+	private:
+		Database* db;
     };
     
 	void importFullArchive(Database* database, std::string archiveDirectory);

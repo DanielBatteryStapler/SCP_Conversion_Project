@@ -1,6 +1,8 @@
 #ifndef WEBSITE_HPP
 #define WEBSITE_HPP
 
+#include <map>
+
 #include "Gateway.hpp"
 #include "../Database/Database.hpp"
 

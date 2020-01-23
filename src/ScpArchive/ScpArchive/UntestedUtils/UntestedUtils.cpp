@@ -22,7 +22,7 @@ namespace UntestedUtils{
 	}
 	
 	void exportNodeDiagramData(){
-		std::unique_ptr<Database> database = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
+		std::unique_ptr<Database> database = Database::connectToDatabase(Config::getProductionDatabaseName());
 		std::vector<Database::ID> pageList = database->getPageList();
 		
 		std::vector<TimelineUpdate> timeline;

@@ -29,7 +29,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--runWebsite" />
+				<Option parameters="--importData" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="./" />
@@ -49,17 +49,20 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-std=c++17" />
-			<Add directory="/usr/local/include/bsoncxx/v_noabi" />
-			<Add directory="/usr/local/include/mongocxx/v_noabi" />
+			<Add directory="/usr/include/soci" />
+			<Add directory="/usr/include/mysql" />
 		</Compiler>
 		<Linker>
 			<Add option="-lboost_system" />
 			<Add option="-lboost_filesystem" />
-			<Add option="$\(pkg-config --cflags --libs libmongocxx\)" />
 			<Add option="-lfcgi" />
 			<Add option="-lfcgi++" />
 			<Add option="-lcgicc" />
 			<Add option="-lpthread" />
+			<Add option="-lsoci_core" />
+			<Add option="-lsoci_mysql" />
+			<Add option="-ldl" />
+			<Add option="-lmysqlclient" />
 		</Linker>
 		<Unit filename="ScpArchive/Config.cpp" />
 		<Unit filename="ScpArchive/Config.hpp" />

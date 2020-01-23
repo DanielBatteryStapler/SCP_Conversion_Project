@@ -2,7 +2,9 @@
 
 #include "Tests/Tests.hpp"
 
+/*
 #include <mongocxx/instance.hpp>
+*/
 
 #include "Website/Website.hpp"
 #include "Database/Database.hpp"
@@ -20,7 +22,7 @@
 
 int main(int argc, char** argv){
 	
-	mongocxx::instance instance{};//this needs to exist for the entire program so mongodb works
+	//mongocxx::instance instance{};//this needs to exist for the entire program so mongodb works
 	
 	if(argc == 2 && std::string(argv[1]) == "--runCustomTest"){
        // Tests::runAllTests();
@@ -60,8 +62,8 @@ int main(int argc, char** argv){
 	else if(argc == 2 && std::string(argv[1]) == "--runTests"){
 		Tests::runAllTests();
 	}
-	else if(argc == 2 && std::string(argv[1]) == "--importData"){
-		std::cout << "Are you sure you want to overwrite database \"" << Config::getProductionDatabaseName() << "\"?(y/n):\n";
+	else if(argc == 2 && std::string(argv[1]) == "--clearData"){
+        std::cout << "Are you sure you want to CLEAR database \"" << Config::getProductionDatabaseName() << "\"?(y/n):\n";
 		std::string temp;
 		std::getline(std::cin, temp);
 		if(temp != "y"){
@@ -69,7 +71,19 @@ int main(int argc, char** argv){
 			return 0;
 		}
 		
-		std::unique_ptr<Database> database = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
+		std::unique_ptr<Database> database = Database::connectToDatabase(Config::getProductionDatabaseName());
+		database->cleanAndInitDatabase();
+	}
+	else if(argc == 2 && std::string(argv[1]) == "--importData"){
+		std::cout << "Are you sure you want to OVERRIDE data inside of database \"" << Config::getProductionDatabaseName() << "\"?(y/n):\n";
+		std::string temp;
+		std::getline(std::cin, temp);
+		if(temp != "y"){
+			std::cout << "Aborting.\n";
+			return 0;
+		}
+		
+		std::unique_ptr<Database> database = Database::connectToDatabase(Config::getProductionDatabaseName());
 		database->cleanAndInitDatabase();
 		Importer::importFullArchive(database.get(), "/home/daniel/File Collections/scpArchive/fullArchive/");
 	}

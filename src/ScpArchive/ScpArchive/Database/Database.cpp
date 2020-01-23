@@ -1,11 +1,11 @@
 #include "Database.hpp"
 
-#include <bsoncxx/types.hpp>
-#include <bsoncxx/json.hpp>
-#include <mongocxx/exception/exception.hpp>
-#include <bsoncxx/string/to_string.hpp>
-#include <bsoncxx/builder/stream/document.hpp>
+#include <soci/mysql/soci-mysql.h>
 
+using soci::use;
+using soci::into;
+
+#include "../Config.hpp"
 #include "Json.hpp"
 
 Database::~Database(){
@@ -16,59 +16,148 @@ namespace{
 	using namespace Json;
 }
 
-std::unique_ptr<Database> Database::connectToMongoDatabase(std::string databaseName){
-	std::unique_ptr<Database> output{new Database{}};//kinda weird to use a ``new`` with a unique_ptr, but it works and it's safe
-	output->dbClient = mongocxx::client{mongocxx::uri{}};
-	output->database = output->dbClient.database(databaseName);
-	output->gridfs = output->database.gridfs_bucket();
+std::unique_ptr<Database> Database::connectToDatabase(std::string databaseName){
+	std::unique_ptr<Database> output{new Database{}};
+	output->sql.open(soci::mysql, "dbname=" + databaseName + " user='" + Config::getDatabaseUser() + "' password='" + Config::getDatabasePassword() + "'");
 	return output;
 }
 
-void Database::wipeDatabaseFromMongo(std::unique_ptr<Database>&& db){
-	db->database.drop();
+void Database::eraseDatabase(std::unique_ptr<Database>&& database){
+	database->cleanAndInitDatabase();
+	
+	database.reset();//make sure to delete the database so it is not left in an invalid state
 }
 
 void Database::cleanAndInitDatabase(){
-	nlohmann::json collections = fromBson(database.run_command(toBson({{"listCollections", 1}, {"nameOnly", true}})))["cursor"]["firstBatch"];
-	for(auto& name : collections){
-        database[name["name"].get<std::string>()].drop();
-	}
+	//remove all tables
+	sql << "DROP TABLE IF EXISTS pageTags";
+	sql << "DROP TABLE IF EXISTS pageFileData";
+	sql << "DROP TABLE IF EXISTS pageFiles";
+	sql << "DROP TABLE IF EXISTS revisions";
+	sql << "DROP TABLE IF EXISTS pages";
+	sql << "DROP TABLE IF EXISTS forumCategories";
+	sql << "DROP TABLE IF EXISTS forumGroups";
+	sql << "DROP TABLE IF EXISTS idMap";
 	
-	database[pagesCol].create_index(toBson({{pagesColName, 1}}), toBson({{"unique", 1}}));
-	database[pageFilesCol].create_index(toBson({{pageFilesColName, 1}, {pageFilesColPageId, 1}}), toBson({{"unique", 1}}));
+	//recreate tables
+	//sql << "SET NAMES utf8mb4";
+	
+	sql <<
+	"CREATE TABLE pages( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"name TEXT NOT NULL, \n"
+			"UNIQUE (name(255)), \n"
+		"parent BIGINT DEFAULT NULL, \n"
+			"FOREIGN KEY (parent) REFERENCES pages(id) ON DELETE SET NULL, \n"
+		"discussion BIGINT DEFAULT NULL \n"//not implemented yet
+			//should be a foreign key here
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE pageTags( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"page BIGINT NOT NULL, \n"
+			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
+		"tag TEXT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE pageFiles( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"page BIGINT NOT NULL, \n"
+			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
+		"name TEXT NOT NULL, \n"
+			"UNIQUE (name(255)), \n"
+		"description TEXT NOT NULL, \n"
+		"timeStamp BIGINT NOT NULL \n"
+		//author not implemented
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE pageFileData( \n"
+		"pageFile BIGINT NOT NULL, \n"
+			"PRIMARY KEY (pageFile), \n"
+			"FOREIGN KEY (pageFile) REFERENCES pageFiles(id) ON DELETE CASCADE, \n"
+		"data LONGBLOB NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE revisions( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"page BIGINT NOT NULL, \n"
+			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
+		"title TEXT NOT NULL, \n"
+		//author not implemented
+		"timeStamp BIGINT NOT NULL, \n"
+		"changeMessage TEXT NOT NULL, \n"
+		"changeType TEXT NOT NULL, \n"
+		"sourceCode LONGTEXT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE forumGroups( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"title TEXT NOT NULL, \n"
+		"description TEXT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE forumCategories( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"parent BIGINT NOT NULL, \n"
+			"FOREIGN KEY (parent) REFERENCES forumGroups(id) ON DELETE CASCADE, \n"
+		"title TEXT NOT NULL, \n"
+		"description TEXT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql << 
+	"CREATE TABLE idMap( \n"
+		"category TINYINT NOT NULL, \n"
+		"id BIGINT NOT NULL, \n"
+			"PRIMARY KEY (category, id), \n"
+		"sourceId TEXT NOT NULL, \n"
+			"UNIQUE (category, sourceId(255)) \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+}
+
+void Database::setIdMap(short category, std::string sourceId, Database::ID id){
+	sql << "INSERT INTO idMap(category, id, sourceId) VALUES(:category, :id, :sourceId) ON DUPLICATE KEY UPDATE id=:id",
+		use(category), use(id), use(sourceId), use(id);
+}
+
+std::optional<Database::ID> Database::getIdMap(short category, std::string sourceId){
+	Database::ID id;
+	sql << "SELECT id FROM idMap WHERE category=:category AND sourceId=:sourceID",
+		use(category), use(sourceId), into(id);
+	if(sql.got_data()){
+		return id;
+	}
+	else{
+		return {};
+	}
 }
 
 int64_t Database::getNumberOfPages(){
-	mongocxx::pipeline p{};
-	p.match(toBson({}));
-	p.group(toBson({{"_id", 0}, {"n", {{"$sum", 1}}}}));
-	auto cursor = database[pagesCol].aggregate(p);
-	if(cursor.begin() == cursor.end()){
-        return 0;
-	}
-	return fromBson(*cursor.begin())["n"].get<int>();
+	std::size_t pageCount;
+	sql << "SELECT COUNT(*) FROM pages", into(pageCount);
+	return pageCount;
 }
 
 std::optional<Database::ID> Database::createPage(std::string name){
 	try{
-		auto result = 
-		database[pagesCol].insert_one(toBson(
-			{
-				{pagesColName, name},
-				{pagesColRevisions, 
-					nlohmann::json::array()
-				},
-				{pagesColParent, nlohmann::json()},
-				{pagesColDiscussion, nlohmann::json()},
-				{pagesColTags,
-                    nlohmann::json::array()
-                }
-			}
-		));
-		
-		return result->inserted_id().get_oid().value;
+		sql << "INSERT INTO pages(name) VALUES(:name)", use(name);
+		Database::ID id;
+		sql << "SELECT LAST_INSERT_ID()", into(id);
+		return id;
 	}
-	catch(mongocxx::exception& e){
+	catch(std::exception& e){
 		//if there was an exception that probably means that there is already a page with that name
 		//in the database already, so we should just return an empty optional, signaling that
 		return {};
@@ -76,321 +165,249 @@ std::optional<Database::ID> Database::createPage(std::string name){
 }
 
 std::optional<Database::ID> Database::getPageId(std::string name){
-	auto result = database[pagesCol].find_one(toBson({{pagesColName, name}}));
-	
-	if(result){
-        return getOid(fromBson(*result)[colId]);
+	Database::ID id;
+	sql << "SELECT id FROM pages WHERE name = :name", use(name), into(id);
+	if(sql.got_data()){
+		return id;
 	}
 	else{
-        return {};
+		return {};
 	}
 }
 
 std::string Database::getPageName(Database::ID id){
-	auto result = database[pagesCol].find_one(toBson({{colId, oid(id)}}));
-    
-    auto json = fromBson(*result);
-    
-    return json[pagesColName].get<std::string>();
+    std::string name;
+    sql << "SELECT name FROM pages WHERE id = :id", use(id), into(name);
+    if(sql.got_data() == false){
+		throw std::runtime_error("Cannot find SQL data");
+	}
+    return name;
 }
 
 std::vector<Database::ID> Database::getPageList(){
-	auto result = database[pagesCol].find(toBson({}));
+	Database::ID page;
+	soci::statement stmt = (sql.prepare << "SELECT id FROM pages", into(page));
+	stmt.execute();
 	
-	std::vector<Database::ID> output;
-	for(auto i : result){
-		output.push_back(getOid(fromBson(i)[colId]));
+	std::vector<Database::ID> pages;
+	while(stmt.fetch()){
+		pages.push_back(page);
 	}
-	
-	return output;
+	return pages;
 }
 
 std::optional<Database::ID> Database::getPageDiscussion(Database::ID id){
-    auto result = database[pagesCol].find_one(toBson({{colId, oid(id)}}));
-    
-    auto json = fromBson(*result);
-    
-    if(json.find(pagesColDiscussion) == json.end()){
-        return {};
+    Database::ID output;
+    soci::indicator ind;
+    sql << "SELECT discussion FROM pages WHERE id = :id", use(id), into(output, ind);
+    if(ind == soci::i_null){
+		return {};
     }
     else{
-        return getOid(json[pagesColDiscussion]);
+		return output;
     }
 }
 
 void Database::setPageDiscussion(Database::ID id, std::optional<Database::ID> discussion){
     if(discussion){
-        database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColDiscussion, oid(*discussion)}}}}));
+		sql << "UPDATE pages SET discussion=:discussion WHERE id=:id", use(*discussion), use(id);
     }
     else{
-        database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$unset", {{pagesColDiscussion, ""}}}}));
+		sql << "UPDATE pages SET discussion=NULL WHERE id=:id", use(id);
     }
 }
 
 std::optional<Database::ID> Database::getPageParent(Database::ID id){
-    auto result = database[pagesCol].find_one(toBson({{colId, oid(id)}}));
-    
-    auto json = fromBson(*result);
-    
-    if(json.find(pagesColParent) == json.end()){
-        return {};
+    Database::ID output;
+    soci::indicator ind;
+    sql << "SELECT parent FROM pages WHERE id = :id", use(id), into(output, ind);
+    if(ind == soci::i_null){
+		return {};
     }
     else{
-        return getOid(json[pagesColParent]);
+		return output;
     }
 }
 
 void Database::setPageParent(Database::ID id, std::optional<Database::ID> parent){
     if(parent){
-        database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColParent, oid(*parent)}}}}));
+		sql << "UPDATE pages SET parent=:parent WHERE id=:id", use(*parent), use(id);
     }
     else{
-        database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$unset", {{pagesColParent, ""}}}}));
+		sql << "UPDATE pages SET parent=NULL WHERE id=:id", use(id);
     }
 }
 
 std::vector<std::string> Database::getPageTags(Database::ID id){
-    auto result = database[pagesCol].find_one(toBson({{colId, oid(id)}}));
+    std::string tag;
+    soci::statement stmt = (sql.prepare << "SELECT tag FROM pageTags WHERE page=:id", use(id), into(tag));
+    stmt.execute();
     
-    auto json = fromBson(*result);
-    
-    return json[pagesColTags];
+    std::vector<std::string> tags;
+    while(stmt.fetch()){
+		tags.push_back(tag);
+    }
+    return tags;
 }
 
 void Database::setPageTags(Database::ID id, std::vector<std::string> tags){
-    database[pagesCol].update_one(toBson({{colId, oid(id)}}), toBson({{"$set", {{pagesColTags, tags}}}}));
+	sql << "DELETE FROM pageTags WHERE page=:id", use(id);
+	for(auto tag : tags){
+		sql << "INSERT INTO pageTags(page, tag) VALUES(:page, :tag)", use(id), use(tag);
+	}
 }
 
 Database::ID Database::createPageRevision(Database::ID page, Database::PageRevision revision){
-	
-	nlohmann::json doc{
-		{revisionsColTitle, revision.title},
-		{revisionsColTimeStamp, revision.timeStamp},
-		{revisionsColChangeMessage, revision.changeMessage},
-		{revisionsColChangeType, revision.changeType},
-		{revisionsColSourceCode, revision.sourceCode}
-	};
-	
-	if(revision.authorId){
-		doc[revisionsColAuthorId] = oid(*revision.authorId);
-	}
-	
-	auto result =
-	database[revisionsCol].insert_one(
-		toBson(doc)
-	);
-	
-	Database::ID rev = result->inserted_id().get_oid().value;
-	
-	database[pagesCol].update_one(toBson({{colId, oid(page)}}), toBson({{"$push", {{pagesColRevisions, oid(rev)}}}}));
-	
-	return rev;
+	sql << "INSERT INTO revisions(page, title, timeStamp, changeMessage, changeType, sourceCode)"
+	"VALUES(:page, :title, :timeStamp, :changeMessage, :changeType, :sourceCode)",
+		use(page), use(revision.title), use(revision.timeStamp), use(revision.changeMessage), use(revision.changeType), use(revision.sourceCode);
+	Database::ID revisionId;
+	sql << "SELECT LAST_INSERT_ID()", into(revisionId);
+	return revisionId;
 }
 
 Database::PageRevision Database::getPageRevision(Database::ID revision){
 	Database::PageRevision page;
 	
-	auto result = database[revisionsCol].find(toBson({{colId, oid(revision)}}));
-	auto doc = fromBson(*result.begin());
-	
-	page.title = doc[revisionsColTitle].get<std::string>();
-	if(doc.find(revisionsColAuthorId) != doc.end()){
-		page.authorId = getOid(doc[revisionsColAuthorId]);
+	sql << "SELECT title, timeStamp, changeMessage, changeType, sourceCode FROM revisions WHERE id=:id",
+		use(revision), into(page.title), into(page.timeStamp), into(page.changeMessage), into(page.changeType), into(page.sourceCode);
+	if(sql.got_data() == false){
+		throw std::runtime_error("Cannot find SQL data");
 	}
-	page.timeStamp = doc[revisionsColTimeStamp].get<TimeStamp>();
-	page.changeMessage = doc[revisionsColChangeMessage].get<std::string>();
-	page.changeType = doc[revisionsColChangeType].get<std::string>();
-	page.sourceCode = doc[revisionsColSourceCode].get<std::string>();
-	
 	return page;
 }
 
 Database::PageRevision Database::getLatestPageRevision(Database::ID page){
+	///TODO: optimize this
 	auto vec = getPageRevisions(page);
 	return getPageRevision(vec.back());
 }
 
 std::vector<Database::ID> Database::getPageRevisions(Database::ID page){
-	auto result = database[pagesCol].find(toBson({{colId, oid(page)}}));
-	auto arr = fromBson(*result.begin())[pagesColRevisions];
+	Database::ID revision;
+	soci::statement stmt = (sql.prepare << "SELECT id FROM revisions WHERE page=:page ORDER BY timeStamp ASC", use(page), into(revision));
+	stmt.execute();
 	
-	std::vector<Database::ID> output;
-	for(auto i : arr){
-		output.push_back(getOid(i));
+	std::vector<Database::ID> revisions;
+	while(stmt.fetch()){
+		revisions.push_back(revision);
 	}
-	
-	return output;
+	return revisions;
 }
 
 std::optional<Database::ID> Database::createPageFile(Database::ID page, Database::PageFile file){
-	nlohmann::json doc = {
-		{pageFilesColPageId, oid(page)},
-		{pageFilesColName, file.name},
-		{pageFilesColDescription, file.description},
-		{pageFilesColTimeStamp, file.timeStamp}
-	};
-	
-	if(file.authorId){
-		doc[pageFilesColAuthorId] = oid(*file.authorId);
-	}
-	
 	try{
-		auto result = 
-		database[pageFilesCol].insert_one(toBson(doc));
-		
-		Database::ID fileId = result->inserted_id().get_oid().value;
-		
-		database[pagesCol].update_one(toBson({{colId, oid(page)}}), toBson({{"$push", {{pagesColFiles, oid(fileId)}}}}));
-		
-		return fileId;
+		sql << "INSERT INTO pageFiles(page, name, description, timeStamp) VALUES(:page, :name, :description, :timeStamp)",
+			use(page), use(file.name), use(file.description), use(file.timeStamp);
+		Database::ID id;
+		sql << "SELECT LAST_INSERT_ID()", into(id);
+		return id;
 	}
-	catch(mongocxx::exception& e){
-		//if there's an exception, assume that theres already a file with that name
+	catch(std::exception& e){
 		return {};
 	}
 }
 
 std::optional<Database::ID> Database::getPageFileId(Database::ID page, std::string name){
-	auto result = database[pageFilesCol].find_one(toBson({{pageFilesColPageId, oid(page)}, {pageFilesColName, name}}));
-	
-	if(result){
-        return getOid(fromBson(*result)[colId]);
+	Database::ID id;
+	sql << "SELECT id FROM pageFiles WHERE page=:page AND name=:name", use(page), use(name), into(id);
+	if(sql.got_data()){
+		return id;
 	}
 	else{
-        return {};
+		return {};
 	}
 }
 
 Database::PageFile Database::getPageFile(Database::ID file){
-	Database::PageFile output;
-	
-	auto result = database[pageFilesCol].find(toBson({{colId, oid(file)}}));
-	auto doc = fromBson(*result.begin());
-	
-	output.name = doc[pageFilesColName].get<std::string>();
-	output.description = doc[pageFilesColDescription].get<std::string>();
-	output.timeStamp = doc[pageFilesColTimeStamp].get<TimeStamp>();
-	if(doc.find(pageFilesColAuthorId) != doc.end()){
-		output.authorId = getOid(doc[pageFilesColAuthorId]);
+	Database::PageFile pageFile;
+	sql << "SELECT name, description, timestamp FROM pageFiles WHERE id=:id",
+		use(file), into(pageFile.name), into(pageFile.description), into(pageFile.timeStamp);
+	if(sql.got_data() == false){
+		throw std::runtime_error("Cannot find SQL data");
 	}
-	
-	return output;
+	return pageFile;
 }
 
 std::vector<Database::ID> Database::getPageFiles(Database::ID page){
-	auto result = database[pagesCol].find(toBson({{colId, oid(page)}}));
-	auto arr = fromBson(*result.begin())[pagesColFiles];
+	Database::ID pageFile;
+	soci::statement stmt = (sql.prepare << "SELECT id FROM pageFiles WHERE page=:page", use(page), into(pageFile));
+	stmt.execute();
 	
-	std::vector<Database::ID> output;
-	for(auto i : arr){
-		output.push_back(getOid(i));
+	std::vector<Database::ID> pageFiles;
+	while(stmt.fetch()){
+		pageFiles.push_back(pageFile);
 	}
 	
-	return output;
+	return pageFiles;
 }
 
 void Database::uploadPageFile(Database::ID file, std::istream& stream){
-    auto result = database[pageFilesCol].find(toBson({{colId, oid(file)}}));
-	auto doc = fromBson(*result.begin());
-	
-	if(!doc[pageFilesColGridId].is_null()){
-        throw std::runtime_error("attempted to upload a file but a file has already been uploaded to that object");
-	}
-	
-	Database::ID gridId = gridfs.upload_from_stream("", &stream).id().get_oid().value;
-	
-	database[pageFilesCol].update_one(toBson({{colId, oid(file)}}), toBson({{"$set", {{pageFilesColGridId, oid(gridId)}}}}));
+	std::string fileData{std::istreambuf_iterator<char>{stream}, {}};
+	sql << "INSERT INTO pageFileData(pageFile, data) values(:file, :data)", use(file), use(fileData);
 }
 
 void Database::downloadPageFile(Database::ID file, std::ostream& stream){
-    auto result = database[pageFilesCol].find(toBson({{colId, oid(file)}}));
-	auto doc = fromBson(*result.begin());
-	
-	Database::ID gridId = getOid(doc[pageFilesColGridId]);
-	gridfs.download_to_stream(bsoncxx::types::value(bsoncxx::types::b_oid{gridId}), &stream);
+	std::string fileData;
+	sql << "SELECT data FROM pageFileData WHERE pageFile=:file", use(file), into(fileData);
+	if(sql.got_data() == false){
+		throw std::runtime_error("Cannot find SQL data");
+	}
+	stream << fileData;
 }
 
 Database::ID Database::createForumGroup(Database::ForumGroup group){
-	auto result = 
-	database[forumGroupsCol].insert_one(toBson(
-		{
-			{forumGroupsColTitle, group.title},
-			{forumGroupsColDescription, group.description},
-			{forumGroupsColCategories, 
-				nlohmann::json::array()
-			}
-		}
-	));
-	
-	return result->inserted_id().get_oid().value;
+	sql << "INSERT INTO forumGroups(title, description) VALUES(:title, :description)", use(group.title), use(group.description);
+	Database::ID id;
+	sql << "SELECT LAST_INSERT_ID()", into(id);
+	return id;
 }
 
 Database::ForumGroup Database::getForumGroup(Database::ID group){
-	Database::ForumGroup output;
-	
-	auto result = database[forumGroupsCol].find(toBson({{colId, oid(group)}}));
-	auto doc = fromBson(*result.begin());
-	
-	output.title = doc[forumGroupsColTitle].get<std::string>();
-	output.description = doc[forumGroupsColDescription].get<std::string>();
-	
-	return output;
+	Database::ForumGroup forumGroup;
+	sql << "SELECT title, description FROM forumGroups WHERE id=:id", use(group), into(forumGroup.title), into(forumGroup.description);
+	return forumGroup;
 }
 
 std::vector<Database::ID> Database::getForumGroups(){
-	auto result = database[forumGroupsCol].find(toBson({}));
+	Database::ID group;
+	soci::statement stmt = (sql.prepare << "SELECT id FROM forumGroups", into(group));
+	stmt.execute();
 	
-	std::vector<Database::ID> output;
-	for(auto i : result){
-		output.push_back(getOid(fromBson(i)[colId]));
+	std::vector<Database::ID> groups;
+	while(stmt.fetch()){
+		groups.push_back(group);
 	}
 	
-	return output;
+	return groups;
 }
 
 Database::ID Database::createForumCategory(Database::ID group, Database::ForumCategory category){
-	auto result = 
-	database[forumCategoriesCol].insert_one(toBson(
-		{
-			{forumCategoriesColTitle, category.title},
-			{forumCategoriesColDescription, category.description}
-		}
-	));
-	
-	Database::ID categoryId = result->inserted_id().get_oid().value;
-	
-	database[forumGroupsCol].update_one(toBson({{colId, oid(group)}}), toBson({{"$push", {{forumGroupsColCategories, oid(categoryId)}}}}));
-	
-	return categoryId;
+	sql << "INSERT INTO forumCategories(title, description, parent) VALUES(:title, :description, :parent)",
+		use(category.title), use(category.description), use(group);
+	Database::ID id;
+	sql << "SELECT LAST_INSERT_ID()", into(id);
+	return id;
 }
 
 Database::ForumCategory Database::getForumCategory(Database::ID category){
-	Database::ForumCategory output;
-	
-	auto result = database[forumCategoriesCol].find(toBson({{colId, oid(category)}}));
-	auto doc = fromBson(*result.begin());
-	
-	output.title = doc[forumCategoriesColTitle].get<std::string>();
-	output.description = doc[forumCategoriesColDescription].get<std::string>();
-	
-	return output;
+	Database::ForumCategory forumCategory;
+	sql << "SELECT title, description FROM forumCategories WHERE id=:id",
+		use(category), into(forumCategory.title), into(forumCategory.description);
+	return forumCategory;
 }
 
 std::vector<Database::ID> Database::getForumCategories(Database::ID group){
-	auto result = database[forumGroupsCol].find(toBson({{colId, oid(group)}}));
-	auto arr = fromBson(*result.begin())[forumGroupsColCategories];
+	Database::ID category;
+	soci::statement stmt = (sql.prepare << "SELECT id FROM forumCategories WHERE parent=:group", use(group), into(category));
+	stmt.execute();
 	
-	std::vector<Database::ID> output;
-	for(auto i : arr){
-		output.push_back(getOid(i));
+	std::vector<Database::ID> categories;
+	while(stmt.fetch()){
+		categories.push_back(category);
 	}
 	
-	return output;
-}
-
-std::ostream& operator<<(std::ostream &out, const Database::ID &c){
-	out << c.to_string();
-	return out;
+	return categories;
 }
 
 

@@ -3,20 +3,17 @@
 
 #include <memory>
 #include <optional>
-
-#include <mongocxx/client.hpp>
-#include <bsoncxx/oid.hpp>
-
-#include <optional>
+#include <vector>
+#include <soci/soci.h>
 
 class Database{
 	public:
-		using ID = bsoncxx::oid;
-		using TimeStamp = int64_t;
+		using ID = std::int64_t;
+		using TimeStamp = std::int64_t;
 		
 		struct PageRevision{
 			std::string title;
-			std::optional<Database::ID> authorId;
+			std::optional<Database::ID> authorId;//not implemented currently
 			TimeStamp timeStamp;
 			std::string changeMessage;
 			std::string changeType;
@@ -27,7 +24,7 @@ class Database{
 			std::string name;
 			std::string description;
 			TimeStamp timeStamp;
-			std::optional<Database::ID> authorId;
+			std::optional<Database::ID> authorId;//not implemented currently
 		};
 		
 		struct ForumGroup{
@@ -41,50 +38,18 @@ class Database{
 		};
 		
 	private:
-		const std::string colId = "_id";//this one is always an index
-		
-		const std::string pagesCol = "pages";
-		const std::string pagesColName = "name";//this one is an index
-		const std::string pagesColParent = "parent";
-		const std::string pagesColDiscussion = "discussion";
-		const std::string pagesColTags = "tags";
-		const std::string pagesColRevisions = "revisions";
-		const std::string pagesColFiles = "files";
-		
-		const std::string revisionsCol = "revisions";
-		const std::string revisionsColTitle = "title";
-		const std::string revisionsColAuthorId = "authorId";
-		const std::string revisionsColTimeStamp = "timeStamp";
-		const std::string revisionsColChangeMessage = "changeMessage";
-		const std::string revisionsColChangeType = "changeType";
-		const std::string revisionsColSourceCode = "sourceCode";
-		
-		const std::string pageFilesCol = "pageFiles";
-		const std::string pageFilesColPageId = "pageId";
-		const std::string pageFilesColName = "name";//compound index with pageId
-		const std::string pageFilesColDescription = "description";
-		const std::string pageFilesColTimeStamp = "timeStamp";
-		const std::string pageFilesColAuthorId = "authorId";
-		const std::string pageFilesColGridId = "gridId";
-		
-		///not yet implemented
-		const std::string forumGroupsCol = "forumGroups";
-		const std::string forumGroupsColTitle = "title";
-		const std::string forumGroupsColDescription = "description";
-		const std::string forumGroupsColCategories = "categories";
-		
-		const std::string forumCategoriesCol = "forumCategories";
-		const std::string forumCategoriesColTitle = "title";
-		const std::string forumCategoriesColDescription = "description";
-		
 		Database() = default;
 	public:
 		Database(const Database&) = delete;
 		~Database();
 		
-		static std::unique_ptr<Database> connectToMongoDatabase(std::string databaseName);
-		static void wipeDatabaseFromMongo(std::unique_ptr<Database>&& db);
+		static std::unique_ptr<Database> connectToDatabase(std::string databaseName);
+		static void eraseDatabase(std::unique_ptr<Database>&& database);
+		
 		void cleanAndInitDatabase();
+		
+		void setIdMap(short category, std::string sourceId, Database::ID id);
+		std::optional<Database::ID> getIdMap(short category, std::string sourceId);
 		
 		int64_t getNumberOfPages();
 		
@@ -122,11 +87,7 @@ class Database{
 		std::vector<Database::ID> getForumCategories(Database::ID group);
 		
 	private:
-		mongocxx::client dbClient;
-		mongocxx::database database;
-		mongocxx::gridfs::bucket gridfs;
+		soci::session sql;
 };
-
-std::ostream& operator<<(std::ostream &out, const Database::ID &c);
 
 #endif // DATABASE_HPP

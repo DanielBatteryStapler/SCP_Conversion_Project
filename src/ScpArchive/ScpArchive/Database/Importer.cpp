@@ -7,53 +7,55 @@
 #include "Json.hpp"
 
 namespace Importer{
+	ImportMap::ImportMap(Database* database):
+		db(database){
+		
+	}
+	
 	namespace{
-		inline void setMapDetail(std::string raw, Database::ID id, std::map<std::string, Database::ID>& map){
-			if(map.find(raw) != map.end()){
-				throw std::runtime_error("Attempted to set ImportMap twice");
-			}
-			map[raw] = id;
+		inline void setMapDetail(Database* db, ImportMap::MapType type, std::string raw, Database::ID id){
+			db->setIdMap(static_cast<short>(type), raw, id);
 		}
 		
-		inline Database::ID getMapDetail(std::string raw, std::map<std::string, Database::ID>& map){
-			auto i = map.find(raw);
-			if(i == map.end()){
+		inline Database::ID getMapDetail(Database* db, ImportMap::MapType type, std::string raw){
+			std::optional<Database::ID> id = db->getIdMap(static_cast<short>(type), raw);
+			if(!id){
 				throw std::runtime_error("Attempted to get ImportMap but no mapping exists");
 			}
-			return i->second;
+			return *id;
 		}
 	}
-
+	
 	void ImportMap::setPageMap(std::string raw, Database::ID id){
-		setMapDetail(raw, id, pageMap);
+		setMapDetail(db, MapType::Page, raw, id);
 	}
 	
 	Database::ID ImportMap::getPageMap(std::string raw){
-		return getMapDetail(raw, pageMap);
+		return getMapDetail(db, MapType::Page, raw);
 	}
 	
 	void ImportMap::setFileMap(std::string raw, Database::ID id){
-		setMapDetail(raw, id, fileMap);
+		setMapDetail(db, MapType::File, raw, id);
 	}
 	
 	Database::ID ImportMap::getFileMap(std::string raw){
-		return getMapDetail(raw, fileMap);
+		return getMapDetail(db, MapType::File, raw);
 	}
 	
 	void ImportMap::ImportMap::setThreadMap(std::string raw, Database::ID id){
-        setMapDetail(raw, id, threadMap);
+        setMapDetail(db, MapType::Thread, raw, id);
 	}
 	
     Database::ID ImportMap::ImportMap::getThreadMap(std::string raw){
-        return getMapDetail(raw, threadMap);
+        return getMapDetail(db, MapType::Thread, raw);
     }
     
     void ImportMap::setCategoryMap(std::string raw, Database::ID id){
-        setMapDetail(raw, id, categoryMap);
+        setMapDetail(db, MapType::Category, raw, id);
     }
     
     Database::ID ImportMap::getCategoryMap(std::string raw){
-        return getMapDetail(raw, categoryMap);
+        return getMapDetail(db, MapType::Category, raw);
     }
 	
 	namespace{
@@ -63,7 +65,7 @@ namespace Importer{
 	}
 	
 	void importFullArchive(Database* database, std::string archiveDirectory){
-		Importer::ImportMap map;
+		Importer::ImportMap map(database);
 		Importer::importBasicPageDataFromFolder(database, map, archiveDirectory + "pages/");
 		
         //Importer::importForumGroups(database, map, Json::loadJsonFromFile(archiveDirectory + ""));
@@ -99,7 +101,12 @@ namespace Importer{
 		for(boost::filesystem::directory_iterator i(pagesDirectory); i != boost::filesystem::directory_iterator(); i++){
 			if(boost::filesystem::is_directory(i->path())){
 				std::cout << "Importing " << i->path().string() << "\n";
-				importBasicPageData(database, map, Json::loadJsonFromFile(i->path().string() + "/data.json"));
+				try{
+					importBasicPageData(database, map, Json::loadJsonFromFile(i->path().string() + "/data.json"));
+				}
+				catch(std::exception& e){
+					std::cout << "ERROR!\n";
+				}
 			}
 		}
 	}
