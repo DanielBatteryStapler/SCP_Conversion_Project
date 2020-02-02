@@ -10,41 +10,42 @@
 
 namespace Importer{
     
-    struct ImportMap{///TODO: switch this to use the database to keep track of everything, so it can be saved for later use
+    struct ImportMap{
 	public:
-        enum class MapType:short{Page=0, File=1, Thread=2, Category=3};
 		
 		ImportMap(Database* database);
         
         void setPageMap(std::string raw, Database::ID id);
         Database::ID getPageMap(std::string raw);
+        bool pageMapExists(std::string raw);
         
         void setFileMap(std::string raw, Database::ID id);
         Database::ID getFileMap(std::string raw);
+        bool fileMapExists(std::string raw);
         
         void setThreadMap(std::string raw, Database::ID id);
         Database::ID getThreadMap(std::string raw);
+        bool threadMapExists(std::string raw);
         
         void setCategoryMap(std::string raw, Database::ID id);
         Database::ID getCategoryMap(std::string raw);
+        bool categoryMapExists(std::string raw);
         
 	private:
 		Database* db;
     };
-    
-	void importFullArchive(Database* database, std::string archiveDirectory);
 	
 	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups);
 	void importThread(Database* database, ImportMap& map, nlohmann::json threadData);
 	
-	void importBasicPageDataFromFolder(Database* database, ImportMap& map, std::string pagesDirectory);
+	void importBasicPageDataFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages);
 	void importBasicPageData(Database* database, ImportMap& map, nlohmann::json pageData);
 	
-	void performPageDataLinksFromFolder(Database* database, ImportMap& map, std::string pagesDirectory);
+	void performPageDataLinksFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages);
 	void linkPageParent(Database* database, ImportMap& map, nlohmann::json pageData);
 	void linkPageDiscussionThread(Database* database, ImportMap& map, nlohmann::json pageData);
 	
-	void uploadPageFilesFromFolder(Database* database, ImportMap& map, std::string pagesDirectory);
+	void uploadPageFilesFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages);
 	void uploadPageFiles(Database* database, ImportMap& map, nlohmann::json pageData, std::string pageDirectory);
 }
 

@@ -15,6 +15,8 @@ namespace Config{
 	
 	std::string getDatabaseUser();
 	std::string getDatabasePassword();
+	
+	std::string getScraperFolder();
 }
 
 #endif // CONFIG_HPP

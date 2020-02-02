@@ -7,6 +7,7 @@ using soci::into;
 
 #include "../Config.hpp"
 #include "Json.hpp"
+#include "Importer.hpp"
 
 Database::~Database(){
 	
@@ -48,8 +49,7 @@ void Database::cleanAndInitDatabase(){
 			"PRIMARY KEY (id), \n"
 		"name TEXT NOT NULL, \n"
 			"UNIQUE (name(255)), \n"
-		"parent BIGINT DEFAULT NULL, \n"
-			"FOREIGN KEY (parent) REFERENCES pages(id) ON DELETE SET NULL, \n"
+		"parent TEXT DEFAULT NULL, \n"
 		"discussion BIGINT DEFAULT NULL \n"//not implemented yet
 			//should be a foreign key here
 	")ENGINE=InnoDB CHARSET=utf8";
@@ -69,8 +69,8 @@ void Database::cleanAndInitDatabase(){
 			"PRIMARY KEY (id), \n"
 		"page BIGINT NOT NULL, \n"
 			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
-		"name TEXT NOT NULL, \n"
-			"UNIQUE (name(255)), \n"
+		"name TEXT NOT NULL COLLATE utf8_bin, \n"
+			"UNIQUE (page, name(255)), \n"
 		"description TEXT NOT NULL, \n"
 		"timeStamp BIGINT NOT NULL \n"
 		//author not implemented
@@ -164,6 +164,15 @@ std::optional<Database::ID> Database::createPage(std::string name){
 	}
 }
 
+void Database::resetPage(Database::ID id, std::string name){
+	std::vector<Database::ID> files = getPageFiles(id);
+	sql << "DELETE FROM idMap WHERE category=:category AND id=:id", use(static_cast<short>(MapType::File)), use(id);
+	sql << "DELETE FROM pageTags WHERE page=:page", use(id);
+	sql << "DELETE FROM pageFiles WHERE page=:page", use(id);
+	sql << "DELETE FROM revisions WHERE page=:page", use(id);
+	sql << "UPDATE pages SET name=:name, parent=NULL WHERE id=:id", use(name), use(id);
+}
+
 std::optional<Database::ID> Database::getPageId(std::string name){
 	Database::ID id;
 	sql << "SELECT id FROM pages WHERE name = :name", use(name), into(id);
@@ -217,8 +226,8 @@ void Database::setPageDiscussion(Database::ID id, std::optional<Database::ID> di
     }
 }
 
-std::optional<Database::ID> Database::getPageParent(Database::ID id){
-    Database::ID output;
+std::optional<std::string> Database::getPageParent(Database::ID id){
+    std::string output;
     soci::indicator ind;
     sql << "SELECT parent FROM pages WHERE id = :id", use(id), into(output, ind);
     if(ind == soci::i_null){
@@ -229,7 +238,7 @@ std::optional<Database::ID> Database::getPageParent(Database::ID id){
     }
 }
 
-void Database::setPageParent(Database::ID id, std::optional<Database::ID> parent){
+void Database::setPageParent(Database::ID id, std::optional<std::string> parent){
     if(parent){
 		sql << "UPDATE pages SET parent=:parent WHERE id=:id", use(*parent), use(id);
     }

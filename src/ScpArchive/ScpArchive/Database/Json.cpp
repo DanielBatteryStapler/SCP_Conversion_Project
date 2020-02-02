@@ -13,6 +13,10 @@ namespace Json{
 		std::string fileContentsStr(fileContents.begin(), fileContents.end());
 		return nlohmann::json::parse(fileContentsStr);
 	}
+	
+	void saveJsonToFile(std::string fileName, nlohmann::json data){
+		std::ofstream(fileName) << data.dump(4);
+	}
 }
 
 

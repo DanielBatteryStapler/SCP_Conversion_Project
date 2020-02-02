@@ -37,6 +37,8 @@ class Database{
 			std::string description;
 		};
 		
+		enum class MapType:short{Page=0, File=1, Thread=2, Category=3};
+		
 	private:
 		Database() = default;
 	public:
@@ -50,10 +52,12 @@ class Database{
 		
 		void setIdMap(short category, std::string sourceId, Database::ID id);
 		std::optional<Database::ID> getIdMap(short category, std::string sourceId);
+		bool idMapExists(short category, std::string sourceId);
 		
 		int64_t getNumberOfPages();
 		
 		std::optional<Database::ID> createPage(std::string name);
+		void resetPage(Database::ID id, std::string name);
 		std::optional<Database::ID> getPageId(std::string name);
 		std::string getPageName(Database::ID id);
 		
@@ -61,8 +65,8 @@ class Database{
 		
 		std::optional<Database::ID> getPageDiscussion(Database::ID id);
 		void setPageDiscussion(Database::ID id, std::optional<Database::ID> discussion);
-		std::optional<Database::ID> getPageParent(Database::ID id);
-		void setPageParent(Database::ID id, std::optional<Database::ID> parent);
+		std::optional<std::string> getPageParent(Database::ID id);
+		void setPageParent(Database::ID id, std::optional<std::string> parent);
 		std::vector<std::string> getPageTags(Database::ID id);
 		void setPageTags(Database::ID id, std::vector<std::string> tags);
 		

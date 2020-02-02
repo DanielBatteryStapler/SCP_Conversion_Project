@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--runTests" />
+				<Option parameters="--doBatches" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="./" />
@@ -22,6 +22,7 @@
 					<Add directory="ScpArchive/Tests/Parser" />
 					<Add directory="ScpArchive/Parser/Rules" />
 					<Add directory="ScpArchive/Parser/Rules/RuleSets" />
+					<Add directory="ScpArchive/Database" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -29,7 +30,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--importData" />
+				<Option parameters="--doBatches" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="./" />
@@ -40,6 +41,7 @@
 					<Add directory="ScpArchive/Tests/Parser" />
 					<Add directory="ScpArchive/Parser/Rules" />
 					<Add directory="ScpArchive/Parser/Rules/RuleSets" />
+					<Add directory="ScpArchive/Database" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -66,6 +68,8 @@
 		</Linker>
 		<Unit filename="ScpArchive/Config.cpp" />
 		<Unit filename="ScpArchive/Config.hpp" />
+		<Unit filename="ScpArchive/Database/Batch.cpp" />
+		<Unit filename="ScpArchive/Database/Batch.hpp" />
 		<Unit filename="ScpArchive/Database/Database.cpp" />
 		<Unit filename="ScpArchive/Database/Database.hpp" />
 		<Unit filename="ScpArchive/Database/Importer.cpp" />

@@ -2,13 +2,9 @@
 
 #include "Tests/Tests.hpp"
 
-/*
-#include <mongocxx/instance.hpp>
-*/
-
 #include "Website/Website.hpp"
 #include "Database/Database.hpp"
-#include "Database/Importer.hpp"
+#include "Database/Batch.hpp"
 
 #include "Config.hpp"
 
@@ -21,43 +17,8 @@
 #include "RuleSet.hpp"
 
 int main(int argc, char** argv){
-	
-	//mongocxx::instance instance{};//this needs to exist for the entire program so mongodb works
-	
 	if(argc == 2 && std::string(argv[1]) == "--runCustomTest"){
-       // Tests::runAllTests();
-        
         Parser::printFullRuleSetList();
-        /*
-        std::unique_ptr<Database> db = Database::connectToMongoDatabase(Config::getProductionDatabaseName());
-
-        std::optional<Database::ID> pageId = db->getPageId("scp-001");
-        if(pageId){
-            Database::PageRevision revision = db->getLatestPageRevision(*pageId);
-            
-            std::ofstream fileOut("test.html");
-            {
-                MarkupOutStream out(&fileOut);
-                
-                out << "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='static/style.css'><meta charset='UTF-8'><title>"_AM
-                << revision.title << "</title></head><body>"_AM;
-
-                std::ofstream("raw.txt") << revision.sourceCode;
-                
-                Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);
-                for(const auto& tok : pageTokens.tokens){
-                //std::cout << Parser::toString(tok) << "\n";
-                }
-                Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens);
-                Parser::convertPageTreeToHtml(out, pageTree);
-                out << "</body></html>"_AM;
-            }
-            fileOut.close();
-        }
-        else{
-            std::cout << "Cannot find page\n";
-        }
-        */
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--runTests"){
 		Tests::runAllTests();
@@ -74,18 +35,11 @@ int main(int argc, char** argv){
 		std::unique_ptr<Database> database = Database::connectToDatabase(Config::getProductionDatabaseName());
 		database->cleanAndInitDatabase();
 	}
-	else if(argc == 2 && std::string(argv[1]) == "--importData"){
-		std::cout << "Are you sure you want to OVERRIDE data inside of database \"" << Config::getProductionDatabaseName() << "\"?(y/n):\n";
-		std::string temp;
-		std::getline(std::cin, temp);
-		if(temp != "y"){
-			std::cout << "Aborting.\n";
-			return 0;
-		}
+	else if(argc == 2 && std::string(argv[1]) == "--doBatches"){
+		std::string batchesFolder = Config::getScraperFolder() + "batches/";
+		std::string batchDataFile = Config::getScraperFolder() + "batchData.json";
+		Importer::handleBatches(batchesFolder, batchDataFile);
 		
-		std::unique_ptr<Database> database = Database::connectToDatabase(Config::getProductionDatabaseName());
-		database->cleanAndInitDatabase();
-		Importer::importFullArchive(database.get(), "/home/daniel/File Collections/scpArchive/fullArchive/");
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--runWebsite"){
 		Website::run();

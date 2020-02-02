@@ -28,4 +28,8 @@ namespace Config{
 	std::string getDatabasePassword(){
 		return "password";
 	}
+	
+	std::string getScraperFolder(){
+		return "/home/daniel/File Collections/scpArchive/batchArchive/";
+	}
 }

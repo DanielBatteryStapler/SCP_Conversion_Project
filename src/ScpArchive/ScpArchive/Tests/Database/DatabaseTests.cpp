@@ -97,8 +97,8 @@ namespace Tests{
 			auto pageB = db->createPage("test-page-b");
             assertTrue(std::nullopt == db->getPageParent(*pageA));
             assertTrue(std::nullopt == db->getPageParent(*pageB));
-            db->setPageParent(*pageA, *pageB);
-            assertTrue(*pageB == *db->getPageParent(*pageA));
+            db->setPageParent(*pageA, "test-page-b");
+            assertTrue("test-page-b" == *db->getPageParent(*pageA));
             assertTrue(std::nullopt == db->getPageParent(*pageB));
             db->setPageParent(*pageA, std::nullopt);
             assertTrue(std::nullopt == db->getPageParent(*pageA));

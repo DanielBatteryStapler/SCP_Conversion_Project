@@ -221,7 +221,7 @@ namespace Tests{
 			Importer::linkPageParent(database.get(), map, testPageA);
 			Importer::linkPageParent(database.get(), map, testPageB);
 			
-			assertTrue(*database->getPageParent(pageAId) == pageBId);
+			assertTrue(*database->getPageParent(pageAId) == testPageB["name"].get<std::string>());
 			assertTrue(database->getPageParent(pageBId) == std::nullopt);
 			
 			Database::eraseDatabase(std::move(database));
@@ -245,7 +245,9 @@ namespace Tests{
 				shouldThrowException([&](){
 					importMap.getThreadMap(rawB);
 				});
+				assertTrue(!importMap.threadMapExists(rawA));
 				importMap.setThreadMap(rawA, idA);
+				assertTrue(importMap.threadMapExists(rawA));
 				importMap.setThreadMap(rawB, idB);
 				assertEquals(idA, importMap.getThreadMap(rawA));
 				assertEquals(idB, importMap.getThreadMap(rawB));
@@ -267,7 +269,9 @@ namespace Tests{
 				shouldThrowException([&](){
 					importMap.getCategoryMap(rawB);
 				});
+				assertTrue(!importMap.categoryMapExists(rawA));
 				importMap.setCategoryMap(rawA, idA);
+				assertTrue(importMap.categoryMapExists(rawA));
 				importMap.setCategoryMap(rawB, idB);
 				assertEquals(idA, importMap.getCategoryMap(rawA));
 				assertEquals(idB, importMap.getCategoryMap(rawB));
@@ -289,7 +293,9 @@ namespace Tests{
 				shouldThrowException([&](){
 					importMap.getPageMap(rawB);
 				});
+				assertTrue(!importMap.pageMapExists(rawA));
 				importMap.setPageMap(rawA, idA);
+				assertTrue(importMap.pageMapExists(rawA));
 				importMap.setPageMap(rawB, idB);
 				assertEquals(idA, importMap.getPageMap(rawA));
 				assertEquals(idB, importMap.getPageMap(rawB));
@@ -311,7 +317,9 @@ namespace Tests{
 				shouldThrowException([&](){
 					importMap.getFileMap(rawB);
 				});
+				assertTrue(!importMap.fileMapExists(rawA));
 				importMap.setFileMap(rawA, idA);
+				assertTrue(importMap.fileMapExists(rawA));
 				importMap.setFileMap(rawB, idB);
 				assertEquals(idA, importMap.getFileMap(rawA));
 				assertEquals(idB, importMap.getFileMap(rawB));

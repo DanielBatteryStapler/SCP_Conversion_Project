@@ -9,13 +9,19 @@
 #include "Helpers.hpp"
 
 namespace Scraper{
-	nlohmann::json performAjaxRequest(std::string moduleName, std::map<std::string, std::string> parameters);
+	std::string generateInitialBatch(std::string batchesFolder, std::string batchDataFile);
+	std::string generateDiffBatch(std::string batchesFolder, std::string batchDataFile);
+	
+	void downloadBatchData(std::string batchFolder);
+	void checkBatchDownloads(std::string batchFolder);
 	
 	std::vector<std::string> getFullPageList();
+	std::vector<std::string> getUpdatedPageList(std::int64_t startTime);
 	
-	void downloadPageList(std::string pagesFolder, std::string pageListFile);
+	void downloadPageList(std::string pagesFolder, std::vector<std::string> pageList);
 	void downloadFullPageArchive(std::string pagesFolder, std::string pageName);
 	
+	bool pageExists(std::string pageName);
 	std::string getPageId(std::string pageName);
 	std::string getPageParent(std::string pageName);
 	std::string getPageDiscussionId(std::string pageName);
@@ -29,11 +35,11 @@ namespace Scraper{
 	
 	void downloadImage(std::string fileName, std::string fileUrl);
 	
-	nlohmann::json getForumCategories();
+	nlohmann::json getForumGroups();
 	std::vector<std::string> getThreadListForForumCategory(std::string categoryId);
-	std::vector<std::string> getThreadListForAllCategories(nlohmann::json forumCategories);
+	std::vector<std::string> getThreadListForAllCategories(nlohmann::json forumGroups);
 	
-	void downloadThreadList(std::string threadsFolder, std::string threadListFile);
+	void downloadThreadList(std::string threadsFolder, std::vector<std::string> threadList);
 	void downloadFullThreadArchive(std::string threadsFolder, std::string threadId);
 	nlohmann::json getThreadPostReplies(const nlohmann::json& divTree, int offset);
 	nlohmann::json getThreadPost(const nlohmann::json& divTree);

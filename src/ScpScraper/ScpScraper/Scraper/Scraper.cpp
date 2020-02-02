@@ -12,6 +12,8 @@
 #include <mutex>
 #include <atomic>
 #include <chrono>
+#include <stack>
+#include <ctime>
 
 #include <boost/filesystem.hpp>
 
@@ -23,50 +25,162 @@ namespace Scraper{
 		const std::string userAgent = "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36";
 		const std::string token7 = "666656";
 		const std::string noRedirect = "/noredirect/true";
+		
+		nlohmann::json performAjaxRequest(std::string moduleName, std::map<std::string, std::string> parameters){
+			curlpp::Cleanup myCleanup;
+			curlpp::Easy request;
+			request.setOpt<curlpp::options::Url>(website + "ajax-module-connector.php");
+			
+			//request.setOpt<curlpp::options::Verbose>(true);
+			
+			std::list<std::string> headers;
+			headers.push_back("X-Requested-With: XMLHttpRequest");
+			headers.push_back(userAgent);
+			headers.push_back("Content-Type: application/x-www-form-urlencoded; charset=UTF-8");
+			headers.push_back("Accept: application/json");
+			headers.push_back("Accept-Encoding: identity");
+			headers.push_back("Accept-Language: en-US,en;q=0.9");
+			headers.push_back("Cookie: wikidot_token7=" + percentEncode(token7));
+			request.setOpt<curlpp::options::HttpHeader>(headers);
+			
+			std::string body = "moduleName=" + percentEncode(moduleName);
+			
+			parameters["wikidot_token7"] = token7;//just automatically set the token 7
+			
+			for(auto i = parameters.begin(); i != parameters.end(); i++){
+				body += "&" + percentEncode(i->first) + "=" + percentEncode(i->second);
+			}
+			
+			request.setOpt<curlpp::options::PostFields>(body);
+			request.setOpt<curlpp::options::PostFieldSize>(body.length());
+			
+			std::ostringstream os;
+			curlpp::options::WriteStream ws(&os);
+			request.setOpt(ws);
+			request.perform();
+			std::string data = os.str();
+			
+			nlohmann::json page = nlohmann::json::parse(data);
+			return page;
+		}
 	}
 	
-	nlohmann::json performAjaxRequest(std::string moduleName, std::map<std::string, std::string> parameters){
-		curlpp::Cleanup myCleanup;
-		curlpp::Easy request;
-		request.setOpt<curlpp::options::Url>(website + "ajax-module-connector.php");
+	std::string generateInitialBatch(std::string batchesFolder, std::string batchDataFile){
+		std::int64_t timeStamp = static_cast<std::int64_t>(std::time(nullptr));
+		std::string batchId = std::to_string(timeStamp) + "-initial";
 		
-		//request.setOpt<curlpp::options::Verbose>(true);
+		nlohmann::json pageList = getFullPageList();
+		nlohmann::json forumGroups = getForumGroups();
+		nlohmann::json threadList = getThreadListForAllCategories(forumGroups);
 		
-		std::list<std::string> headers;
-		headers.push_back("X-Requested-With: XMLHttpRequest");
-		headers.push_back(userAgent);
-		headers.push_back("Content-Type: application/x-www-form-urlencoded; charset=UTF-8");
-		headers.push_back("Accept: application/json");
-		headers.push_back("Accept-Encoding: identity");
-		headers.push_back("Accept-Language: en-US,en;q=0.9");
-		headers.push_back("Cookie: wikidot_token7=" + percentEncode(token7));
-		request.setOpt<curlpp::options::HttpHeader>(headers);
+		nlohmann::json batch;
+		batch["type"] = "initial";
+		batch["timeStamp"] = timeStamp;
+		batch["pageList"] = pageList;
+		batch["forumGroups"] = forumGroups;
+		batch["threadList"] = threadList;
 		
-		std::string body = "moduleName=" + percentEncode(moduleName);
+		boost::filesystem::remove_all(batchesFolder);
+		boost::filesystem::create_directory(batchesFolder);
 		
-		parameters["wikidot_token7"] = token7;//just automatically set the token 7
+		std::string batchFolder = batchesFolder + batchId + "/";
+		boost::filesystem::create_directory(batchFolder);
+		saveJsonToFile(batchFolder + "batch.json", batch);
 		
-		for(auto i = parameters.begin(); i != parameters.end(); i++){
-			body += "&" + percentEncode(i->first) + "=" + percentEncode(i->second);
+		boost::filesystem::remove_all(batchDataFile);
+		nlohmann::json batchData;
+		batchData["availableBatches"] = nlohmann::json::array();
+		batchData["availableBatches"].push_back(batchId);
+		batchData["appliedBatches"] = nlohmann::json::array();
+		batchData["batchErrors"] = nlohmann::json::array();
+		saveJsonToFile(batchDataFile, batchData);
+		
+		return batchId;
+	}
+	
+	std::string generateDiffBatch(std::string batchesFolder, std::string batchDataFile){
+		nlohmann::json batchData = loadJsonFromFile(batchDataFile);
+		if(batchData["batchErrors"].size() > 0){
+            throw std::runtime_error("Cannot create Diff Batch, Timeline File has errors");
+		}
+		std::int64_t oldTime = 0;
+		for(std::string lastBatch : batchData["availableBatches"]){
+			oldTime = std::max(oldTime, loadJsonFromFile(batchesFolder + lastBatch + "/batch.json")["timeStamp"].get<std::int64_t>());
 		}
 		
-		request.setOpt<curlpp::options::PostFields>(body);
-		request.setOpt<curlpp::options::PostFieldSize>(body.length());
+		std::int64_t timeStamp = static_cast<std::int64_t>(std::time(nullptr));
+		std::string batchId = std::to_string(timeStamp) + "-diff";
 		
-		std::ostringstream os;
-		curlpp::options::WriteStream ws(&os);
-		request.setOpt(ws);
-		request.perform();
-		std::string data = os.str();
+		nlohmann::json batch;
+		batch["type"] = "diff";
+		batch["timeStamp"] = timeStamp;
+		batch["pageList"] = getUpdatedPageList(oldTime - 60);//we're just gonna be safe and actually start like a while before we need to
+		batch["threadList"] = nlohmann::json::array();
 		
-		nlohmann::json page = nlohmann::json::parse(data);
-		return page;
+		if(batch["pageList"].size() == 0 && batch["threadList"].size() == 0){
+			std::cout << "No new content found.\n";
+			return "";
+		}
+		
+		std::string batchFolder = batchesFolder + batchId + "/";
+		boost::filesystem::create_directory(batchFolder);
+		saveJsonToFile(batchFolder + "batch.json", batch);
+		
+		batchData["availableBatches"].push_back(batchId);
+		saveJsonToFile(batchDataFile, batchData);
+		
+		return batchId;
+	}
+	
+	void downloadBatchData(std::string batchFolder){
+		std::cout << "Downloading batch data...\n";
+		nlohmann::json batch = loadJsonFromFile(batchFolder + "batch.json");
+		
+		{
+			std::string pagesFolder = batchFolder + "pages/";
+			boost::filesystem::remove_all(pagesFolder);
+			boost::filesystem::create_directory(pagesFolder);
+			std::vector<std::string> pageList = batch["pageList"];
+			downloadPageList(pagesFolder, pageList);
+		}
+		{
+			std::string threadsFolder = batchFolder + "threads/";
+			boost::filesystem::remove_all(threadsFolder);
+			boost::filesystem::create_directory(threadsFolder);
+			std::vector<std::string> threadList = batch["threadList"];
+			downloadThreadList(threadsFolder, threadList);
+		}
+	}
+	
+	void checkBatchDownloads(std::string batchFolder){
+		std::cout << "Checking for download errors...\n";
+		nlohmann::json batch = loadJsonFromFile(batchFolder + "batch.json");
+		std::string pagesFolder = batchFolder + "pages/";
+		
+		std::vector<std::string> pageErrors;
+		for(std::string page : batch["pageList"]){
+			std::string pageFile = pagesFolder + page + "/data.json";
+			if(!boost::filesystem::exists(pageFile) || boost::filesystem::is_directory(pageFile)){
+				pageErrors.push_back(page);
+			}
+		}
+		if(pageErrors.size() > 0){
+			std::cout << "Errors:\n";
+			for(std::string page : pageErrors){
+				std::cout << "\t" << page << "\n";
+			}
+			std::cout << "Attempting to fix errors.";
+			downloadPageList(pagesFolder, pageErrors);
+		}
+		else{
+			std::cout << "No errors in Batch Download.\n";
+		}
 	}
 	
 	std::vector<std::string> getFullPageList(){
 		
 		//this is very ugly code but it works so it's all fine
-		//I wish I could pretty it up by using the ajax, but I can't because the ajax doesn't show "fragment:" pages akaik
+		//I wish I could pretty it up by using the ajax, but I can't because the ajax doesn't show "fragment:" pages afaik
 		
 		std::vector<std::string> output;
 		
@@ -117,71 +231,188 @@ namespace Scraper{
 		return output;
 	}
 	
-	namespace{
-		std::mutex threadLock;
-		void executeCollectionOnThreads(std::vector<std::string> collection, int threadCount, std::function<void(std::string)> func){
-			std::vector<std::thread> threads;
+	std::vector<std::string> getUpdatedPageList(std::int64_t startTime){
+		//to make sure we get every single page, we're going to run the same thing twice and remove all duplicates
+		const auto collectionFunction = [startTime]()->std::vector<std::string>{
+			std::vector<std::string> output;
 			
-			int collectionSize = collection.size();
+			int pageNumber = 1;
 			
-			const auto getNext = [&collection](bool& stopFlag)->std::string{
-				std::string next;
+			bool keepGoing = true;
+			while(keepGoing){
+				std::cout << "Current Page of Listing:" << pageNumber << "\n";
+				curlpp::Cleanup myCleanup;
+				curlpp::Easy request;
+				request.setOpt<curlpp::options::Url>(website + "most-recently-edited/p/" + std::to_string(pageNumber));
+				
+				std::list<std::string> headers;
+				headers.push_back(userAgent);
+				headers.push_back("Accept: test/html");
+				headers.push_back("Accept-Encoding: identity");//gzip, deflate
+				headers.push_back("Accept-Language: en-US,en;q=0.9");
+				request.setOpt<curlpp::options::HttpHeader>(headers);
+				
+				std::ostringstream os;
+				curlpp::options::WriteStream ws(&os);
+				request.setOpt(ws);
+				request.perform();
+				std::string data = os.str();
 				{
-					std::lock_guard<std::mutex> lock(threadLock);
-					if(collection.size() == 0){
-						stopFlag = true;
-					}
-					else{
-						stopFlag = false;
-						next = collection.back();
-						collection.pop_back();
-					}
-				}
-				return next;
-			};
-			
-			std::atomic<int> count{0};
-			for(int i = 0; i < threadCount; i++){
-				threads.push_back(std::thread([&count, func, getNext](){
-					while(true){
-						bool stopFlag;
-						std::string next = getNext(stopFlag);
-						if(stopFlag){
+					std::string pageListData;
+					getData(data, "<div class=\"content-type-description\"><div class=\"list-pages-box\">", "<div class=\"pager\"><span class=\"pager-no\">", 0, pageListData);
+					std::size_t start = 0;
+					while(keepGoing){
+						std::string pageName;
+						start = getData(data, "<td style=\"vertical-align: top;\"><a href=\"/", "\"", start, pageName);
+						if(start == std::string::npos){
 							break;
 						}
-						func(next);
-						++count;
+						std::string timeStamp;
+						getData(data, "odate time_", " ", start, timeStamp);
+						if(std::stoll(timeStamp) >= startTime){
+							output.push_back(pageName);
+						}
+						else{
+							keepGoing = false;//we started seeing pages we've already seen, so stop searching
+						}
 					}
-				}));
+				}
+				pageNumber++;
 			}
+			return output;
+		};
+		std::cout << "Getting Set A\n";
+		std::vector<std::string> setA = collectionFunction();
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+		std::cout << "Getting Set B\n";
+		std::vector<std::string> setB = collectionFunction();
+		
+		//combine the two lists and remove duplicates
+		setA.insert(setA.end(), setB.begin(), setB.end());
+		std::sort(setA.begin(), setA.end());
+		auto uniqueEnd = std::unique(setA.begin(), setA.end());
+		std::cout << "Pages that were found in one set but not the other: " << ((uniqueEnd - setA.begin()) - (setA.end()  - uniqueEnd)) << "\n";
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+		setA.erase(uniqueEnd, setA.end());
+		
+		return setA;
+		
+	}
+	
+	namespace{
+		struct ThreadPool{
+			std::mutex threadLock;
+			std::vector<std::thread> pool;
+			std::stack<std::function<void(void)>> work;
+			//std::atomic<std::size_t> workItems{0};
+			std::atomic<bool> keepRunning{true};
+			static constexpr int threadCount = 15;//15 + main thread for a nice round 16
+			
+			std::function<void(void)> getWork(){
+				std::lock_guard<std::mutex> lock(threadLock);
+				if(work.size() > 0){
+					auto func = work.top();
+					work.pop();
+					//workItems--;
+					return func;
+				}
+				else{
+					return {};
+				}
+			}
+			
+			inline void doWorkWhile(std::function<bool(void)> checkFunc){
+				while(checkFunc()){
+					auto func = getWork();
+					if(func != nullptr){
+						func();
+					}
+					else{
+						std::this_thread::sleep_for(std::chrono::milliseconds(10));
+					}
+				}
+			}
+			
+			ThreadPool(){
+				for(int i = 0; i < threadCount; i++){
+					pool.push_back(std::thread([this](){
+						doWorkWhile([this](){return keepRunning.load();});
+					}));
+				}
+			}
+			
+			~ThreadPool(){
+				keepRunning = false;
+				for(int i = 0; i < threadCount; i++){
+					pool[i].join();
+				}
+				pool.clear();
+			}
+			
+			void addWork(std::function<void(void)> newWork){
+				std::lock_guard<std::mutex> lock(threadLock);
+				work.push(newWork);
+				//workItems++;
+			}
+		};
+		ThreadPool threadPool;
+		
+		std::vector<nlohmann::json> executeCollectionOnThreads(std::vector<std::string> collection, std::function<nlohmann::json(std::string)> func){
+			std::mutex outputLock;
+			std::map<std::size_t, nlohmann::json> output;
+			
+			std::atomic<int> count{0};
+			
+			for(int index = 0; index < collection.size(); index++){
+				std::string entry = collection[index];
+				threadPool.addWork([index, entry, &count, &output, &outputLock, &func](){
+					nlohmann::json out = func(entry);
+					{
+						std::lock_guard<std::mutex> lock(outputLock);
+						output[index] = out;
+					}
+					count++;
+				});
+			}
+			
+			/*
 			while(true){
 				int num = count;
-				std::cout << num << "/" << collectionSize << "   " << (static_cast<double>(num) / collectionSize * 100) << "% complete\n";
-				if(num == collectionSize){
+				std::cout << num << "/" << collection.size() << "   " << (static_cast<double>(num) / collection.size() * 100) << "% complete, " << threadPool.workItems << " work items\n";
+				if(num == collection.size()){
 					break;
 				}
-				std::this_thread::sleep_for(std::chrono::seconds(5));
+				std::this_thread::sleep_for(std::chrono::seconds(15));
 			}
-			for(auto& thread : threads){
-				thread.join();
+			*/
+			std::size_t collectionSize = collection.size();
+			threadPool.doWorkWhile([&count, collectionSize](){return count != collectionSize;});
+			
+			std::vector<nlohmann::json> outputVec;
+			for(auto i = output.begin(); i != output.end(); i++){
+				outputVec.push_back(i->second);
 			}
+			return outputVec;
 		}
 	}
 	
-	void downloadPageList(std::string pagesFolder, std::string pageListFile){
-		std::vector<std::string> pageList = loadJsonFromFile(pageListFile);
+	void downloadPageList(std::string pagesFolder, std::vector<std::string> pageList){
 		std::cout << "Archiving " << pageList.size() << " pages...\n";
 		
-		executeCollectionOnThreads(pageList, 16, [pagesFolder](std::string page){
+		executeCollectionOnThreads(pageList, [pagesFolder](std::string page)->nlohmann::json{
 			try{
 				downloadFullPageArchive(pagesFolder, page);
 			}
 			catch(std::exception& e){
-				std::lock_guard<std::mutex> lock(threadLock);
+				std::string pageFolder = pagesFolder + page + "/";
+				
+				std::lock_guard<std::mutex> lock(threadPool.threadLock);
 				std::string error = "Error when processing page " + page + " e.what()" + e.what() + "\n";
-				std::cout << error;
-				std::ofstream("errors.txt", std::ios_base::app) << error;
+				
+				boost::filesystem::remove_all(pageFolder);
+				boost::filesystem::create_directory(pageFolder);//make sure the folder is empty
 			}
+			return {};
 		});
 	}
 	
@@ -190,7 +421,7 @@ namespace Scraper{
 		
 		std::string pageId = getPageId(pageName);
 		
-		std::string pageFolder = pagesFolder + pageId + "/";
+		std::string pageFolder = pagesFolder + pageName + "/";
 		std::string filesFolder = pageFolder + "files/";
 		
 		if(boost::filesystem::equivalent(boost::filesystem::path(pageFolder), boost::filesystem::path(pagesFolder))){
@@ -202,30 +433,63 @@ namespace Scraper{
 		
 		boost::filesystem::create_directory(pageFolder);
 		boost::filesystem::create_directory(filesFolder);
-		
-		nlohmann::json page;
-		page["id"] = pageId;
-		page["parent"] = getPageParent(pageName);
-		page["discussionId"] = getPageDiscussionId(pageName);
-		page["name"] = pageName;
-		page["files"] = getPageFiles(pageId);
-		page["revisions"] = getPageRevisions(pageId);
-		page["tags"] = getPageTags(pageName);
-		page["votes"] = getPageVotes(pageId);
-		
-		std::ofstream(pageFolder + "data.json") << page.dump(4);
-		
-		std::cout << "\t\tDownloading " << page["files"].size() << " files...\n";
-		
-		for(auto file : page["files"]){
-			std::string fileName = filesFolder + file["id"].get<std::string>();
-			std::string url = file["url"].get<std::string>();
-			std::cout << "\t\t\tDownloading file \"" << fileName << "\" from \"" << url << "\"...\n";
-			downloadImage(fileName, url);
+				
+		if(pageId == "" && pageExists(pageName) == false){
+			std::cout << "\t\tPage " << pageName << " does not exist.\n";
+			nlohmann::json page;
+			page["nonExistent"] = true;
+			saveJsonToFile(pageFolder + "data.json", page);
+		}
+		else{
+			nlohmann::json page;
+			page["id"] = pageId;
+			page["parent"] = getPageParent(pageName);
+			page["discussionId"] = getPageDiscussionId(pageName);
+			page["name"] = pageName;
+			page["files"] = getPageFiles(pageId);
+			page["revisions"] = getPageRevisions(pageId);
+			page["tags"] = getPageTags(pageName);
+			page["votes"] = getPageVotes(pageId);
+			
+			saveJsonToFile(pageFolder + "data.json", page);
+			
+			std::cout << "\t\tDownloading " << page["files"].size() << " files...\n";
+			
+			for(auto file : page["files"]){
+				std::string fileName = filesFolder + file["id"].get<std::string>();
+				std::string url = file["url"].get<std::string>();
+				std::cout << "\t\t\tDownloading file \"" << fileName << "\" from \"" << url << "\"...\n";
+				downloadImage(fileName, url);
+			}
 		}
 	}
 	
+	bool pageExists(std::string pageName){
+		curlpp::Cleanup myCleanup;
+		curlpp::Easy request;
+		request.setOpt<curlpp::options::Url>(website + pageName + noRedirect);
 		
+		std::list<std::string> headers;
+		headers.push_back(userAgent);
+		headers.push_back("Accept: text/html; charset=utf8");
+		headers.push_back("Accept-Encoding: identity");//gzip, deflate
+		headers.push_back("Accept-Language: en-US,en;q=0.9");
+		request.setOpt<curlpp::options::HttpHeader>(headers);
+		
+		std::ostringstream os;
+		curlpp::options::WriteStream ws(&os);
+		request.setOpt(ws);
+		request.perform();
+		std::string data = os.str();
+		
+		if(data.find("This page doesn't exist") == std::string::npos){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
 	std::string getPageId(std::string pageName){
 		
 		std::cout << "\t\tGetting Page ID...\n";
@@ -335,6 +599,23 @@ namespace Scraper{
 			)["body"];//wikidot doesn't actually have a cap for the "perpage" thing so just make it really big
 		
 		std::size_t pos = rawRevisionData.find("</tr>");//start at the end of the first one
+		std::size_t count = 0;
+		{
+			std::size_t posB = pos;
+			while(true){
+				std::string revisionData;
+				posB = getData(rawRevisionData, "<tr", "</tr>", posB, revisionData);
+				if(posB == std::string::npos){
+					break;
+				}
+				else{
+					count++;
+				}
+			}
+		}
+		
+		std::cout << "\t\t\tCollected " << count << " Revisions\n";
+		
 		while(true){
 			std::string revisionData;
 			pos = getData(rawRevisionData, "<tr", "</tr>", pos, revisionData);
@@ -345,9 +626,10 @@ namespace Scraper{
 				std::string revisionId;
 				getData(revisionData, "showVersion(", ")", 0, revisionId);
 				
-				std::cout << "\t\t\tGetting Revision #" << output.size() << "...\n";
+				//std::cout << "\t\t\tCollecting Revision #" << output.size() << "/" << count << "...\n";
 				
-				nlohmann::json revision = getRevisionData(revisionId);
+				nlohmann::json revision;
+				revision["id"] = revisionId;
 				
 				std::string changeType;
 				getData(revisionData, "<span class=\"spantip\" title=\"", "\"", 0, changeType);
@@ -357,13 +639,39 @@ namespace Scraper{
 				getData(revisionData, "<td style=\"font-size: 90%\">", "</td>", 0, changeMessage);
 				revision["changeMessage"] = decodeHtmlEntities(changeMessage);//make sure to decode the html entities
 				
-				revision["sourceCode"] = getRevisionSource(revisionId);
+				//revision["sourceCode"] = getRevisionSource(revisionId);
 				
 				output.push_back(revision);
 			}
 		}
 		
 		std::reverse(output.begin(), output.end());//reverse the order so the page revisions go from oldest to newest
+		std::vector<std::string> revisionIds;
+		for(const auto& entry : output){
+			revisionIds.push_back(entry["id"].get<std::string>());
+		}
+		std::atomic<bool> error{false};
+		std::vector<nlohmann::json> sourceCode = executeCollectionOnThreads(revisionIds, [&error](std::string revisionId)->nlohmann::json{
+			try{
+				std::cout << "\t\t\t\tGetting Revision ID #" << revisionId << "\n";
+				nlohmann::json output = getRevisionData(revisionId);
+				output["sourceCode"] = getRevisionSource(revisionId);
+				return output;
+			}
+			catch(std::exception& e){
+				error = true;
+				return{};
+			}
+		});
+		if(error){
+			throw std::runtime_error("Error when downloading page revision for page ID:" + pageId);
+		}
+		for(std::size_t i = 0; i < output.size(); i++){
+			output[i]["sourceCode"] = sourceCode[i]["sourceCode"].get<std::string>();
+			output[i]["title"] = sourceCode[i]["title"].get<std::string>();
+			output[i]["authorId"] = sourceCode[i]["authorId"].get<std::string>();
+			output[i]["timeStamp"] = sourceCode[i]["timeStamp"].get<std::string>();
+		}
 		
 		std::cout << "\t\t\tGot " << output.size() << " Revisions           \n"; 
 		
@@ -635,9 +943,8 @@ namespace Scraper{
 		}
 	}
 	
-	nlohmann::json getForumCategories(){
-		nlohmann::json forumCategories;
-		forumCategories["groups"] = nlohmann::json::array();
+	nlohmann::json getForumGroups(){
+		nlohmann::json forumGroups = nlohmann::json::array();
 		
 		std::string rawForum = performAjaxRequest("forum/ForumStartModule", {{"hidden", "true"}})["body"].get<std::string>();
 		
@@ -687,9 +994,9 @@ namespace Scraper{
 					group["categories"].push_back(category);
 				}
 			}
-			forumCategories["groups"].push_back(group);
+			forumGroups.push_back(group);
 		}
-		return forumCategories;
+		return forumGroups;
 	}
 	
 	std::vector<std::string> getThreadListForForumCategory(std::string categoryId){
@@ -721,9 +1028,9 @@ namespace Scraper{
 		return output;
 	}
 	
-	std::vector<std::string> getThreadListForAllCategories(nlohmann::json forumCategories){
+	std::vector<std::string> getThreadListForAllCategories(nlohmann::json forumGroups){
 		std::vector<std::string> output;
-		for(auto group : forumCategories["groups"]){
+		for(auto group : forumGroups){
 			for(auto category : group["categories"]){
 				std::cout << "\nGetting thread listing for category " << category["id"].get<std::string>() << " \"" << category["title"].get<std::string>() << "\"...\n";
 				std::vector<std::string> sublist = getThreadListForForumCategory(category["id"].get<std::string>());
@@ -733,8 +1040,7 @@ namespace Scraper{
 		return output;
 	}
 	
-	void downloadThreadList(std::string threadsFolder, std::string threadListFile){
-		std::vector<std::string> threadList = loadJsonFromFile(threadListFile);
+	void downloadThreadList(std::string threadsFolder, std::vector<std::string> threadList){
 		std::cout << "Archiving " << threadList.size() << " threads...\n";
 		for(int i = 0; i < threadList.size(); i++){
 			downloadFullThreadArchive(threadsFolder, threadList[i]);
@@ -752,8 +1058,6 @@ namespace Scraper{
 		boost::filesystem::create_directory(threadFolder);
 		
 		std::string rawThread = performAjaxRequest("forum/ForumViewThreadModule", {{"t", threadId}, {"pageNo", "1"}})["body"].get<std::string>();
-		
-		std::ofstream("rawThread.html") << rawThread;
 		
 		nlohmann::json thread;
 		{
