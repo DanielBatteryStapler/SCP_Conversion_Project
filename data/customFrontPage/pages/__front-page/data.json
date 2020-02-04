@@ -1,0 +1,20 @@
+{
+    "discussionId": "",
+    "files": [],
+    "id": "CUSTOM-FRONT-PAGE",
+    "name": "__front-page",
+    "parent": "",
+    "revisions": [
+        {
+            "authorId": "deleted",
+            "changeMessage": "page created",
+            "changeType": "new page created",
+            "id": "CUSTOM-FRONT-PAGE-REVISION",
+            "sourceCode": "[[div style=\"text-align: center; color: #600;\"]]\n[[div class=\"unmargined\"]]\nWARNING: THIS SCP CONVERSION FOUNDATION PROJECT IS\n[[/div]]\n[[div class=\"unmargined\" style=\"font-size: 400%; font-weight: bold; margin: 2px 0 5px;\"]]\nUNOFFICIAL\n[[/div]]\n[[div class=\"unmargined\"]]\nAND HAS NOT BEEN BACKED BY THE SCP WIKI OR IT'S STAFF. IF YOU'RE LOOKING FOR THE OFFICIAL WIKI PLEASE GO [http://www.scp-wiki.net/ HERE].\n[[/div]]\n[[/div]]\n-----------------------\nFollow this project on [https://github.com/danielbatterystapler/SCP_Conversion_Project Github]!",
+            "timeStamp": "1580129856",
+            "title": ""
+        }
+    ],
+    "tags": [],
+    "votes": []
+}

@@ -67,10 +67,10 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
 	bool give404 = true;
 	
 	if(uri.size() == 0){
-		std::optional<Database::ID> pageId = webCon.db->getPageId("main");
+		std::optional<Database::ID> pageId = webCon.db->getPageId("__front-page");
 		if(pageId){
 			give404 = false;
-			handlePage(reqCon, webCon, "main", *pageId, {});
+			handlePage(reqCon, webCon, "__front-page", *pageId, {});
 		}
 	}
 	else{
@@ -257,8 +257,13 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     << "<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'>"_AM
     << "<link rel='stylesheet' type='text/css' href='/component:theme/code/1'>"_AM
     << "<link rel='stylesheet' type='text/css' href='/static/style.css'>"_AM
-    << "<meta charset='UTF-8'>"_AM
-    << "<title>"_AM << revision.title << "</title>"_AM;
+    << "<meta charset='UTF-8'>"_AM;
+    if(revision.title == ""){
+		reqCon.out << "<title>SCP Conversion Project</title>"_AM;
+    }
+    else{
+		reqCon.out << "<title>"_AM << revision.title << "</title>"_AM;
+    }
     for(std::size_t i = 0; i < pageTree.cssData.size(); i++){
         reqCon.out << "<link rel='stylesheet' type='text/css' href='/"_AM << pageName << "/css/"_AM << std::to_string(i) << "'>"_AM;
     }

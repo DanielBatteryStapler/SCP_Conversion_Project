@@ -1,0 +1,13 @@
+[[div style="text-align: center; color: #600;"]]
+[[div class="unmargined"]]
+WARNING: THIS SCP CONVERSION FOUNDATION PROJECT IS
+[[/div]]
+[[div class="unmargined" style="font-size: 400%; font-weight: bold; margin: 2px 0 5px;"]]
+UNOFFICIAL
+[[/div]]
+[[div class="unmargined"]]
+AND HAS NOT BEEN BACKED BY THE SCP WIKI OR IT'S STAFF. IF YOU'RE LOOKING FOR THE OFFICIAL WIKI PLEASE GO [http://www.scp-wiki.net/ HERE].
+[[/div]]
+[[/div]]
+-----------------------
+Follow this project on [https://github.com/danielbatterystapler/SCP_Conversion_Project Github]!
