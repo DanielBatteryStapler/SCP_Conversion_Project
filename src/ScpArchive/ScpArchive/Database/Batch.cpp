@@ -124,7 +124,7 @@ namespace Importer{
 		}
 	}
 	
-	void handleBatches(std::string batchesFolder, std::string batchDataFile){
+	void handleBatches(std::string batchesFolder, std::string batchDataFile, bool automatic){
 		std::vector<TimelineEntry> timeline = getTimeline(batchesFolder, batchDataFile);
 		
 		std::cout << "\n\n";
@@ -144,23 +144,28 @@ namespace Importer{
 			std::cout << "  3. Import Batch \"" << nextImport << "\"\n";
 		}
 		int choice = -1;
-		while(true){
-			std::cout << ">";
-			std::string input;
-			std::getline(std::cin, input);
-			try{
-				choice = std::stoi(input);
+		if(!automatic){
+			while(true){
+				std::cout << ">";
+				std::string input;
+				std::getline(std::cin, input);
+				try{
+					choice = std::stoi(input);
+				}
+				catch(std::invalid_argument& e){
+					continue;
+				}
+				if(choice < 0 || choice > 3){
+					continue;
+				}
+				if(nextImport == "" && choice == 3){
+					continue;
+				}
+				break;
 			}
-			catch(std::invalid_argument& e){
-				continue;
-			}
-			if(choice < 0 || choice > 3){
-				continue;
-			}
-			if(nextImport == "" && choice == 3){
-				continue;
-			}
-			break;
+		}
+		else{
+			automatic = 1;
 		}
 		
 		try{

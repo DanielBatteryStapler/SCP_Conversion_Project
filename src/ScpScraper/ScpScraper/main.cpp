@@ -24,6 +24,9 @@ int main(int argc, char** argv){
 			Scraper::checkBatchDownloads(batchesFolder + batchId + "/");
 		}
 	}
+	else if(argc == 3 && std::string(argv[1]) == "--checkBatchDownloads"){
+		Scraper::checkBatchDownloads(argv[2]);
+	}
 	else{
 		std::cout << "Invalid/No Options Specified\n";
 	}

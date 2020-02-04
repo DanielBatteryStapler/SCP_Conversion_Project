@@ -41,6 +41,14 @@ int main(int argc, char** argv){
 		Importer::handleBatches(batchesFolder, batchDataFile);
 		
 	}
+	else if(argc == 2 && std::string(argv[1]) == "--autoDoBatches"){
+		std::string batchesFolder = Config::getScraperFolder() + "batches/";
+		std::string batchDataFile = Config::getScraperFolder() + "batchData.json";
+		Importer::handleBatches(batchesFolder, batchDataFile, true);
+	}
+	else if(argc == 3 && std::string(argv[1]) == "--doCustomBatch"){
+		Importer::importBatch(argv[2]);
+	}
 	else if(argc == 2 && std::string(argv[1]) == "--runWebsite"){
 		Website::run();
 	}

@@ -4,7 +4,7 @@
 #include "Importer.hpp"
 
 namespace Importer{
-	void handleBatches(std::string batchesFolder, std::string batchDataFile);
+	void handleBatches(std::string batchesFolder, std::string batchDataFile, bool automatic = false);
 	void importBatch(std::string batchFolder);
 }
 
