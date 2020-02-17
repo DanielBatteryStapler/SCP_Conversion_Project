@@ -256,7 +256,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     << "<!DOCTYPE html><html><head>"_AM
     << "<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'>"_AM
     << "<link rel='stylesheet' type='text/css' href='/component:theme/code/1'>"_AM
-    << "<link rel='stylesheet' type='text/css' href='/static/style.css'>"_AM
+    << "<link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
     << "<meta charset='UTF-8'>"_AM;
     if(revision.title == ""){
 		reqCon.out << "<title>SCP Conversion Project</title>"_AM;
@@ -272,7 +272,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     reqCon.out << "<div id='fullPageContainer'>"_AM
     << "<div id='pageHeaderBackground'>"_AM
     << "<div id='pageHeader'>"_AM
-    << "<img id='headerImage' src='/static/logo.png'>"_AM
+    << "<img id='headerImage' src='/__static/logo.png'>"_AM
     << "<h1 id='headerTitle'><a href='/'>SCP Conversion Project</a></h1>"_AM
     << "<h2 id='headerSubtitle'>Converting and Archiving the SCP Wiki</h2>"_AM
     << "</div></div>"_AM
