@@ -16,9 +16,23 @@
 
 #include "RuleSet.hpp"
 
+#include "Database/Json.hpp"
+
 int main(int argc, char** argv){
-	if(argc == 2 && std::string(argv[1]) == "--runCustomTest"){
-        Parser::printFullRuleSetList();
+	
+    if(argc == 2 && std::string(argv[1]) == "--printRuleSet"){
+		Parser::printFullRuleSetList();
+	}
+	else if(argc == 2 && std::string(argv[1]) == "--importFrontPage"){
+        nlohmann::json frontPage = Json::loadJsonFromFile("/home/daniel/Projects/SCP_Conversion_Project/data/customFrontPage/pages/__front-page/data.json");
+        std::ifstream pageFile("/home/daniel/Projects/SCP_Conversion_Project/data/customFrontPage/pages/__front-page/frontpage.txt");
+		std::string str((std::istreambuf_iterator<char>(pageFile)), std::istreambuf_iterator<char>());
+        frontPage["revisions"][0]["sourceCode"] = str;
+        Json::saveJsonToFile("/home/daniel/Projects/SCP_Conversion_Project/data/customFrontPage/pages/__front-page/data.json", frontPage);
+        
+        Importer::importBatch("/home/daniel/Projects/SCP_Conversion_Project/data/customFrontPage/");
+        
+        Website::run();
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--runTests"){
 		Tests::runAllTests();

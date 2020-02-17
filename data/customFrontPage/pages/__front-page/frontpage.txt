@@ -6,8 +6,71 @@ WARNING: THIS SCP CONVERSION FOUNDATION PROJECT IS
 UNOFFICIAL
 [[/div]]
 [[div class="unmargined"]]
-AND HAS NOT BEEN BACKED BY THE SCP WIKI OR IT'S STAFF. IF YOU'RE LOOKING FOR THE OFFICIAL WIKI PLEASE GO [http://www.scp-wiki.net/ HERE].
+AND HAS NOT BEEN BACKED BY THE SCP WIKI OR IT'S STAFF.
+IF YOU'RE LOOKING FOR THE OFFICIAL WIKI PLEASE GO [http://www.scp-wiki.net/ HERE].
 [[/div]]
 [[/div]]
 -----------------------
-Follow this project on [https://github.com/danielbatterystapler/SCP_Conversion_Project Github]!
++ SCP Conversion Project
+**An Open-Source Re-Implementation of the SCP Wiki**
+
+++ What is this?
+This website is an [https://github.com/danielbatterystapler/SCP_Conversion_Project open-source], view-only reimplementation and rehosting of the [http://www.scp-wiki.net/ SCP Wiki]. It is completely independent of Wikidot, the hosting provider for the SCP Wiki -- meaning that if Wikidot stopped existing tomorrow, this website would continue existing as if nothing happened at all.
+
+Unlike a traditional site mirror/archive, which merely downloads all of the pages as you see them, this website is a //reimplementation// of the SCP Wiki. The pages are saved not as their viewable HTML but as their author-written source code and translated back as you, the website reader, looks at them. This is an important distinction as it means that the pages don't need to be converted into exactly what they look like on the official SCP Wiki -- new features can be added and behaviors can be tweaked.
+
+If you just want to take a look around you can get started [[[main|here]]] on the main page that we're all familiar with.
+
+++ Feature List
+* Archives of all pages(SCPs, tales, author pages, etc.)
+* Full history for all pages
+* All votes on all pages[[footnote]]page votes are only updated if the page itself is updated, so they are most likely very out of date[[/footnote]]
+* Custom page formatter with almost complete compatability
+* Archive of the entire forum(discussion threads, author introductions, etc.)[[footnote]]mostly text-only and post history is not yet saved[[/footnote]]
+* Auto-updating in step with the official SCP Wiki[[footnote]]changes made on the SCP Wiki might take a couple days before being carried over[[/footnote]]
+
+++ New Features
+* Data Visualizations: See the large-scale structure of the SCP Wiki!
+* [[[scp-262|Page Previews]]]: Know what a page is without having to click on it!
+* [/__front-page/showAnnotatedSource Annotated Source Code]: See how a page is being translated into the final document!
+* PDF Output: Want to have a copy of a page to read offline? How about the entire Wiki?
+* Secure, HTTPS Connection
+
+++ Project Foundation
+[http://www.scp-wiki.net/forum/t-5648716/pf-information-and-faq Project Foundation] is the SCP Wiki's plan for migrating off of the Wikidot platform and onto something more fitting and more permanent. This website, while a partial remake of the SCP Wiki, is not at all related to Project Foundation -- none of the SCP Wiki authors, admins, or staff of any kind have officially backed this SCP Conversion Project. Project Foundation is also a much larger effort covering administration, financing, and even legal matters on top of the actual software and hardware of the new wiki -- not to mention having more than one person behind it.
+
+The SCP Conversion Project is focused on just the codebase itself and, unlike Project Foundation, currently has no plans to make this website editable and especially no plans for a full site-wide migration. This website exists in parallel as a companion with the SCP Wiki, not in competition with it or as a replacement. This website does have features useful to authors, such as [/__front-page/showAnnotatedSource annotated source code], but if you are writing a page you need to do that on the official [http://www.scp-wiki.net/ SCP Wiki].
+
+That said, it is not lost on me that the goals of the SCP Conversion Project do overlap with the goals of Project Foundation on the codebase front and that they might be able to work together in the future, but that would be a decision made by the SCP Wiki staff.
+
+++ How It All Works
+The following is a diagram showing an overview of how the website works, for a more full explanation refer to the documentation on [https://github.com/danielbatterystapler/SCP_Conversion_Project Github]
+[[image designLayout.svg]]
+
+++ Contact Me
+Currently I am the only person who is a part of the "SCP Conversion Project" and I work on it during my free time. Bugs can be reported on the [https://github.com/danielbatterystapler/SCP_Conversion_Project project's Github]. If you don't have a github, or if for some reason you need to contact me directly, you can send emails to danielbatterystapler+scp@gmail.com.
+
+
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+ _
+
+

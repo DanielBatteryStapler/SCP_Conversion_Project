@@ -311,7 +311,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     reqCon.out << "</div>"_AM //id='pageBody'
     << "<div id='pageFooterBackground'><div id='pageFooter'>"_AM
     << "<div id='pageFooterPoweredBy'>"_AM
-    << "Powered by the <a href='/'>SCP Conversion Project</a><br>"_AM
+    << "Powered by the <a href='https://github.com/danielbatterystapler/SCP_Conversion_Project'>SCP Conversion Project</a><br>"_AM
     << "</div><div id='pageFooterCopyright'>"_AM
     << "Unless otherwise stated, the content of this page is licensed under <a href='https://creativecommons.org/licenses/by-sa/3.0/'>Creative Commons Attribution-ShareAlike 3.0 License</a>"_AM
     << "</div>"_AM
