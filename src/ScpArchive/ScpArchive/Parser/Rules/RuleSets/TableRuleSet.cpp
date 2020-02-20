@@ -161,14 +161,6 @@ namespace Parser{
         return result;
 	}
 	
-	namespace{
-        void makeTop(TreeContext& context, Node::Type type){
-            while(context.stack.back().getType() != type){
-                popStackWithCarry(context);
-            }
-        }
-	}
-	
     void handleTableMarker(TreeContext& context, const Token& token){
         const TableMarker& mark = std::get<TableMarker>(token.token);
         

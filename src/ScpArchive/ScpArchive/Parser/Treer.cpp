@@ -45,6 +45,14 @@ namespace Parser{
         return true;
     }
 	
+	bool AdvList::operator==(const AdvList& nod)const{
+		return type == nod.type && parameters == nod.parameters;
+	}
+	
+	bool AdvListElement::operator==(const AdvListElement& nod)const{
+		return parameters == nod.parameters;
+	}
+	
 	bool QuoteBox::operator==(const QuoteBox& nod)const{
 		return true;
 	}
@@ -247,7 +255,8 @@ namespace Parser{
             case Node::Type::Collapsible:
             case Node::Type::Tab:
             case Node::Type::FootNote:
-            case Node::Type::AdvTableElement:
+			case Node::Type::AdvTableElement:
+			case Node::Type::AdvListElement:
                 return true;
         }
     }
@@ -351,6 +360,12 @@ namespace Parser{
             context.stack.back().branches.push_back(newNode);
         }
     }
+	
+	void makeTop(TreeContext& context, Node::Type type){
+		while(context.stack.back().getType() != type){
+			popStackWithCarry(context);
+		}
+	}
 	
 	namespace{
         void handleQuoteBoxNesting(TreeContext& context, std::size_t pos){

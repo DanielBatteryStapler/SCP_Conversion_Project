@@ -66,6 +66,21 @@ namespace Parser{
 		bool operator==(const ListElement& nod)const;
     };
 	
+	struct AdvList{
+		using Type = ListPrefix::Type;
+        Type type = Type::Unknown;
+        
+        std::map<std::string, std::string> parameters;
+        
+		bool operator==(const AdvList& nod)const;
+	};
+	
+	struct AdvListElement{
+        std::map<std::string, std::string> parameters;
+        
+		bool operator==(const AdvListElement& nod)const;
+	};
+	
 	struct QuoteBox{
 		bool operator==(const QuoteBox& nod)const;
 	};
@@ -181,11 +196,11 @@ namespace Parser{
 	
 	enum class NodeType{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
         FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate,
-        QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
+        QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A};
 	using NodeVariant = std::variant<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
         FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate,
-        QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
+        QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A>;
 	
 	struct Node{
@@ -251,6 +266,8 @@ namespace Parser{
     void makeTextAddable(TreeContext& context);
     void addAsDiv(TreeContext& context, Node newNode);
     void addAsText(TreeContext& context, Node newNode);
+    
+    void makeTop(TreeContext& context, Node::Type type);
 }
 
 #endif // TREER_HPP

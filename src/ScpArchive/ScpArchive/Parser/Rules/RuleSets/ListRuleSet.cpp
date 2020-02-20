@@ -45,6 +45,26 @@ namespace Parser{
         return "ListElement";
     }
     
+    std::string toStringNodeAdvList(const NodeVariant& nod){
+		const AdvList& advList = std::get<AdvList>(nod);
+        std::string output = "AdvList:{";
+        for(auto i = advList.parameters.begin(); i != advList.parameters.end(); i++){
+            output += i->first + ": " + i->second + ", ";
+        }
+        output += "}";
+        return output;
+    }
+    
+    std::string toStringNodeAdvListElement(const NodeVariant& nod){
+        const AdvListElement& advListElement = std::get<AdvListElement>(nod);
+        std::string output = "AdvListElement:{";
+        for(auto i = advListElement.parameters.begin(); i != advListElement.parameters.end(); i++){
+            output += i->first + ": " + i->second + ", ";
+        }
+        output += "}";
+        return output;
+    }
+    
 	bool tryListPrefixRule(const TokenRuleContext& context){
         if(context.wasNewLine){
             std::size_t pos = context.pagePos;
@@ -124,6 +144,90 @@ namespace Parser{
 	void toHtmlNodeListElement(const HtmlContext& con, const Node& nod){
         const ListElement& node = std::get<ListElement>(nod.node);
         con.out << "<li>"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</li>"_AM;
+	}
+	
+    void handleAdvList(TreeContext& context, const Token& token){
+		handleSectionStartEnd(token, 
+        [&](const SectionStart& section){
+            makeDivPushable(context);
+            if(check(section.typeString, 0, "ul")){
+				pushStack(context, Node{AdvList{AdvList::Type::Bullet, section.parameters}});
+			}
+			else if(check(section.typeString, 0, "ol")){
+				pushStack(context, Node{AdvList{AdvList::Type::Number, section.parameters}});
+			}
+			else{
+				throw std::runtime_error("Invalid List type");
+			}
+        }, [&](const SectionEnd& section){
+            if(isInside(context, Node::Type::AdvList)){
+                popSingle(context, Node::Type::AdvList);
+            }
+        });
+    }
+    
+    void handleAdvListElement(TreeContext& context, const Token& token){
+		handleSectionStartEnd(token, 
+        [&](const SectionStart& section){
+            if(isInside(context, Node::Type::AdvList)){
+                makeTop(context, Node::Type::AdvList);
+                pushStack(context, Node{AdvListElement{section.parameters}});
+            }
+        }, [&](const SectionEnd& section){
+            if(isInside(context, Node::Type::AdvListElement)){
+                popSingle(context, Node::Type::AdvListElement);
+            }
+        });
+    }
+	
+	void toHtmlNodeAdvList(const HtmlContext& con, const Node& nod){
+        const AdvList& node = std::get<AdvList>(nod.node);
+        switch(node.type){
+            case List::Type::Bullet:
+                con.out << "<ul"_AM;
+                break;
+            case List::Type::Number:
+                con.out << "<ol"_AM;
+                break;
+            default:
+                throw std::runtime_error("Invalid List type");
+        }
+        for(auto i = node.parameters.begin(); i != node.parameters.end(); i++){
+            if(i->first == "id" && check(i->second, 0, "u-") == false){
+                con.out << " "_AM << i->first << "='u-"_AM << i->second << "'"_AM;
+            }
+            else{
+                con.out << " "_AM << i->first << "='"_AM << i->second << "'"_AM;
+            }
+        }
+        con.out << ">"_AM;
+        delegateNodeBranches(con, nod);
+        switch(node.type){
+            case List::Type::Bullet:
+                con.out << "</ul>"_AM;
+                break;
+            case List::Type::Number:
+                con.out << "</ol>"_AM;
+                break;
+            default:
+                throw std::runtime_error("Invalid List type");
+        }
+	}
+	
+	void toHtmlNodeAdvListElement(const HtmlContext& con, const Node& nod){
+        const AdvListElement& node = std::get<AdvListElement>(nod.node);
+        con.out << "<li"_AM;
+        for(auto i = node.parameters.begin(); i != node.parameters.end(); i++){
+            if(i->first == "id" && check(i->second, 0, "u-") == false){
+                con.out << " "_AM << i->first << "='u-"_AM << i->second << "'"_AM;
+            }
+            else{
+                con.out << " "_AM << i->first << "='"_AM << i->second << "'"_AM;
+            }
+        }
+        con.out << ">"_AM;
         delegateNodeBranches(con, nod);
         con.out << "</li>"_AM;
 	}

@@ -1719,6 +1719,72 @@ namespace Tests{
 			});
         });
         
+        tester.add("Parser::makeTreeFromPage AdvList",[](){
+            assertPageTree(
+			"[[ul class=\"classA\"]]\n"
+			"[[li style=\"styleB\"]]Element #1[[/li]]\n"
+			"[[li]]\n"
+			"------------\n"
+			"[[/li]]\n"
+			"[[li]]\n"
+			"[[ol class=\"classC\"]]\n"
+			"[[li class=\"classE\"]]\n"
+			"Element #2\n"
+			"[[/li]]\n"
+			"[[/ol]]\n"
+			"[[/li]]\n"
+			"[[li class=\"classD\"]]Element #3[[/li]]\n"
+			"[[/ul]]\n"
+			,
+			Node{RootPage{},
+                {
+                    Node{AdvList{AdvList::Type::Bullet, {{"class", "classA"}}},
+                        {
+                            Node{AdvListElement{{{"style", "styleB"}}},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{"Element #1"}}
+                                        }
+                                    }
+                                }
+                            },
+                            Node{AdvListElement{},
+                                {
+                                    Node{Divider{Divider::Type::Line}}
+                                }
+                            },
+                            Node{AdvListElement{},
+                                {
+                                    Node{AdvList{AdvList::Type::Number, {{"class", "classC"}}}, 
+                                        {
+                                            Node{AdvListElement{{{"class", "classE"}}}, 
+                                                {
+                                                    Node{Paragraph{},
+                                                        {
+                                                            Node{PlainText{"Element #2"}}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            Node{AdvListElement{{{"class", "classD"}}},
+                                {
+                                    Node{Paragraph{},
+                                        {
+                                            Node{PlainText{"Element #3"}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+			});
+        });
 	}
 }
 
