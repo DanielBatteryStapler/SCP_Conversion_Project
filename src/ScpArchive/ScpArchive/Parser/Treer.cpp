@@ -21,6 +21,10 @@ namespace Parser{
         return parameters == nod.parameters;
     }
 	
+    bool A::operator==(const A& nod)const{
+        return parameters == nod.parameters;
+    }
+	
     bool Align::operator==(const Align& nod)const{
         return type == nod.type;
     }
@@ -227,6 +231,7 @@ namespace Parser{
             case Node::Type::Size:
             case Node::Type::Span:
             case Node::Type::TableElement:
+			case Node::Type::A:
                 return true;
         }
     }

@@ -1699,6 +1699,26 @@ namespace Tests{
                 }
 			});
         });
+        
+        tester.add("Parser::makeTreeFromPage A",[](){
+            assertPageTree(
+			"[[a class=\"thing\"]]yoo! I'm here![[/a]]"
+			,
+			Node{RootPage{},
+                {
+                    Node{Paragraph{},
+                        {
+                            Node{A{{{"class", "thing"}}},
+                                {
+                                    Node{PlainText{"yoo! I'm here!"}}
+                                }
+                            }
+                        }
+                    }
+                }
+			});
+        });
+        
 	}
 }
 

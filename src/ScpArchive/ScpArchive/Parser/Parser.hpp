@@ -17,7 +17,7 @@ namespace Parser{
 	std::string normalizePageName(std::string link);
 	
 	enum class SectionType{Unknown, Module, FootNote, FootNoteBlock, TableOfContents, AdvTable, AdvTableRow, AdvTableElement, 
-        HTML, IFrame, Iftags, Include, Image, TabView, Tab, Collapsible, Span, Size, Anchor, Align, Div, Code};
+        HTML, IFrame, Iftags, Include, Image, TabView, Tab, Collapsible, Span, Size, Anchor, Align, Div, Code, A};
 	enum class ModuleType{Unknown, CSS, Rate};
 	
 	struct Section{

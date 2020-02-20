@@ -29,6 +29,12 @@ namespace Parser{
         bool operator==(const Div& nod)const;
 	};
 	
+	struct A{
+		std::map<std::string, std::string> parameters;
+        
+        bool operator==(const A& nod)const;
+	};
+	
 	enum class AlignType{Unknown, Left, Right, Center, Justify};
 	struct Align{
         using Type = AlignType;
@@ -176,11 +182,11 @@ namespace Parser{
 	enum class NodeType{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
         FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate,
         QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
-        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size};
+        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A};
 	using NodeVariant = std::variant<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
         FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate,
         QuoteBox, Div, Align, List, ListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
-        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size>;
+        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A>;
 	
 	struct Node{
 		using Type = NodeType;
