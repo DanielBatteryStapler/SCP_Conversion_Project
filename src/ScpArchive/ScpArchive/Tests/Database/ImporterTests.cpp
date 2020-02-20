@@ -46,7 +46,7 @@ namespace Tests{
 		const nlohmann::json testPageA = {
 			{"id", "testPageARawID"},
 			{"name", "test-page-a"},
-			{"parent", "testPageBRawID"},
+			{"parent", "test-page-b"},
 			{"discussionId", "testThreadARawID"},
 			{"tags", {"test", "page"}},
 			{"votes", 
