@@ -115,7 +115,7 @@ namespace Scraper{
 		batch["type"] = "diff";
 		batch["timeStamp"] = timeStamp;
 		batch["pageList"] = getUpdatedPageList(oldTime - 60);//we're just gonna be safe and actually start like a while before we need to
-		batch["threadList"] = nlohmann::json::array();
+		batch["threadList"] = getUpdatedThreadList(oldTime - 60);
 		
 		if(batch["pageList"].size() == 0 && batch["threadList"].size() == 0){
 			std::cout << "No new content found.\n";
@@ -156,24 +156,50 @@ namespace Scraper{
 		std::cout << "Checking for download errors...\n";
 		nlohmann::json batch = loadJsonFromFile(batchFolder + "batch.json");
 		std::string pagesFolder = batchFolder + "pages/";
+		std::string threadsFolder = batchFolder + "threads/";
 		
-		std::vector<std::string> pageErrors;
-		for(std::string page : batch["pageList"]){
-			std::string pageFile = pagesFolder + page + "/data.json";
-			if(!boost::filesystem::exists(pageFile) || boost::filesystem::is_directory(pageFile)){
-				pageErrors.push_back(page);
-			}
+		std::cout << "\tChecking Page Errors...\n";
+		{
+            std::vector<std::string> pageErrors;
+            for(std::string page : batch["pageList"]){
+                std::string pageFile = pagesFolder + page + "/data.json";
+                if(!boost::filesystem::exists(pageFile) || boost::filesystem::is_directory(pageFile)){
+                    pageErrors.push_back(page);
+                }
+            }
+            if(pageErrors.size() > 0){
+                std::cout << "Page Errors:\n";
+                for(std::string page : pageErrors){
+                    std::cout << "\t" << page << "\n";
+                }
+                std::cout << "Attempting to fix errors.";
+                downloadPageList(pagesFolder, pageErrors);
+            }
+            else{
+                std::cout << "No page errors in Batch Download.\n";
+            }
 		}
-		if(pageErrors.size() > 0){
-			std::cout << "Errors:\n";
-			for(std::string page : pageErrors){
-				std::cout << "\t" << page << "\n";
-			}
-			std::cout << "Attempting to fix errors.";
-			downloadPageList(pagesFolder, pageErrors);
-		}
-		else{
-			std::cout << "No errors in Batch Download.\n";
+		
+		std::cout << "\tChecking Thread Errors...\n";
+		{
+            std::vector<std::string> threadErrors;
+            for(std::string thread : batch["threadList"]){
+                std::string threadFile = threadsFolder + thread + "/data.json";
+                if(!boost::filesystem::exists(threadFile) || boost::filesystem::is_directory(threadFile)){
+                    threadErrors.push_back(thread);
+                }
+            }
+            if(threadErrors.size() > 0){
+                std::cout << "Thread Errors:\n";
+                for(std::string thread : threadErrors){
+                    std::cout << "\t" << thread << "\n";
+                }
+                std::cout << "Attempting to fix errors.";
+                downloadThreadList(threadsFolder, threadErrors);
+            }
+            else{
+                std::cout << "No thread errors in Batch Download.\n";
+            }
 		}
 	}
 	
@@ -288,15 +314,15 @@ namespace Scraper{
 		std::vector<std::string> setB = collectionFunction();
 		
 		//combine the two lists and remove duplicates
+		int setASize = setA.size();
+		int setBSize = setB.size();
 		setA.insert(setA.end(), setB.begin(), setB.end());
 		std::sort(setA.begin(), setA.end());
-		auto uniqueEnd = std::unique(setA.begin(), setA.end());
-		std::cout << "Pages that were found in one set but not the other: " << ((uniqueEnd - setA.begin()) - (setA.end()  - uniqueEnd)) << "\n";
-		std::this_thread::sleep_for(std::chrono::seconds(5));
-		setA.erase(uniqueEnd, setA.end());
+		setA.erase(std::unique(setA.begin(), setA.end()), setA.end());
+		int bothSize = setA.size();
+		std::cout << "Set A: " << setASize << ", Set B: " << setBSize << ", Unique Set: " << bothSize << "\n";
 		
 		return setA;
-		
 	}
 	
 	namespace{
@@ -1040,6 +1066,67 @@ namespace Scraper{
 		return output;
 	}
 	
+	std::vector<std::string> getUpdatedThreadList(std::int64_t startTime){
+        //to make sure we get every single page, we're going to run the same thing twice and remove all duplicates
+		const auto collectionFunction = [startTime]()->std::vector<std::string>{
+			std::vector<std::string> output;
+			
+			int pageNumber = 1;
+			
+			bool keepGoing = true;
+			while(keepGoing){
+				std::cout << "Current Page of Listing:" << pageNumber << "\n";
+				
+                std::string data = performAjaxRequest("forum/ForumRecentPostsListModule", {{"page", std::to_string(pageNumber)}})["body"].get<std::string>();
+				
+				{
+					std::size_t start = 0;
+					while(keepGoing){
+                        std::string threadData;
+                        start = getData(data, "<div class=\"head\">", "<div class=\"content\"", start, threadData);
+                        if(start == std::string::npos){
+                            break;
+                        }
+                        
+						std::string threadId;
+						std::size_t threadIdPos = getData(threadData, "/forum/t-", "/", 0, threadId);
+						if(threadIdPos == std::string::npos){
+                            std::string pageName;
+                            getData(threadData, "<a href=\"/", "/", 0, pageName);
+                            threadId = getPageDiscussionId(pageName);
+						}
+						std::string timeStamp;
+						getData(threadData, "odate time_", " ", 0, timeStamp);
+						if(std::stoll(timeStamp) >= startTime){
+							output.push_back(threadId);
+						}
+						else{
+							keepGoing = false;//we started seeing pages we've already seen, so stop searching
+						}
+					}
+				}
+				pageNumber++;
+			}
+			return output;
+		};
+		std::cout << "Getting Set A\n";
+		std::vector<std::string> setA = collectionFunction();
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+		std::cout << "Getting Set B\n";
+		std::vector<std::string> setB = collectionFunction();
+		
+		//combine the two lists and remove duplicates
+		int setASize = setA.size();
+		int setBSize = setB.size();
+		setA.insert(setA.end(), setB.begin(), setB.end());
+		std::sort(setA.begin(), setA.end());
+		setA.erase(std::unique(setA.begin(), setA.end()), setA.end());
+		int bothSize = setA.size();
+		std::cout << "Set A: " << setASize << ", Set B: " << setBSize << ", Unique Set: " << bothSize << "\n";
+		
+		return setA;
+	}
+	
 	void downloadThreadList(std::string threadsFolder, std::vector<std::string> threadList){
 		std::cout << "Archiving " << threadList.size() << " threads...\n";
 		for(int i = 0; i < threadList.size(); i++){
@@ -1057,7 +1144,16 @@ namespace Scraper{
 		boost::filesystem::remove_all(threadFolder);
 		boost::filesystem::create_directory(threadFolder);
 		
-		std::string rawThread = performAjaxRequest("forum/ForumViewThreadModule", {{"t", threadId}, {"pageNo", "1"}})["body"].get<std::string>();
+		nlohmann::json rawThreadJson = performAjaxRequest("forum/ForumViewThreadModule", {{"t", threadId}, {"pageNo", "1"}});
+		if(rawThreadJson["status"].get<std::string>() == "no_thread"){
+			std::cout << "\t\Thread " << threadId << " does not exist.\n";
+			nlohmann::json thread;
+			thread["nonExistent"] = true;
+			saveJsonToFile(threadFolder + "data.json", thread);
+			return;
+		}
+		
+		std::string rawThread = rawThreadJson["body"].get<std::string>();
 		
 		nlohmann::json thread;
 		{

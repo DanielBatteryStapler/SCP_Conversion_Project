@@ -38,6 +38,7 @@ namespace Scraper{
 	nlohmann::json getForumGroups();
 	std::vector<std::string> getThreadListForForumCategory(std::string categoryId);
 	std::vector<std::string> getThreadListForAllCategories(nlohmann::json forumGroups);
+	std::vector<std::string> getUpdatedThreadList(std::int64_t startTime);
 	
 	void downloadThreadList(std::string threadsFolder, std::vector<std::string> threadList);
 	void downloadFullThreadArchive(std::string threadsFolder, std::string threadId);

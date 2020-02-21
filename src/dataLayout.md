@@ -117,8 +117,12 @@ notice the lack of timestamp, as this does not have an impact on the timeline of
 	- changeType: <changeType> (possible values are defined by Wikidot)
 	- sourceCode: <wikidotSourceCode>
   - ...
-	  
-## pages/<threadId>/threads.json
+
+
+## threads/<threadId>/data.json when thread does not exist
+- nonExistent: true
+
+## threads/<threadId>/data.json
 - id: <threadId>
 - categoryId: <threadCategoryId>
 - authorId: <threadAuthorId> ("deleted" if the account is deleted, "wikidot" if created by wikidot)
