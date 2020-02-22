@@ -58,7 +58,11 @@ namespace Parser{
 		
 		HtmlRule{Node::Type::Table, toHtmlNodeTable},
 		HtmlRule{Node::Type::TableRow, toHtmlNodeTableRow},
-		HtmlRule{Node::Type::TableElement, toHtmlNodeTableElement}
+		HtmlRule{Node::Type::TableElement, toHtmlNodeTableElement},
+		
+		HtmlRule{Node::Type::AdvTable, toHtmlNodeAdvTable},
+		HtmlRule{Node::Type::AdvTableRow, toHtmlNodeAdvTableRow},
+		HtmlRule{Node::Type::AdvTableElement, toHtmlNodeAdvTableElement}
 	}};	
 }
 
