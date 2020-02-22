@@ -1129,10 +1129,22 @@ namespace Scraper{
 	
 	void downloadThreadList(std::string threadsFolder, std::vector<std::string> threadList){
 		std::cout << "Archiving " << threadList.size() << " threads...\n";
-		for(int i = 0; i < threadList.size(); i++){
-			downloadFullThreadArchive(threadsFolder, threadList[i]);
-			std::cout << i + 1 << "/" << threadList.size() << "   " << (static_cast<double>(i + 1) / threadList.size() * 100) << "% complete\n";
-		}
+		
+		executeCollectionOnThreads(threadList, [threadsFolder](std::string thread)->nlohmann::json{
+			try{
+				downloadFullThreadArchive(threadsFolder, thread);
+			}
+			catch(std::exception& e){
+				std::string threadFolder = threadsFolder + thread + "/";
+				
+				std::lock_guard<std::mutex> lock(threadPool.threadLock);
+				std::string error = "Error when processing thread " + thread + " e.what()" + e.what() + "\n";
+				
+				boost::filesystem::remove_all(threadFolder);
+				boost::filesystem::create_directory(threadFolder);//make sure the folder is empty
+			}
+			return {};
+		});
 	}
 	
 	void downloadFullThreadArchive(std::string threadsFolder, std::string threadId){
