@@ -89,7 +89,7 @@ notice the lack of timestamp, as this does not have an impact on the timeline of
 - id: <pageId>
 - name: <pageName>
 - parent: <parentPageId> ("" if no parent)
-- discussionId: <discussionThreadId>
+- discussionId: <discussionThreadId> ("" if no discussion)
 - tags
   - 0: <tag>
   - ...

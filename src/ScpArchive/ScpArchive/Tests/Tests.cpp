@@ -22,9 +22,9 @@ namespace Tests{
 		addHtmlEntityTests(tester);
 		addMarkupOutStreamTests(tester);
 		
-		addImporterTests(tester);
 		addJsonTests(tester);
 		addDatabaseTests(tester);
+		addImporterTests(tester);
 		
 		addTesterTests(tester);
 		

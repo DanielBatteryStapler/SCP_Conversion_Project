@@ -36,12 +36,56 @@ void Database::cleanAndInitDatabase(){
 	sql << "DROP TABLE IF EXISTS pageFiles";
 	sql << "DROP TABLE IF EXISTS revisions";
 	sql << "DROP TABLE IF EXISTS pages";
+	sql << "DROP TABLE IF EXISTS forumPosts";
+	sql << "DROP TABLE IF EXISTS forumThreads";
 	sql << "DROP TABLE IF EXISTS forumCategories";
 	sql << "DROP TABLE IF EXISTS forumGroups";
 	sql << "DROP TABLE IF EXISTS idMap";
 	
 	//recreate tables
-	//sql << "SET NAMES utf8mb4";
+	sql <<
+	"CREATE TABLE forumGroups( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"title TEXT NOT NULL, \n"
+		"description TEXT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE forumCategories( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"parent BIGINT NOT NULL, \n"
+			"FOREIGN KEY (parent) REFERENCES forumGroups(id) ON DELETE CASCADE, \n"
+		"title TEXT NOT NULL, \n"
+		"description TEXT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE forumThreads( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"parent BIGINT NOT NULL, \n"
+			"FOREIGN KEY (parent) REFERENCES forumCategories(id) ON DELETE CASCADE, \n"
+		"title TEXT NOT NULL, \n"
+		//author not implemented
+		"description TEXT NOT NULL, \n"
+		"timeStamp BIGINT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE forumPosts( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"parentThread BIGINT NOT NULL, \n"
+			"FOREIGN KEY (parentThread) REFERENCES forumThreads(id) ON DELETE CASCADE, \n"
+		"parentPost BIGINT, \n"
+			"FOREIGN KEY (parentPost) REFERENCES forumPosts(id) ON DELETE CASCADE, \n"
+		"title TEXT NOT NULL, \n"
+		//author not implemented
+		"content TEXT NOT NULL, \n"
+		"timeStamp BIGINT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
 	
 	sql <<
 	"CREATE TABLE pages( \n"
@@ -50,8 +94,8 @@ void Database::cleanAndInitDatabase(){
 		"name TEXT NOT NULL, \n"
 			"UNIQUE (name(255)), \n"
 		"parent TEXT DEFAULT NULL, \n"
-		"discussion BIGINT DEFAULT NULL \n"//not implemented yet
-			//should be a foreign key here
+		"discussion BIGINT DEFAULT NULL, \n"
+			"FOREIGN KEY (discussion) REFERENCES forumThreads(id) ON DELETE RESTRICT \n"
 	")ENGINE=InnoDB CHARSET=utf8";
 	
 	sql <<
@@ -96,24 +140,6 @@ void Database::cleanAndInitDatabase(){
 		"changeMessage TEXT NOT NULL, \n"
 		"changeType TEXT NOT NULL, \n"
 		"sourceCode LONGTEXT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
-	
-	sql <<
-	"CREATE TABLE forumGroups( \n"
-		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
-			"PRIMARY KEY (id), \n"
-		"title TEXT NOT NULL, \n"
-		"description TEXT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
-	
-	sql <<
-	"CREATE TABLE forumCategories( \n"
-		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
-			"PRIMARY KEY (id), \n"
-		"parent BIGINT NOT NULL, \n"
-			"FOREIGN KEY (parent) REFERENCES forumGroups(id) ON DELETE CASCADE, \n"
-		"title TEXT NOT NULL, \n"
-		"description TEXT NOT NULL \n"
 	")ENGINE=InnoDB CHARSET=utf8";
 	
 	sql << 
@@ -420,6 +446,87 @@ std::vector<Database::ID> Database::getForumCategories(Database::ID group){
 }
 
 
+Database::ID Database::createForumThread(Database::ForumThread thread){
+	sql << "INSERT INTO forumThreads(parent, title, description, timeStamp) VALUES(:parent, :title, :description, :timeStamp)",
+		use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp);
+	Database::ID id;
+	sql << "SELECT LAST_INSERT_ID()", into(id);
+	return id;
+}
+
+void Database::resetForumThread(Database::ID id, Database::ForumThread thread){
+	sql << "DELETE FROM forumPosts WHERE parentThread=:id", use(id);
+	sql << "UPDATE forumThreads SET parent=:parent, title=:title, description=:description, timestamp=:timestamp WHERE id=:id",
+		use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp), use(id);
+}
+
+Database::ForumThread Database::getForumThread(Database::ID thread){
+	Database::ForumThread forumThread;
+	sql << "SELECT parent, title, description, timestamp FROM forumThreads WHERE id=:id", use(thread),
+		into(forumThread.parent), into(forumThread.title), into(forumThread.description), into(forumThread.timeStamp);
+	return forumThread;
+}
+
+std::vector<Database::ID> Database::getForumThreads(Database::ID category){
+	Database::ID thread;
+	soci::statement stmt = (sql.prepare << "SELECT id FROM forumThreads WHERE parent=:category", use(category), into(thread));
+	stmt.execute();
+	
+	std::vector<Database::ID> threads;
+	while(stmt.fetch()){
+		threads.push_back(thread);
+	}
+	
+	return threads;
+}
+
+Database::ID Database::createForumPost(Database::ForumPost post){
+	if(post.parentPost){
+		sql << "INSERT INTO forumPosts(parentThread, parentPost, title, content, timeStamp) VALUES(:parentThread, :parentPost, :title, :content, :timeStamp)",
+			use(post.parentThread), use(*post.parentPost), use(post.title), use(post.content), use(post.timeStamp);
+	}
+	else{
+		sql << "INSERT INTO forumPosts(parentThread, parentPost, title, content, timeStamp) VALUES(:parentThread, NULL, :title, :content, :timeStamp)",
+			use(post.parentThread), use(post.title), use(post.content), use(post.timeStamp);
+	}
+	Database::ID id;
+	sql << "SELECT LAST_INSERT_ID()", into(id);
+	return id;
+}
+
+Database::ForumPost Database::getForumPost(Database::ID post){
+	Database::ForumPost forumPost;
+	Database::ID parentPost;
+	soci::indicator ind;
+	sql << "SELECT parentThread, parentPost, title, content, timestamp FROM forumPosts WHERE id=:id", use(post),
+		into(forumPost.parentThread), into(parentPost, ind), into(forumPost.title), into(forumPost.content), into(forumPost.timeStamp);
+    if(ind == soci::i_null){
+		forumPost.parentPost = {};
+    }
+    else{
+		forumPost.parentPost = parentPost;
+    }
+	return forumPost;
+}
+
+std::vector<Database::ID> Database::getForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost){
+	Database::ID post;
+	std::optional<soci::statement> stmt;
+	if(parentPost){
+		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost=:post", use(parentThread), use(*parentPost), into(post));
+	}
+	else{
+		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost IS NULL", use(parentThread), into(post));
+	}
+	stmt->execute();
+	
+	std::vector<Database::ID> posts;
+	while(stmt->fetch()){
+		posts.push_back(post);
+	}
+	
+	return posts;
+}
 
 
 

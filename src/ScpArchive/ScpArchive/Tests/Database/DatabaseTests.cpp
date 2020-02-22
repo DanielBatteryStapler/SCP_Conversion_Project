@@ -113,10 +113,16 @@ namespace Tests{
 			db->cleanAndInitDatabase();
 			
 			auto pageA = db->createPage("test-page-a");
-			auto threadB = db->createPage("test-page-b");///this should actually be a thread
+			Database::ForumGroup group;
+			Database::ID groupId = db->createForumGroup(group);
+			Database::ForumCategory category;
+			Database::ID categoryId = db->createForumCategory(groupId, category);
+			Database::ForumThread thread;
+			thread.parent = categoryId;
+			auto threadB = db->createForumThread(thread);///this should actually be a thread
             assertTrue(std::nullopt == db->getPageDiscussion(*pageA));
-            db->setPageDiscussion(*pageA, *threadB);
-            assertTrue(*threadB == *db->getPageDiscussion(*pageA));
+            db->setPageDiscussion(*pageA, threadB);
+            assertTrue(threadB == *db->getPageDiscussion(*pageA));
             db->setPageDiscussion(*pageA, std::nullopt);
             assertTrue(std::nullopt == db->getPageDiscussion(*pageA));
             
@@ -244,7 +250,7 @@ namespace Tests{
 			Database::eraseDatabase(std::move(db));
 		});
 		
-		tester.add("Database::createForumGroup", [](){
+		tester.add("Database::ForumGroup", [](){
 			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
@@ -274,7 +280,7 @@ namespace Tests{
 			Database::eraseDatabase(std::move(db));
 		});
 		
-		tester.add("Database::createForumCategory", [](){
+		tester.add("Database::ForumCategory", [](){
 			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			
 			db->cleanAndInitDatabase();
@@ -326,6 +332,69 @@ namespace Tests{
 			
 			assertEquals(categoryC.title, db->getForumCategory(categoryCId).title);
 			assertEquals(categoryC.description, db->getForumCategory(categoryCId).description);
+			
+			Database::eraseDatabase(std::move(db));
+		});
+		
+		tester.add("Database::ForumThread", [](){
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
+			db->cleanAndInitDatabase();
+			
+			Database::ForumGroup group;
+			group.title = "Group";
+			Database::ID groupId = db->createForumGroup(group);
+			
+			Database::ForumCategory category;
+			category.title = "Category";
+			Database::ID categoryId = db->createForumCategory(groupId, category);
+			
+			assertEqualsVec({}, db->getForumThreads(categoryId));
+			Database::ForumThread forumThreadA;
+			forumThreadA.parent = categoryId;
+			forumThreadA.title = "Title A";
+			forumThreadA.description = "Description A";
+			forumThreadA.timeStamp = 20;
+			
+			Database::ID forumThreadAId = db->createForumThread(forumThreadA);
+			Database::ForumThread forumThreadB = db->getForumThread(forumThreadAId);
+			assertEquals(forumThreadA.parent, forumThreadB.parent);
+			assertEquals(forumThreadA.title, forumThreadB.title);
+			assertEquals(forumThreadA.description, forumThreadB.description);
+			assertEquals(forumThreadA.timeStamp, forumThreadB.timeStamp);
+			
+			assertEqualsVec({forumThreadAId}, db->getForumThreads(categoryId));
+			
+			assertEqualsVec({}, db->getForumReplies(forumThreadAId));
+			
+			Database::ForumPost postA;
+			postA.parentThread = forumThreadAId;
+			postA.title = "Post Title A";
+			postA.content = "Post Content A";
+			postA.timeStamp = 31;
+			Database::ID postAId = db->createForumPost(postA);
+			assertEqualsVec({postAId}, db->getForumReplies(forumThreadAId));
+			
+			Database::ForumPost postB = db->getForumPost(postAId);
+			assertEquals(postA.parentThread, postB.parentThread);
+			assertTrue(postA.parentPost == postB.parentPost);
+			assertEquals(postA.title, postB.title);
+			assertEquals(postA.content, postB.content);
+			assertEquals(postA.timeStamp, postB.timeStamp);
+			
+			assertEqualsVec({}, db->getForumReplies(forumThreadAId, postAId));
+			
+			postB.title = "Post Title B";
+			postB.parentPost = postAId;
+			Database::ID postBId = db->createForumPost(postB);
+			
+			assertEqualsVec({postBId}, db->getForumReplies(forumThreadAId, postAId));
+			assertEqualsVec({}, db->getForumReplies(forumThreadAId, postBId));
+			
+			assertEqualsVec({postAId}, db->getForumReplies(forumThreadAId));
+			forumThreadA.title = "NEW TITLE!";
+			db->resetForumThread(forumThreadAId, forumThreadA);
+			assertEqualsVec({}, db->getForumReplies(forumThreadAId));
+			assertEquals(forumThreadA.title, db->getForumThread(forumThreadAId).title);
 			
 			Database::eraseDatabase(std::move(db));
 		});

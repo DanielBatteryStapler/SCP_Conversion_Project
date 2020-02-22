@@ -36,6 +36,8 @@ namespace Importer{
     };
 	
 	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups);
+	void importThreadsFromFolder(Database* database, ImportMap& map, std::string threadsDirectory, std::vector<std::string> threads);
+	void importPosts(Database* database, ImportMap& map, const nlohmann::json& posts, Database::ID parentThread, std::optional<Database::ID> parentPost);
 	void importThread(Database* database, ImportMap& map, nlohmann::json threadData);
 	
 	void importBasicPageDataFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages);

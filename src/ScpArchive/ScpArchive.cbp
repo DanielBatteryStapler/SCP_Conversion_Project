@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--doBatches" />
+				<Option parameters="--runTests" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="./" />
@@ -90,6 +90,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSetUtil.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ARuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ARuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/AlignRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/AlignRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/AnchorRuleSet.cpp" />

@@ -238,14 +238,14 @@ namespace Importer{
 			database->cleanAndInitDatabase();
 			
 			importForumGroups(database.get(), map, batch["forumGroups"]);
-			//Import threads somewhere in here
+			importThreadsFromFolder(database.get(), map, batchFolder + "threads/", batch["threadList"]);
 			
 			importBasicPageDataFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
 			performPageDataLinksFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
 			uploadPageFilesFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
 		}
 		else if(type == "diff" || type == "user"){
-			//Import threads somewhere in here
+			importThreadsFromFolder(database.get(), map, batchFolder + "threads/", batch["threadList"]);
 			
 			importBasicPageDataFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
 			performPageDataLinksFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);

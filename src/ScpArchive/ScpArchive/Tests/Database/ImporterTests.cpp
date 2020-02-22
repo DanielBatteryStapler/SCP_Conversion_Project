@@ -47,7 +47,7 @@ namespace Tests{
 			{"id", "testPageARawID"},
 			{"name", "test-page-a"},
 			{"parent", "test-page-b"},
-			{"discussionId", "testThreadARawID"},
+			{"discussionId", ""},
 			{"tags", {"test", "page"}},
 			{"votes", 
 				nlohmann::json::array()
@@ -92,7 +92,7 @@ namespace Tests{
 			{"id", "testPageBRawID"},
 			{"name", "test-page-b"},
 			{"parent", ""},
-			{"discussionId", "testThreadBRawID"},
+			{"discussionId", "testThreadAId"},
 			{"tags", {"test", "not-page"}},
 			{"votes", 
 				nlohmann::json::array()
@@ -110,6 +110,40 @@ namespace Tests{
 						{"changeMessage", "created page B"},
 						{"changeType", "initial"},
 						{"sourceCode", "Page B body"}
+					}
+				}
+			}
+		};
+		
+		const nlohmann::json testThread = {
+			{"id", "testThreadAId"}, 
+			{"categoryId", "category-id-a"},
+			{"title", "Thread Title"},
+			{"authorId", "authorAID"},
+			{"description", "Thread description"},
+			{"timeStamp", "1111213"},
+			{"posts",
+				{
+					{
+						{"postId", "postIdA"},
+						{"authorId", "authorAID"}, 
+						{"timeStamp", "1111233"},
+						{"title", "Post Title"},
+						{"content", "post content"},
+						{"posts",
+							{
+								{
+									{"postId", "postIdB"},
+									{"authorId", "authorAID"}, 
+									{"timeStamp", "1111234"},
+									{"title", "Post Title B"},
+									{"content", "post content B"},
+									{"posts",
+										nlohmann::json::array()
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -221,8 +255,75 @@ namespace Tests{
 			Importer::linkPageParent(database.get(), map, testPageA);
 			Importer::linkPageParent(database.get(), map, testPageB);
 			
-			assertTrue(*database->getPageParent(pageAId) == testPageB["name"].get<std::string>());
+			assertEquals(testPageB["name"].get<std::string>(), *database->getPageParent(pageAId));
 			assertTrue(database->getPageParent(pageBId) == std::nullopt);
+			
+			Database::eraseDatabase(std::move(database));
+		});
+		
+		tester.add("Importer::importThread", [](){
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
+			db->cleanAndInitDatabase();
+			Importer::ImportMap map(db.get());
+			
+			Importer::importForumGroups(db.get(), map, testForumGroups);
+			Database::ID categoryId = db->getForumCategories(db->getForumGroups()[0])[0];
+			
+			assertEqualsVec({}, db->getForumThreads(categoryId));
+			Importer::importThread(db.get(), map, testThread);
+			Database::ID threadId = map.getThreadMap(testThread["id"].get<std::string>());
+			assertEqualsVec({threadId}, db->getForumThreads(categoryId));
+			
+			Database::ForumThread thread = db->getForumThread(threadId);
+			assertEquals(categoryId, thread.parent);
+			assertEquals(testThread["title"].get<std::string>(), thread.title);
+			assertEquals(testThread["description"].get<std::string>(), thread.description);
+			assertEquals(std::stoll(testThread["timeStamp"].get<std::string>()), thread.timeStamp);
+			
+			assertEquals(1, db->getForumReplies(threadId).size());
+			Database::ID postAId = db->getForumReplies(threadId)[0];
+			Database::ForumPost postA = db->getForumPost(postAId);
+			assertEquals(threadId, postA.parentThread);
+			assertTrue(postA.parentPost == std::nullopt);
+			assertEquals(testThread["posts"][0]["title"].get<std::string>(), postA.title);
+			assertEquals(testThread["posts"][0]["content"].get<std::string>(), postA.content);
+			assertEquals(std::stoll(testThread["posts"][0]["timeStamp"].get<std::string>()), postA.timeStamp);
+			
+			assertEquals(1, db->getForumReplies(threadId, postAId).size());
+			Database::ID postBId = db->getForumReplies(threadId, postAId)[0];
+			Database::ForumPost postB = db->getForumPost(postBId);
+			assertEquals(threadId, postB.parentThread);
+			assertEquals(postAId, postB.parentPost.value());
+			assertEquals(testThread["posts"][0]["posts"][0]["title"].get<std::string>(), postB.title);
+			assertEquals(testThread["posts"][0]["posts"][0]["content"].get<std::string>(), postB.content);
+			assertEquals(std::stoll(testThread["posts"][0]["posts"][0]["timeStamp"].get<std::string>()), postB.timeStamp);
+			
+			assertEqualsVec({}, db->getForumReplies(threadId, postBId));
+			
+			Database::eraseDatabase(std::move(db));
+		});
+		
+		tester.add("Importer::linkPageDiscussionThread", [](){
+			std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
+			database->cleanAndInitDatabase();
+			Importer::ImportMap map(database.get());
+			
+			Importer::importBasicPageData(database.get(), map, testPageA);
+			Database::ID pageAId = *database->getPageId(testPageA["name"].get<std::string>());
+			
+			Importer::importBasicPageData(database.get(), map, testPageB);
+			Database::ID pageBId = *database->getPageId(testPageB["name"].get<std::string>());
+			
+			Importer::importForumGroups(database.get(), map, testForumGroups);
+			Importer::importThread(database.get(), map, testThread);
+			Database::ID threadId = map.getThreadMap(testThread["id"].get<std::string>());
+			
+			assertTrue(database->getPageDiscussion(pageAId) == std::nullopt);
+			assertTrue(database->getPageDiscussion(pageBId) == std::nullopt);
+			Importer::linkPageDiscussionThread(database.get(), map, testPageA);
+			Importer::linkPageDiscussionThread(database.get(), map, testPageB);
+			assertTrue(database->getPageDiscussion(pageAId) == std::nullopt);
+			assertEquals(threadId, *database->getPageDiscussion(pageBId));
 			
 			Database::eraseDatabase(std::move(database));
 		});
@@ -233,8 +334,8 @@ namespace Tests{
 				database->cleanAndInitDatabase();
 				Importer::ImportMap importMap(database.get());
 				
-				Database::ID idA = Database::ID("507f1f77bcf86cd799439011");//just some valid, but meaningless test ids
-				Database::ID idB = Database::ID("507f191e810c19729de860ea");
+				Database::ID idA = 0;//just some valid, but meaningless test ids
+				Database::ID idB = 1;
 				
 				std::string rawA = "testRawIDA";
 				std::string rawB = "testRawIDB";
@@ -257,8 +358,8 @@ namespace Tests{
 				database->cleanAndInitDatabase();
 				Importer::ImportMap importMap(database.get());
 				
-				Database::ID idA = Database::ID("507f1f77bcf86cd799439011");//just some valid, but meaningless test ids
-				Database::ID idB = Database::ID("507f191e810c19729de860ea");
+				Database::ID idA = 0;//just some valid, but meaningless test ids
+				Database::ID idB = 1;
 				
 				std::string rawA = "testRawIDA";
 				std::string rawB = "testRawIDB";
@@ -281,8 +382,8 @@ namespace Tests{
 				database->cleanAndInitDatabase();
 				Importer::ImportMap importMap(database.get());
 				
-				Database::ID idA = Database::ID("507f1f77bcf86cd799439011");//just some valid, but meaningless test ids
-				Database::ID idB = Database::ID("507f191e810c19729de860ea");
+				Database::ID idA = 0;//just some valid, but meaningless test ids
+				Database::ID idB = 1;
 				
 				std::string rawA = "testRawIDA";
 				std::string rawB = "testRawIDB";
@@ -305,8 +406,8 @@ namespace Tests{
 				database->cleanAndInitDatabase();
 				Importer::ImportMap importMap(database.get());
 				
-				Database::ID idA = Database::ID("507f1f77bcf86cd799439011");//just some valid, but meaningless test ids
-				Database::ID idB = Database::ID("507f191e810c19729de860ea");
+				Database::ID idA = 0;//just some valid, but meaningless test ids
+				Database::ID idB = 1;
 				
 				std::string rawA = "testRawIDA";
 				std::string rawB = "testRawIDB";

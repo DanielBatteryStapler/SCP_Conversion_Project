@@ -13,7 +13,7 @@ class Database{
 		
 		struct PageRevision{
 			std::string title;
-			std::optional<Database::ID> authorId;//not implemented currently
+			//author not implemented
 			TimeStamp timeStamp;
 			std::string changeMessage;
 			std::string changeType;
@@ -22,9 +22,9 @@ class Database{
 		
 		struct PageFile{
 			std::string name;
+			//author not implemented
 			std::string description;
 			TimeStamp timeStamp;
-			std::optional<Database::ID> authorId;//not implemented currently
 		};
 		
 		struct ForumGroup{
@@ -35,6 +35,23 @@ class Database{
 		struct ForumCategory{
 			std::string title;
 			std::string description;
+		};
+		
+		struct ForumThread{
+			Database::ID parent;
+			std::string title;
+			//author not implemented
+			std::string description;
+			TimeStamp timeStamp;
+		};
+		
+		struct ForumPost{
+			Database::ID parentThread;
+			std::optional<Database::ID> parentPost;
+			std::string title;
+			//author not implemented
+			std::string content;
+			TimeStamp timeStamp;
 		};
 		
 		enum class MapType:short{Page=0, File=1, Thread=2, Category=3};
@@ -89,6 +106,15 @@ class Database{
 		Database::ID createForumCategory(Database::ID group, Database::ForumCategory category);
 		Database::ForumCategory getForumCategory(Database::ID category);
 		std::vector<Database::ID> getForumCategories(Database::ID group);
+		
+		Database::ID createForumThread(Database::ForumThread thread);
+		void resetForumThread(Database::ID id, Database::ForumThread thread);
+		Database::ForumThread getForumThread(Database::ID thread);
+		std::vector<Database::ID> getForumThreads(Database::ID category);
+		
+		Database::ID createForumPost(Database::ForumPost post);
+		Database::ForumPost getForumPost(Database::ID post);
+		std::vector<Database::ID> getForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost = {});
 		
 	private:
 		soci::session sql;
