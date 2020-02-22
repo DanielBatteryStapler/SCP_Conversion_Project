@@ -140,7 +140,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM
-		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
+		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/__static/style.css'><meta charset='UTF-8'><title>"_AM
 		<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM;
 		
 		reqCon.out << "<p>"_AM;
@@ -154,7 +154,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html\r\n\r\n"_AM
-		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/static/style.css'><meta charset='UTF-8'><title>"_AM
+		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/__static/style.css'><meta charset='UTF-8'><title>"_AM
 		<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM;
 		
 		reqCon.out << "<p>"_AM;
@@ -286,8 +286,13 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         if(sideBarId){
             Database::PageRevision sideBarRevision = webCon.db->getLatestPageRevision(*sideBarId);
             
-            Parser::TokenedPage sideBarTokens = Parser::tokenizePage(sideBarRevision.sourceCode, parserParameters);
-            Parser::PageTree sideBarTree = Parser::makeTreeFromTokenedPage(sideBarTokens, parserParameters);
+            Parser::ParserParameters navSideParameters = {};
+			navSideParameters.database = webCon.db.get();
+			navSideParameters.page.name = sideBarPageName;
+			navSideParameters.page.tags = webCon.db->getPageTags(*sideBarId);
+            
+            Parser::TokenedPage sideBarTokens = Parser::tokenizePage(sideBarRevision.sourceCode, navSideParameters);
+            Parser::PageTree sideBarTree = Parser::makeTreeFromTokenedPage(sideBarTokens, navSideParameters);
             
             Parser::convertPageTreeToHtml(reqCon.out, sideBarTree);
         }
