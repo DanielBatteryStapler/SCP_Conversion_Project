@@ -13,7 +13,8 @@ namespace Scraper{
 	std::string generateDiffBatch(std::string batchesFolder, std::string batchDataFile);
 	
 	void downloadBatchData(std::string batchFolder);
-	void checkBatchDownloads(std::string batchFolder);
+	void checkBatchDownloads(std::string batchesFolder, std::string batchDataFile, std::string batchFolder);
+	void checkAllBatchDownloads(std::string batchesFolder, std::string batchDataFile);
 	
 	std::vector<std::string> getFullPageList();
 	std::vector<std::string> getUpdatedPageList(std::int64_t startTime);
@@ -40,6 +41,7 @@ namespace Scraper{
 	std::vector<std::string> getThreadListForAllCategories(nlohmann::json forumGroups);
 	std::vector<std::string> getUpdatedThreadList(std::int64_t startTime);
 	
+	bool threadExists(std::string threadId);
 	void downloadThreadList(std::string threadsFolder, std::vector<std::string> threadList);
 	void downloadFullThreadArchive(std::string threadsFolder, std::string threadId);
 	nlohmann::json getThreadPostReplies(const nlohmann::json& divTree, int offset);

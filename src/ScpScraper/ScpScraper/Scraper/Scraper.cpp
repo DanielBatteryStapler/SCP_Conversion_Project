@@ -152,7 +152,13 @@ namespace Scraper{
 		}
 	}
 	
-	void checkBatchDownloads(std::string batchFolder){
+	namespace{
+		inline bool dataExists(const nlohmann::json& data){
+			return !(data.find("nonExistent") != data.end() && data["nonExistent"].get<bool>());
+		}
+	}
+	
+	void checkBatchDownloads(std::string batchesFolder, std::string batchDataFile, std::string batchFolder){
 		std::cout << "Checking for download errors...\n";
 		nlohmann::json batch = loadJsonFromFile(batchFolder + "batch.json");
 		std::string pagesFolder = batchFolder + "pages/";
@@ -165,6 +171,36 @@ namespace Scraper{
                 std::string pageFile = pagesFolder + page + "/data.json";
                 if(!boost::filesystem::exists(pageFile) || boost::filesystem::is_directory(pageFile)){
                     pageErrors.push_back(page);
+                }
+                else if(!pageExists(page) && dataExists(loadJsonFromFile(pageFile))){
+                	//page does not exist on scp-wiki.net, but we have data for it
+					pageErrors.push_back(page);
+                }
+                else{
+					//page exists and should exist, check to make sure it's companion discussion thread also exists
+					nlohmann::json pageData = loadJsonFromFile(pageFile);
+					std::string threadId = pageData["discussionId"];
+					if(threadId != ""){
+						bool threadExists = false;
+						
+						nlohmann::json batchData = loadJsonFromFile(batchDataFile);
+						std::int64_t currentTime = batch["timeStamp"].get<std::int64_t>();
+						for(std::string lastBatch : batchData["availableBatches"]){
+							nlohmann::json otherBatchData = loadJsonFromFile(batchesFolder + lastBatch + "/batch.json");
+							if(otherBatchData["timeStamp"].get<std::int64_t>() <= currentTime){//don't look into the future
+								const auto& threadList = otherBatchData["threadList"];
+								if(std::find(threadList.begin(), threadList.end(), threadId) != threadList.end()){
+									threadExists = true;
+									break;
+								}
+							}
+						}
+						
+						if(threadExists == false){
+							std::cout << "\tMissing discussion thread " << threadId << " needed for page " << page << "\n";
+							batch["threadList"].push_back(threadId);
+						}
+					}
                 }
             }
             if(pageErrors.size() > 0){
@@ -188,18 +224,34 @@ namespace Scraper{
                 if(!boost::filesystem::exists(threadFile) || boost::filesystem::is_directory(threadFile)){
                     threadErrors.push_back(thread);
                 }
+                else if(!threadExists(thread) && dataExists(loadJsonFromFile(threadFile))){
+                	//thread does not exist on scp-wiki.net, but we have data for it
+					threadErrors.push_back(thread);
+                }
             }
             if(threadErrors.size() > 0){
                 std::cout << "Thread Errors:\n";
                 for(std::string thread : threadErrors){
                     std::cout << "\t" << thread << "\n";
                 }
+                
                 std::cout << "Attempting to fix errors.";
                 downloadThreadList(threadsFolder, threadErrors);
             }
             else{
                 std::cout << "No thread errors in Batch Download.\n";
             }
+		}
+		saveJsonToFile(batchFolder + "batch.json", batch);
+	}
+	
+	void checkAllBatchDownloads(std::string batchesFolder, std::string batchDataFile){
+		nlohmann::json batchData = loadJsonFromFile(batchDataFile);
+		if(batchData["batchErrors"].size() > 0){
+            throw std::runtime_error("Cannot check all batch downloads, Timeline File has errors");
+		}
+		for(std::string batch : batchData["availableBatches"]){
+			checkBatchDownloads(batchDataFile, batchesFolder, batchesFolder + batch + "/");
 		}
 	}
 	
@@ -1125,6 +1177,14 @@ namespace Scraper{
 		std::cout << "Set A: " << setASize << ", Set B: " << setBSize << ", Unique Set: " << bothSize << "\n";
 		
 		return setA;
+	}
+	
+	bool threadExists(std::string threadId){
+		nlohmann::json rawThreadJson = performAjaxRequest("forum/ForumViewThreadModule", {{"t", threadId}, {"pageNo", "1"}});
+		if(rawThreadJson["status"].get<std::string>() == "no_thread"){
+			return false;
+		}
+		return true;
 	}
 	
 	void downloadThreadList(std::string threadsFolder, std::vector<std::string> threadList){
