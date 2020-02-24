@@ -1,9 +1,9 @@
 #include "HTMLRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringNodeHTML(const NodeVariant& nod){
+    nlohmann::json printNodeHTML(const NodeVariant& nod){
         const HTML& html = std::get<HTML>(nod);
-        return "HTML:\"" + html.contents + "\"";
+        return html.contents;
     }
 	
     void handleHTML(TreeContext& context, const Token& token){

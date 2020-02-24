@@ -4,15 +4,14 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenTableMarker(const TokenVariant& tok);
+    nlohmann::json printTokenTableMarker(const TokenVariant& tok);
+    nlohmann::json printNodeTable(const NodeVariant& nod);
+    nlohmann::json printNodeTableRow(const NodeVariant& nod);
+    nlohmann::json printNodeTableElement(const NodeVariant& nod);
     
-    std::string toStringNodeTable(const NodeVariant& nod);
-    std::string toStringNodeTableRow(const NodeVariant& nod);
-    std::string toStringNodeTableElement(const NodeVariant& nod);
-    
-    std::string toStringNodeAdvTable(const NodeVariant& nod);
-    std::string toStringNodeAdvTableRow(const NodeVariant& nod);
-    std::string toStringNodeAdvTableElement(const NodeVariant& nod);
+    nlohmann::json printNodeAdvTable(const NodeVariant& nod);
+    nlohmann::json printNodeAdvTableRow(const NodeVariant& nod);
+    nlohmann::json printNodeAdvTableElement(const NodeVariant& nod);
     
 	bool tryTableMarkerRule(const TokenRuleContext& context);
 	TokenRuleResult doTableMarkerRule(const TokenRuleContext& context);
@@ -32,14 +31,14 @@ namespace Parser{
 	void toHtmlNodeAdvTableElement(const HtmlContext& con, const Node& nod);
 	
 	const inline auto tableRuleSet = RuleSet{"Table", {
-		TokenPrintRule{Token::Type::TableMarker, toStringTokenTableMarker},
-		NodePrintRule{Node::Type::Table, toStringNodeTable},
-		NodePrintRule{Node::Type::TableRow, toStringNodeTableRow},
-		NodePrintRule{Node::Type::TableElement, toStringNodeTableElement},
+		TokenPrintRule{Token::Type::TableMarker, printTokenTableMarker},
+		NodePrintRule{Node::Type::Table, printNodeTable},
+		NodePrintRule{Node::Type::TableRow, printNodeTableRow},
+		NodePrintRule{Node::Type::TableElement, printNodeTableElement},
 		
-		NodePrintRule{Node::Type::AdvTable, toStringNodeAdvTable},
-		NodePrintRule{Node::Type::AdvTableRow, toStringNodeAdvTableRow},
-		NodePrintRule{Node::Type::AdvTableElement, toStringNodeAdvTableElement},
+		NodePrintRule{Node::Type::AdvTable, printNodeAdvTable},
+		NodePrintRule{Node::Type::AdvTableRow, printNodeAdvTableRow},
+		NodePrintRule{Node::Type::AdvTableElement, printNodeAdvTableElement},
 		
 		TokenRule{tryTableMarkerRule, doTableMarkerRule},
 		

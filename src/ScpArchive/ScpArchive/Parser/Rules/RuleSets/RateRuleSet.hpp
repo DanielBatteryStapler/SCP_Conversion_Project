@@ -4,14 +4,14 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-	std::string toStringNodeRate(const NodeVariant& nod);
+	nlohmann::json printNodeRate(const NodeVariant& nod);
 	
     void handleRate(TreeContext& context, const Token& token);
 	
 	void toHtmlNodeRate(const HtmlContext& con, const Node& nod);
 	
 	const inline auto rateRuleSet = RuleSet{"Rate", {
-		NodePrintRule{Node::Type::Rate, toStringNodeRate},
+		NodePrintRule{Node::Type::Rate, printNodeRate},
 		
 		SectionRule{SectionType::Module, {"module"}, SubnameType::Module, ModuleType::Rate, {"rate"},
                 ContentType::None, ParameterType::None, false},

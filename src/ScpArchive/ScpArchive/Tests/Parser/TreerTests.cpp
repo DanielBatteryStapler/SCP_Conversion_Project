@@ -482,7 +482,7 @@ namespace Tests{
 							Node{PlainText{"before"}}
 						}
 					},
-					Node{Divider{Divider::Type::Seperator}},
+					Node{Divider{Divider::Type::Separator}},
 					Node{Paragraph{},
 						{
 							Node{PlainText{"after"}}

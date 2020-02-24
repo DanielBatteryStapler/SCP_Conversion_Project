@@ -3,75 +3,79 @@
 #include <sstream>
 
 namespace Parser{
-    std::string toStringTokenInlineFormat(const TokenVariant& tok){
-        std::stringstream ss;
-        ss << "InlineFormat:";
+    nlohmann::json printTokenInlineFormat(const TokenVariant& tok){
         const InlineFormat& format = std::get<InlineFormat>(tok);
+        nlohmann::json out;
+        out["begin"] = format.begin;
+        out["end"] = format.end;
         switch(format.type){
             default:
-                ss << "Unknown";
+                out["type"] = "Unknown";
                 break;
             case InlineFormat::Type::Bold:
-                ss << "Bold";
+                out["type"] = "Bold";
                 break;
             case InlineFormat::Type::Italics:
-                ss << "Italics";
+                out["type"] = "Italics";
                 break;
             case InlineFormat::Type::Strike:
-                ss << "Strike";
+                out["type"] = "Strike";
                 break;
             case InlineFormat::Type::Underline:
-                ss << "Underline";
+                out["type"] = "Underline";
                 break;
             case InlineFormat::Type::Super:
-                ss << "Super";
+                out["type"] = "Super";
                 break;
             case InlineFormat::Type::Sub:
-                ss << "Sub";
+                out["type"] = "Sub";
                 break;
             case InlineFormat::Type::Monospace:
-                ss << "Monospace";
+                out["type"] = "Monospace";
                 break;
             case InlineFormat::Type::Color:
-                ss << "Color";
+                out["type"] = "Color";
+                out["color"] = format.color;
                 break;
         }
-        ss << "[" << (format.begin?"true":"false") << "," << (format.end?"true":"false") << "," << format.color << "]";
-        return ss.str();
+        return out;
     }
     
-    std::string toStringNodeStyleFormat(const NodeVariant& nod){
+    nlohmann::json printNodeStyleFormat(const NodeVariant& nod){
         std::stringstream ss;
         const StyleFormat& format = std::get<StyleFormat>(nod);
-        ss << "StyleFormat:\"";
+        nlohmann::json out;
         switch(format.type){
             default:
-                ss << "Unknown";
+                out["type"] = "Unknown";
                 break;
-            case StyleFormat::Type::Bold:
-                ss << "Bold";
+            case InlineFormat::Type::Bold:
+                out["type"] = "Bold";
                 break;
-            case StyleFormat::Type::Italics:
-                ss << "Italics";
+            case InlineFormat::Type::Italics:
+                out["type"] = "Italics";
                 break;
-            case StyleFormat::Type::Strike:
-                ss << "Strike";
+            case InlineFormat::Type::Strike:
+                out["type"] = "Strike";
                 break;
-            case StyleFormat::Type::Underline:
-                ss << "Underline";
+            case InlineFormat::Type::Underline:
+                out["type"] = "Underline";
                 break;
-            case StyleFormat::Type::Super:
-                ss << "Super";
+            case InlineFormat::Type::Super:
+                out["type"] = "Super";
                 break;
-            case StyleFormat::Type::Sub:
-                ss << "Sub";
+            case InlineFormat::Type::Sub:
+                out["type"] = "Sub";
                 break;
-            case StyleFormat::Type::Color:
-                ss << "Color," << format.color;
+            case InlineFormat::Type::Monospace:
+                out["type"] = "Monospace";
+                break;
+            case InlineFormat::Type::Color:
+                out["type"] = "Color";
+                out["color"] = format.color;
                 break;
         }
-        ss << "\"";
-        return ss.str();
+        return out;
     }
 	
 	namespace{

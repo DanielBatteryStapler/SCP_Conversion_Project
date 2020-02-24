@@ -4,8 +4,8 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenHyperLink(const TokenVariant& tok);
-    std::string toStringNodeHyperLink(const NodeVariant& nod);
+    nlohmann::json printTokenHyperLink(const TokenVariant& tok);
+    nlohmann::json printNodeHyperLink(const NodeVariant& nod);
     
 	bool tryTripleLinkRule(const TokenRuleContext& context);
 	TokenRuleResult doTripleLinkRule(const TokenRuleContext& context);
@@ -25,8 +25,8 @@ namespace Parser{
     void toHtmlNodeHyperLink(const HtmlContext& con, const Node& nod);
 	
 	const inline auto hyperLinkRuleSet = RuleSet{"HyperLink", {
-        TokenPrintRule{Token::Type::HyperLink, toStringTokenHyperLink},
-        NodePrintRule{Node::Type::HyperLink, toStringNodeHyperLink},
+        TokenPrintRule{Token::Type::HyperLink, printTokenHyperLink},
+        NodePrintRule{Node::Type::HyperLink, printNodeHyperLink},
         
         TokenRule{trySingleLinkRule, doSingleLinkRule},
         TokenRule{tryBareLinkRule, doBareLinkRule},

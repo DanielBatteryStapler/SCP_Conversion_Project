@@ -1,13 +1,16 @@
 #include "HeadingRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenHeading(const TokenVariant& tok){
+    nlohmann::json printTokenHeading(const TokenVariant& tok){
         const Heading& heading = std::get<Heading>(tok);
-        return "Heading:" + std::to_string(heading.degree) + std::string{", "} + (heading.hidden?"true":"false");
+        nlohmann::json out;
+        out["degree"] = heading.degree;
+        out["hidden"] = heading.hidden;
+        return out;
     }
     
-    std::string toStringNodeHeading(const NodeVariant& nod){
-        return toStringTokenHeading(std::get<Heading>(nod));
+    nlohmann::json printNodeHeading(const NodeVariant& nod){
+        return printTokenHeading(std::get<Heading>(nod));
     }
 	
 	bool tryHeadingRule(const TokenRuleContext& context){

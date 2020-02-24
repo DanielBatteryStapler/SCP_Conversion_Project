@@ -1,9 +1,9 @@
 #include "SizeRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringNodeSize(const NodeVariant& nod){
+    nlohmann::json printNodeSize(const NodeVariant& nod){
         const Size& size = std::get<Size>(nod);
-		return "Size:\"" + size.size + "\"";
+		return size.size;
     }
     
     void handleSize(TreeContext& context, const Token& token){

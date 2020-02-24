@@ -57,7 +57,7 @@ namespace Parser{
                 for(const Token& token : tokens.tokens){
                     if(token.getType() == Token::Type::Divider){
                         const Divider& divider = std::get<Divider>(token.token);
-                        if(divider.type == Divider::Type::Seperator){
+                        if(divider.type == Divider::Type::Separator){
                             contents.push_back(tokens.originalPage.substr(pos, token.sourceStart - pos));
                             pos = token.sourceEnd;
                         }

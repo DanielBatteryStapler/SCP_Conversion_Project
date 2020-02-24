@@ -1,12 +1,12 @@
 #include "CenterTextRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenCenterText(const TokenVariant& tok){
-        return "CenterText";
+    nlohmann::json printTokenCenterText(const TokenVariant& tok){
+        return {};
     }
     
-    std::string toStringNodeCenterText(const NodeVariant& nod){
-        return "CenterText";
+    nlohmann::json printNodeCenterText(const NodeVariant& nod){
+        return {};
     }
     
 	bool tryCenterTextRule(const TokenRuleContext& context){

@@ -4,19 +4,19 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenSection(const TokenVariant& tok);
-    std::string toStringTokenSectionStart(const TokenVariant& tok);
-    std::string toStringTokenSectionEnd(const TokenVariant& tok);
-    std::string toStringTokenSectionComplete(const TokenVariant& tok);
+    nlohmann::json printTokenSection(const TokenVariant& tok);
+    nlohmann::json printTokenSectionStart(const TokenVariant& tok);
+    nlohmann::json printTokenSectionEnd(const TokenVariant& tok);
+    nlohmann::json printTokenSectionComplete(const TokenVariant& tok);
 	
 	bool trySectionRule(const TokenRuleContext& context);
 	TokenRuleResult doSectionRule(const TokenRuleContext& context);
 	
 	const inline auto sectionRuleSet = RuleSet{"Section", {
-	    TokenPrintRule{Token::Type::Section, toStringTokenSection},
-	    TokenPrintRule{Token::Type::SectionStart, toStringTokenSectionStart},
-	    TokenPrintRule{Token::Type::SectionEnd, toStringTokenSectionEnd},
-	    TokenPrintRule{Token::Type::SectionComplete, toStringTokenSectionComplete},
+	    TokenPrintRule{Token::Type::Section, printTokenSection},
+	    TokenPrintRule{Token::Type::SectionStart, printTokenSectionStart},
+	    TokenPrintRule{Token::Type::SectionEnd, printTokenSectionEnd},
+	    TokenPrintRule{Token::Type::SectionComplete, printTokenSectionComplete},
 	    
 		TokenRule{trySectionRule, doSectionRule}
 	}};

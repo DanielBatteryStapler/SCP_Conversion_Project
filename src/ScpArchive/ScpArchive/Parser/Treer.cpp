@@ -5,130 +5,8 @@
 #include <sstream>
 
 namespace Parser{
-    bool Size::operator==(const Size& nod)const{
-        return size == nod.size;
-    }
-    
-    bool Span::operator==(const Span& nod)const{
-        return parameters == nod.parameters;
-    }
-    
-	bool Anchor::operator==(const Anchor& nod)const{
-		return nod.name == name;
-	}
-    
-    bool Div::operator==(const Div& nod)const{
-        return parameters == nod.parameters;
-    }
-	
-    bool A::operator==(const A& nod)const{
-        return parameters == nod.parameters;
-    }
-	
-    bool Align::operator==(const Align& nod)const{
-        return type == nod.type;
-    }
-	
-	bool StyleFormat::operator==(const StyleFormat& nod)const{
-		return nod.type == type && nod.color == color;
-	}
-	
-	bool Paragraph::operator==(const Paragraph& nod)const{
-		return true;
-	}
-	
-    bool List::operator==(const List& nod)const{
-        return type == nod.type;
-    }
-		
-    bool ListElement::operator==(const ListElement& nod)const{
-        return true;
-    }
-	
-	bool AdvList::operator==(const AdvList& nod)const{
-		return type == nod.type && parameters == nod.parameters;
-	}
-	
-	bool AdvListElement::operator==(const AdvListElement& nod)const{
-		return parameters == nod.parameters;
-	}
-	
-	bool QuoteBox::operator==(const QuoteBox& nod)const{
-		return true;
-	}
-	
-    bool Collapsible::operator==(const Collapsible& nod)const{
-        return closedText == nod.closedText && openedText == nod.openedText && defaultShow == nod.defaultShow;
-    }
-    
-    bool Image::operator==(const Image& nod)const{
-        return source == nod.source && newWindow == nod.newWindow && link == nod.link
-        && alt == nod.alt && title == nod.title && width == nod.width && height == nod.height
-        && style == nod.style && cssClass == nod.cssClass && alignment == nod.alignment;
-    }
-		
-    bool Code::operator==(const Code& nod)const{
-        return nod.contents == contents;// && nod.type == type;
-    }
-	
-	bool IFrame::operator==(const IFrame& nod)const{
-        return nod.source == source && nod.parameters == parameters; 
-	}
-	
-	bool HTML::operator==(const HTML& nod)const{
-        return nod.contents == contents;
-	}
-	
-	bool TabView::operator==(const TabView& nod)const{
-        return true;
-	}
-	
-	bool Tab::operator==(const Tab& nod)const{
-        return title == nod.title;
-	}
-		
-    bool TableOfContents::operator==(const TableOfContents& nod)const{
-        return alignment == nod.alignment;
-    }
-	
-    bool FootNoteBlock::operator==(const FootNoteBlock& nod)const{
-        return title == nod.title;
-    }
-    
-    bool Table::operator==(const Table& nod)const{
-        return true;
-    }
-    
-    bool TableRow::operator==(const TableRow& nod)const{
-        return true;
-    }
-    
-    bool TableElement::operator==(const TableElement& nod)const{
-        return alignment == nod.alignment && span == nod.span;
-    }
-    
-    bool AdvTable::operator==(const AdvTable& nod)const{
-        return nod.parameters == parameters;
-    }
-    
-    bool AdvTableRow::operator==(const AdvTableRow& nod)const{
-        return nod.parameters == parameters;
-    }
-    
-    bool AdvTableElement::operator==(const AdvTableElement& nod)const{
-        return nod.parameters == parameters && nod.isHeader == isHeader;
-    }
-    
-    bool Rate::operator==(const Rate& nod)const{
-        return rating == nod.rating;
-    }
-    
-    bool FootNote::operator==(const FootNote& nod)const{
-        return number == nod.number;
-    }
-	
-	bool RootPage::operator==(const RootPage& nod)const{
-		return true;
+	bool Code::operator==(const Code& code)const{
+		return contents == code.contents && type == code.type;
 	}
 	
 	Node::Type Node::getType()const{
@@ -136,39 +14,38 @@ namespace Parser{
 	}
 	
 	bool Node::operator==(const Node& nod)const{
-		return node == nod.node && branches == nod.branches;
+		return printNode(*this) == printNode(nod);
 	}
 	
-	std::string toString(const Node& nod, int tab){
-		std::stringstream ss;
-		const auto printTabs = [&ss, &tab](){
-			for(int i = 0; i < tab; i++){
-				ss << '\t';
+	std::string getNodeTypeName(Node::Type type){
+		return NodeTypeNames.at(static_cast<std::size_t>(type));
+	}
+	
+	nlohmann::json printNodeVariant(const Node& nod){
+		const std::vector<NodePrintRule> nodePrintRules = getNodePrintRules();
+		Node::Type nodType = nod.getType();
+	
+		for(const NodePrintRule& printRule : nodePrintRules){
+			if(printRule.type == nodType){
+				return printRule.print(nod.node);
 			}
-		};
-		
-		printTabs();
-		{
-            const std::vector<NodePrintRule> nodePrintRules = getNodePrintRules();
-            Node::Type nodType = nod.getType();
-		
-            for(const NodePrintRule& printRule : nodePrintRules){
-                if(printRule.type == nodType){
-                    ss << printRule.toString(nod.node);
-                }
-            }   
 		}
-		ss << "\n";
-		
+		throw std::runtime_error("Attempted to print a Node with no valid NodePrintRule");
+	}
+	
+	nlohmann::json printNode(const Node& nod){
+		nlohmann::json out;
+		out["type"] = getNodeTypeName(nod.getType());
+		out["data"] = printNodeVariant(nod);
+		out["branches"] = nlohmann::json::array();
 		for(const Node& i : nod.branches){
-			ss << toString(i, tab + 1);
+			out["branches"].push_back(printNode(i));
 		}
-		
-		return ss.str();
+		return out;
 	}
 	
 	std::ostream& operator<<(std::ostream& out, const Node& nod){
-		return out << toString(nod);
+		return out << printNode(nod).dump(4);
 	}
 	
 	bool CSS::operator==(const CSS& css)const{
@@ -180,7 +57,7 @@ namespace Parser{
 	}
 	
 	std::ostream& operator<<(std::ostream& out, const PageTree& page){
-		out << toString(page.pageRoot);
+		out << printNode(page.pageRoot);
 		out << "CSS{\n";
 		for(const CSS& css : page.cssData){
 			out << "    " << css.data << ",\n";

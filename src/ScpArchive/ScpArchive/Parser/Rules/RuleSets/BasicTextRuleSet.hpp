@@ -4,14 +4,14 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenPlainText(const TokenVariant& tok);
-    std::string toStringTokenNewLine(const TokenVariant& tok);
-    std::string toStringTokenLineBreak(const TokenVariant& tok);
+    nlohmann::json printTokenPlainText(const TokenVariant& tok);
+    nlohmann::json printTokenNewLine(const TokenVariant& tok);
+    nlohmann::json printTokenLineBreak(const TokenVariant& tok);
     
-    std::string toStringNodePlainText(const NodeVariant& nod);
-    std::string toStringNodeParagraph(const NodeVariant& nod);
-    std::string toStringNodeLineBreak(const NodeVariant& nod);
-    std::string toStringNodeRootPage(const NodeVariant& nod);
+    nlohmann::json printNodePlainText(const NodeVariant& nod);
+    nlohmann::json printNodeParagraph(const NodeVariant& nod);
+    nlohmann::json printNodeLineBreak(const NodeVariant& nod);
+    nlohmann::json printNodeRootPage(const NodeVariant& nod);
     
     bool tryCarriageReturn(const TokenRuleContext& context);
 	TokenRuleResult doCarriageReturn(const TokenRuleContext& context);
@@ -43,14 +43,14 @@ namespace Parser{
 	void toHtmlNodePlainText(const HtmlContext& con, const Node& nod);
     
     const inline auto basicTextRuleSet = RuleSet{"BasicText", {
-		TokenPrintRule{Token::Type::PlainText, toStringTokenPlainText},
-		TokenPrintRule{Token::Type::NewLine, toStringTokenNewLine},
-		TokenPrintRule{Token::Type::LineBreak, toStringTokenLineBreak},
+		TokenPrintRule{Token::Type::PlainText, printTokenPlainText},
+		TokenPrintRule{Token::Type::NewLine, printTokenNewLine},
+		TokenPrintRule{Token::Type::LineBreak, printTokenLineBreak},
 		
-		NodePrintRule{Node::Type::PlainText, toStringNodePlainText},
-		NodePrintRule{Node::Type::Paragraph, toStringNodeParagraph},
-		NodePrintRule{Node::Type::LineBreak, toStringNodeLineBreak},
-		NodePrintRule{Node::Type::RootPage, toStringNodeRootPage},
+		NodePrintRule{Node::Type::PlainText, printNodePlainText},
+		NodePrintRule{Node::Type::Paragraph, printNodeParagraph},
+		NodePrintRule{Node::Type::LineBreak, printNodeLineBreak},
+		NodePrintRule{Node::Type::RootPage, printNodeRootPage},
 		
 		TokenRule{tryCarriageReturn, doCarriageReturn},
 		TokenRule{tryLineBreakRule, doLineBreakRule},

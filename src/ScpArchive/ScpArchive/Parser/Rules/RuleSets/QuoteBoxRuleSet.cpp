@@ -1,13 +1,13 @@
 #include "QuoteBoxRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenQuoteBoxPrefix(const TokenVariant& tok){
+    nlohmann::json printTokenQuoteBoxPrefix(const TokenVariant& tok){
         const QuoteBoxPrefix& quoteBoxPrefix = std::get<QuoteBoxPrefix>(tok);
-        return "QuoteBoxPrefix:" + std::to_string(quoteBoxPrefix.degree);
+        return quoteBoxPrefix.degree;
     }
     
-    std::string toStringNodeQuoteBox(const NodeVariant& nod){
-        return "QuoteBox";
+    nlohmann::json printNodeQuoteBox(const NodeVariant& nod){
+        return {};
     }
     
     bool tryQuoteBoxPrefixRule(const TokenRuleContext& context){

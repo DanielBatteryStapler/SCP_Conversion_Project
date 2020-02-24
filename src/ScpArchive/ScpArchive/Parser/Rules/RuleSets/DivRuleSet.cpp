@@ -1,14 +1,13 @@
 #include "DivRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringNodeDiv(const NodeVariant& nod){
+    nlohmann::json printNodeDiv(const NodeVariant& nod){
         const Div& div = std::get<Div>(nod);
-        std::string output = "Div:{";
+        nlohmann::json out = nlohmann::json::object();
         for(auto i = div.parameters.begin(); i != div.parameters.end(); i++){
-            output += i->first + ": " + i->second + ", ";
+            out[i->first] = i->second;
         }
-        output += "}";
-        return output;
+        return out;
     }
     
     void handleDiv(TreeContext& context, const Token& token){

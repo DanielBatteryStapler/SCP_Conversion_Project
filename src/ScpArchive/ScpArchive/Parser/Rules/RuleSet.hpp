@@ -1,6 +1,8 @@
 #ifndef RULESET_HPP
 #define RULESET_HPP
 
+#include <nlohmann/json.hpp>
+
 #include "../Parser.hpp"
 #include "../Treer.hpp"
 #include "../HTMLConverter.hpp"
@@ -10,12 +12,12 @@
 namespace Parser{
 	struct TokenPrintRule{
         Token::Type type;
-        std::function<std::string(const TokenVariant&)> toString;
+        std::function<nlohmann::json(const TokenVariant&)> print;
 	};
 	
 	struct NodePrintRule{
         Node::Type type;
-        std::function<std::string(const NodeVariant&)> toString;
+        std::function<nlohmann::json(const NodeVariant&)> print;
 	};
 	
 	struct TokenRule{

@@ -1,32 +1,32 @@
 #include "BasicTextRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenPlainText(const TokenVariant& tok){
-        return "PlainText:\"" + std::get<PlainText>(tok).text + "\"";
+    nlohmann::json printTokenPlainText(const TokenVariant& tok){
+        return std::get<PlainText>(tok).text;
     }
     
-    std::string toStringTokenNewLine(const TokenVariant& tok){
-        return "NewLine";
+    nlohmann::json printTokenNewLine(const TokenVariant& tok){
+        return {};
     }
     
-    std::string toStringTokenLineBreak(const TokenVariant& tok){
-        return "LineBreak";
+    nlohmann::json printTokenLineBreak(const TokenVariant& tok){
+        return {};
     }
     
-    std::string toStringNodePlainText(const NodeVariant& nod){
-        return "PlainText:\"" + std::get<PlainText>(nod).text + "\"";
+    nlohmann::json printNodePlainText(const NodeVariant& nod){
+        return std::get<PlainText>(nod).text;
     }
     
-    std::string toStringNodeParagraph(const NodeVariant& nod){
-        return "Paragraph";
+    nlohmann::json printNodeParagraph(const NodeVariant& nod){
+        return {};
     }
     
-    std::string toStringNodeLineBreak(const NodeVariant& nod){
-        return "LineBreak";
+    nlohmann::json printNodeLineBreak(const NodeVariant& nod){
+        return {};
     }
     
-    std::string toStringNodeRootPage(const NodeVariant& nod){
-        return "RootPage";
+    nlohmann::json printNodeRootPage(const NodeVariant& nod){
+        return {};
     }
     
     bool tryCarriageReturn(const TokenRuleContext& context){

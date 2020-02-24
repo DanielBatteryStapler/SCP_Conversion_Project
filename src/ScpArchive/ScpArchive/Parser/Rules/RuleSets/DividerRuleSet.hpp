@@ -4,8 +4,8 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenDivider(const TokenVariant& tok);
-    std::string toStringNodeDivider(const NodeVariant& nod);
+    nlohmann::json printTokenDivider(const TokenVariant& tok);
+    nlohmann::json printNodeDivider(const NodeVariant& nod);
     
 	bool tryDividerRule(const TokenRuleContext& context);
 	TokenRuleResult doDividerRule(const TokenRuleContext& context);
@@ -15,8 +15,8 @@ namespace Parser{
 	void toHtmlNodeDivider(const HtmlContext& con, const Node& nod);
 	
 	const inline auto dividerRuleSet = RuleSet{"Divider", {
-		TokenPrintRule{Token::Type::Divider, toStringTokenDivider},
-		NodePrintRule{Node::Type::Divider, toStringNodeDivider},
+		TokenPrintRule{Token::Type::Divider, printTokenDivider},
+		NodePrintRule{Node::Type::Divider, printNodeDivider},
 		
 		TokenRule{tryDividerRule, doDividerRule},
 		

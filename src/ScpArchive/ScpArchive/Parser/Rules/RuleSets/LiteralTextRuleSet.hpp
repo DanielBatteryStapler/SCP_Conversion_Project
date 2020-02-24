@@ -4,8 +4,8 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenLiteralText(const TokenVariant& tok);
-    std::string toStringNodeLiteralText(const NodeVariant& nod);
+    nlohmann::json printTokenLiteralText(const TokenVariant& tok);
+    nlohmann::json printNodeLiteralText(const NodeVariant& nod);
 	
 	bool tryLiteralTextRule(const TokenRuleContext& context);
 	TokenRuleResult doLiteralTextRule(const TokenRuleContext& context);
@@ -15,8 +15,8 @@ namespace Parser{
 	void toHtmlNodeLiteralText(const HtmlContext& con, const Node& nod);
 	
 	const inline auto literalTextRuleSet = RuleSet{"LiteralText", {
-	    TokenPrintRule{Token::Type::LiteralText, toStringTokenLiteralText},
-	    NodePrintRule{Node::Type::LiteralText, toStringNodeLiteralText},
+	    TokenPrintRule{Token::Type::LiteralText, printTokenLiteralText},
+	    NodePrintRule{Node::Type::LiteralText, printNodeLiteralText},
 	    
 		TokenRule{tryLiteralTextRule, doLiteralTextRule},
 		

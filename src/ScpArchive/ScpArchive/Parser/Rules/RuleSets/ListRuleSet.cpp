@@ -3,66 +3,56 @@
 #include <sstream>
 
 namespace Parser{
-    std::string toStringTokenListPrefix(const TokenVariant& tok){
+    nlohmann::json printTokenListPrefix(const TokenVariant& tok){
         const ListPrefix& listPrefix = std::get<ListPrefix>(tok);
-        std::stringstream ss;
-        ss << "ListPrefix:";
+        nlohmann::json out;
+        out["degree"] = listPrefix.degree;
         switch(listPrefix.type){
-        default:
-            ss << "Unknown";
-            break;
-        case ListPrefix::Type::Bullet:
-            ss << "Bullet";
-            break;
-        case ListPrefix::Type::Number:
-            ss << "Number";
-            break;
-        }
-        ss << ", " << listPrefix.degree;
-        return ss.str();
+			default:
+				out["type"] = "Unknown";
+				break;
+			case ListPrefix::Type::Bullet:
+				out["type"] = "Bullet";
+				break;
+			case ListPrefix::Type::Number:
+				out["type"] = "Number";
+				break;
+		}
+        return out;
     }
     
-    std::string toStringNodeList(const NodeVariant& nod){
+    nlohmann::json printNodeList(const NodeVariant& nod){
         const List& list = std::get<List>(nod);
-        std::stringstream ss;
-        ss << "List:\"";
         switch(list.type){
             case List::Type::Unknown:
-                ss << "Unknown";
-                break;
+                return "Unknown";
             case List::Type::Bullet:
-                ss << "Bullet";
-                break;
+                return "Bullet";
             case List::Type::Number:
-                ss << "Number";
-                break;
-            }
-        ss << "\"";
-        return ss.str();
+                return "Number";
+		}
     }
     
-    std::string toStringNodeListElement(const NodeVariant& nod){
-        return "ListElement";
+    nlohmann::json printNodeListElement(const NodeVariant& nod){
+        return {};
     }
     
-    std::string toStringNodeAdvList(const NodeVariant& nod){
+    nlohmann::json printNodeAdvList(const NodeVariant& nod){
 		const AdvList& advList = std::get<AdvList>(nod);
-        std::string output = "AdvList:{";
+        nlohmann::json out = nlohmann::json::object();
         for(auto i = advList.parameters.begin(); i != advList.parameters.end(); i++){
-            output += i->first + ": " + i->second + ", ";
+           out[i->first] = i->second;
         }
-        output += "}";
-        return output;
+        return out;
     }
     
-    std::string toStringNodeAdvListElement(const NodeVariant& nod){
+    nlohmann::json printNodeAdvListElement(const NodeVariant& nod){
         const AdvListElement& advListElement = std::get<AdvListElement>(nod);
-        std::string output = "AdvListElement:{";
+        nlohmann::json out = nlohmann::json::object();
         for(auto i = advListElement.parameters.begin(); i != advListElement.parameters.end(); i++){
-            output += i->first + ": " + i->second + ", ";
+           out[i->first] = i->second;
         }
-        output += "}";
-        return output;
+        return out;
     }
     
 	bool tryListPrefixRule(const TokenRuleContext& context){

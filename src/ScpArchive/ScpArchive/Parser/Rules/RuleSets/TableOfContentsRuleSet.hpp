@@ -4,7 +4,7 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-	std::string toStringNodeTableOfContents(const NodeVariant& nod);
+	nlohmann::json printNodeTableOfContents(const NodeVariant& nod);
 	
     void handleTableOfContents(TreeContext& context, const Token& token);
 	
@@ -13,7 +13,7 @@ namespace Parser{
 	void toHtmlNodeTableOfContents(const HtmlContext& con, const Node& nod);
 	
 	const inline auto tableOfContentsRuleSet = RuleSet{"TableOfContents", {
-		NodePrintRule{Node::Type::TableOfContents, toStringNodeTableOfContents},
+		NodePrintRule{Node::Type::TableOfContents, printNodeTableOfContents},
 		
 		SectionRule{SectionType::TableOfContents, {"toc", "f<toc", "f>toc"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::None, ParameterType::None, false},

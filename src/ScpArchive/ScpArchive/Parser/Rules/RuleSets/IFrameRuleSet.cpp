@@ -3,15 +3,15 @@
 #include <sstream>
 
 namespace Parser{
-    std::string toStringNodeIFrame(const NodeVariant& nod){
+    nlohmann::json printNodeIFrame(const NodeVariant& nod){
         const IFrame& iframe = std::get<IFrame>(nod);
-        std::stringstream ss;
-        ss << "IFrame:" << iframe.source << ", {";
+        nlohmann::json out;
+        out["source"] = iframe.source;
+        out["parameters"] = nlohmann::json::object();
         for(auto i = iframe.parameters.begin(); i != iframe.parameters.end(); i++){
-            ss << i->first << ": " << i->second << ", ";
+            out["parameters"][i->first] = i->second;
         }
-        ss << "}";
-        return ss.str();
+        return out;
     }
 	
     void handleIFrame(TreeContext& context, const Token& token){

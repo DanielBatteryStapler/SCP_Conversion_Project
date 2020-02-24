@@ -4,20 +4,19 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenListPrefix(const TokenVariant& tok);
+    nlohmann::json printTokenListPrefix(const TokenVariant& tok);
     
-    std::string toStringNodeList(const NodeVariant& nod);
-    std::string toStringNodeListElement(const NodeVariant& nod);
+    nlohmann::json printNodeList(const NodeVariant& nod);
+    nlohmann::json printNodeListElement(const NodeVariant& nod);
+	
+    nlohmann::json printNodeAdvList(const NodeVariant& nod);
+    nlohmann::json printNodeAdvListElement(const NodeVariant& nod);
 	
 	bool tryListPrefixRule(const TokenRuleContext& context);
 	TokenRuleResult doListPrefixRule(const TokenRuleContext& context);
 	
 	void toHtmlNodeList(const HtmlContext& con, const Node& nod);
 	void toHtmlNodeListElement(const HtmlContext& con, const Node& nod);
-	
-	
-    std::string toStringNodeAdvList(const NodeVariant& nod);
-    std::string toStringNodeAdvListElement(const NodeVariant& nod);
 	
     void handleAdvList(TreeContext& context, const Token& token);
     void handleAdvListElement(TreeContext& context, const Token& token);
@@ -26,11 +25,11 @@ namespace Parser{
 	void toHtmlNodeAdvListElement(const HtmlContext& con, const Node& nod);
 	
 	const inline auto listRuleSet = RuleSet{"List", {
-	    TokenPrintRule{Token::Type::ListPrefix, toStringTokenListPrefix},
-	    NodePrintRule{Node::Type::List, toStringNodeList},
-	    NodePrintRule{Node::Type::ListElement, toStringNodeListElement},
-	    NodePrintRule{Node::Type::AdvList, toStringNodeAdvList},
-	    NodePrintRule{Node::Type::AdvListElement, toStringNodeAdvListElement},
+	    TokenPrintRule{Token::Type::ListPrefix, printTokenListPrefix},
+	    NodePrintRule{Node::Type::List, printNodeList},
+	    NodePrintRule{Node::Type::ListElement, printNodeListElement},
+	    NodePrintRule{Node::Type::AdvList, printNodeAdvList},
+	    NodePrintRule{Node::Type::AdvListElement, printNodeAdvListElement},
 	    
 		TokenRule{tryListPrefixRule, doListPrefixRule},
 		

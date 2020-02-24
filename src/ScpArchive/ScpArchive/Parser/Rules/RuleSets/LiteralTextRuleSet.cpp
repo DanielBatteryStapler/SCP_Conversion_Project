@@ -1,12 +1,12 @@
 #include "LiteralTextRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenLiteralText(const TokenVariant& tok){
-        return "LiteralText:\"" + std::get<LiteralText>(tok).text + "\"";
+    nlohmann::json printTokenLiteralText(const TokenVariant& tok){
+        return std::get<LiteralText>(tok).text;
     }
     
-    std::string toStringNodeLiteralText(const NodeVariant& nod){
-        return "LiteralText:\"" + std::get<LiteralText>(nod).text + "\"";
+    nlohmann::json printNodeLiteralText(const NodeVariant& nod){
+        return std::get<LiteralText>(nod).text;
     }
 	
 	bool tryLiteralTextRule(const TokenRuleContext& context){

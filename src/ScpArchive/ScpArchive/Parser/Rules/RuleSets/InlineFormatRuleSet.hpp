@@ -4,8 +4,8 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenInlineFormat(const TokenVariant& tok);
-    std::string toStringNodeStyleFormat(const NodeVariant& nod);
+    nlohmann::json printTokenInlineFormat(const TokenVariant& tok);
+    nlohmann::json printNodeStyleFormat(const NodeVariant& nod);
     
 	bool tryStrikeRule(const TokenRuleContext& context);
 	TokenRuleResult doStrikeRule(const TokenRuleContext& context);
@@ -29,8 +29,8 @@ namespace Parser{
 	void toHtmlNodeStyleFormat(const HtmlContext& con, const Node& nod);
 	
 	const inline auto inlineFormatRuleSet = RuleSet{"InlineFormat", {
-	    TokenPrintRule{Token::Type::InlineFormat, toStringTokenInlineFormat},
-	    NodePrintRule{Node::Type::StyleFormat, toStringNodeStyleFormat},
+	    TokenPrintRule{Token::Type::InlineFormat, printTokenInlineFormat},
+	    NodePrintRule{Node::Type::StyleFormat, printNodeStyleFormat},
 	    
 		TokenRule{tryStrikeRule, doStrikeRule},
 		TokenRule{tryItalicsRule, doItalicsRule},

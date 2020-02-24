@@ -76,7 +76,7 @@ namespace Parser{
 				out << "<span style='background-color:"_AM << getColor(tok->token.index(), false) << ";' "_AM
 				<< " onMouseOver='this.style.backgroundColor=\""_AM << getColor(tok->token.index(), true) << "\"'"_AM
 				<< " onMouseOut='this.style.backgroundColor=\""_AM << getColor(tok->token.index(), false) << "\"'"_AM
-				<< " title='"_AM << tokenVariantToString(*tok) << "'>"_AM;
+				<< " title='"_AM << printToken(*tok).dump(4) << "'>"_AM;
 				for(char c : tok->source){
 					if(c == '\n'){
 						out << "\u00B6<br />"_AM;

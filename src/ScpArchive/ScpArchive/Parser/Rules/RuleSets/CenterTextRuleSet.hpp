@@ -4,8 +4,8 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenCenterText(const TokenVariant& tok);
-    std::string toStringNodeCenterText(const NodeVariant& nod);
+    nlohmann::json printTokenCenterText(const TokenVariant& tok);
+    nlohmann::json printNodeCenterText(const NodeVariant& nod);
     
 	bool tryCenterTextRule(const TokenRuleContext& context);
 	TokenRuleResult doCenterTextRule(const TokenRuleContext& context);
@@ -15,8 +15,8 @@ namespace Parser{
 	void toHtmlNodeCenterText(const HtmlContext& con, const Node& nod);
 	
 	const inline auto centerTextRuleSet = RuleSet{"CenterText", {
-		TokenPrintRule{Token::Type::CenterText, toStringTokenCenterText},
-		NodePrintRule{Node::Type::CenterText, toStringNodeCenterText},
+		TokenPrintRule{Token::Type::CenterText, printTokenCenterText},
+		NodePrintRule{Node::Type::CenterText, printNodeCenterText},
 		
 		TokenRule{tryCenterTextRule, doCenterTextRule},
 		

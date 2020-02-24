@@ -3,110 +3,110 @@
 #include <sstream>
 
 namespace Parser{
-    std::string toStringTokenTableMarker(const TokenVariant& tok){
+    nlohmann::json printTokenTableMarker(const TokenVariant& tok){
         const TableMarker& mark = std::get<TableMarker>(tok);
-        std::stringstream ss;
-        ss << "TableMarker:";
+        nlohmann::json out;
+        out["span"] = mark.span;
         switch(mark.type){
             case TableMarker::Type::Start:
-                ss << "Start";
+                out["type"] = "Start";
                 break;
             case TableMarker::Type::Middle:
-                ss << "Middle";
+                out["type"] = "Middle";
                 break;
             case TableMarker::Type::End:
-                ss << "End";
+                out["type"] = "End";
                 break;
             case TableMarker::Type::StartEnd:
-                ss << "StartEnd";
+                out["type"] = "StartEnd";
+                break;
+			default:
+                out["type"] = "Unknown";
                 break;
         }
-        ss << ",";
         switch(mark.alignment){
             case TableMarker::AlignmentType::Default:
-                ss << "Default";
+                out["alignment"] = "Default";
                 break;
             case TableMarker::AlignmentType::Header:
-                ss << "Header";
+                out["alignment"] = "Header";
                 break;
             case TableMarker::AlignmentType::Left:
-                ss << "Left";
+                out["alignment"] = "Left";
                 break;
             case TableMarker::AlignmentType::Right:
-                ss << "Right";
+                out["alignment"] = "Right";
                 break;
             case TableMarker::AlignmentType::Center:
-                ss << "Center";
+                out["alignment"] = "Center";
+                break;
+			default:
+                out["alignment"] = "Unknown";
                 break;
         }
-        ss << "," << mark.span;
-        return ss.str();
+        return out;
     }
     
-    std::string toStringNodeTable(const NodeVariant& nod){
-        return "Table";
+    nlohmann::json printNodeTable(const NodeVariant& nod){
+        return {};
     }
     
-    std::string toStringNodeTableRow(const NodeVariant& nod){
-        return "TableRow";
+    nlohmann::json printNodeTableRow(const NodeVariant& nod){
+        return {};
     }
     
-    std::string toStringNodeTableElement(const NodeVariant& nod){
+    nlohmann::json printNodeTableElement(const NodeVariant& nod){
         const TableElement& elem = std::get<TableElement>(nod);
-        std::stringstream ss;
-        ss << "TableElement:";
+        nlohmann::json out;
+        out["span"] = elem.span;
         switch(elem.alignment){
             case TableMarker::AlignmentType::Default:
-                ss << "Default";
+                out["alignment"] = "Default";
                 break;
             case TableMarker::AlignmentType::Header:
-                ss << "Header";
+                out["alignment"] = "Header";
                 break;
             case TableMarker::AlignmentType::Left:
-                ss << "Left";
+                out["alignment"] = "Left";
                 break;
             case TableMarker::AlignmentType::Right:
-                ss << "Right";
+                out["alignment"] = "Right";
                 break;
             case TableMarker::AlignmentType::Center:
-                ss << "Center";
+                out["alignment"] = "Center";
                 break;
+			default:
+				out["alignment"] = "Unknown";
+				break;
         }
-        ss << "," << elem.span;
-        return ss.str();
+        return out;
     }
     
-    std::string toStringNodeAdvTable(const NodeVariant& nod){
+    nlohmann::json printNodeAdvTable(const NodeVariant& nod){
         const AdvTable& table = std::get<AdvTable>(nod);
-        std::stringstream ss;
-        ss << "AdvTable:{";
+        nlohmann::json out = nlohmann::json::object();
         for(auto i = table.parameters.begin(); i != table.parameters.end(); i++){
-            ss << i->first << ": " << i->second << ", ";
+            out[i->first] = i->second;
         }
-        ss << "}";
-        return ss.str();
+        return out;
     }
     
-    std::string toStringNodeAdvTableRow(const NodeVariant& nod){
+    nlohmann::json printNodeAdvTableRow(const NodeVariant& nod){
         const AdvTableRow& table = std::get<AdvTableRow>(nod);
-        std::stringstream ss;
-        ss << "AdvTableRow:{";
+        nlohmann::json out = nlohmann::json::object();
         for(auto i = table.parameters.begin(); i != table.parameters.end(); i++){
-            ss << i->first << ": " << i->second << ", ";
+            out[i->first] = i->second;
         }
-        ss << "}";
-        return ss.str();
+        return out;
     }
     
-    std::string toStringNodeAdvTableElement(const NodeVariant& nod){
+    nlohmann::json printNodeAdvTableElement(const NodeVariant& nod){
         const AdvTableElement& table = std::get<AdvTableElement>(nod);
-        std::stringstream ss;
-        ss << "AdvTableElement:" << (table.isHeader?"true":"false") << ",{";
+        nlohmann::json out = nlohmann::json::object();
         for(auto i = table.parameters.begin(); i != table.parameters.end(); i++){
-            ss << i->first << ": " << i->second << ", ";
+            out[i->first] = i->second;
         }
-        ss << "}";
-        return ss.str();
+        return out;
     }
     
 	bool tryTableMarkerRule(const TokenRuleContext& context){

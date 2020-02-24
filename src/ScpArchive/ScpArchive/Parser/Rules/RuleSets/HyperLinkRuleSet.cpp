@@ -1,13 +1,17 @@
 #include "HyperLinkRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenHyperLink(const TokenVariant& tok){
+    nlohmann::json printTokenHyperLink(const TokenVariant& tok){
         const HyperLink& link = std::get<HyperLink>(tok);
-        return "HyperLink:\"" + link.shownText + "\"->\"" + link.url + "\", " + (link.newWindow?"true":"false");
+        nlohmann::json out;
+        out["shownText"] = link.shownText;
+        out["url"] = link.url;
+        out["newWindow"] = link.newWindow;
+        return out;
     }
     
-    std::string toStringNodeHyperLink(const NodeVariant& nod){
-        return toStringTokenHyperLink(std::get<HyperLink>(nod));
+    nlohmann::json printNodeHyperLink(const NodeVariant& nod){
+        return printTokenHyperLink(std::get<HyperLink>(nod));
     }
 	
 	bool tryTripleLinkRule(const TokenRuleContext& context){

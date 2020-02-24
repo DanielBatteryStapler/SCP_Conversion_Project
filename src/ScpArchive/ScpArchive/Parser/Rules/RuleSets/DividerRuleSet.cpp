@@ -1,34 +1,26 @@
 #include "DividerRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenDivider(const TokenVariant& tok){
+    nlohmann::json printTokenDivider(const TokenVariant& tok){
         const Divider& divider = std::get<Divider>(tok);
-        std::string output = "Divider:";
         switch(divider.type){
-        default:
-            output += "Unknown";
-            break;
-        case Divider::Type::Line:
-            output += "Line";
-            break;
-        case Divider::Type::ClearBoth:
-            output += "ClearBoth";
-            break;
-        case Divider::Type::ClearLeft:
-            output += "ClearLeft";
-            break;
-        case Divider::Type::ClearRight:
-            output += "ClearRight";
-            break;
-        case Divider::Type::Seperator:
-            output += "Seperator";
-            break;
-        }
-        return output;
+			default:
+				return "Unknown";
+			case Divider::Type::Line:
+				return "Line";
+			case Divider::Type::ClearBoth:
+				return "ClearBoth";
+			case Divider::Type::ClearLeft:
+				return "ClearLeft";
+			case Divider::Type::ClearRight:
+				return "ClearRight";
+			case Divider::Type::Separator:
+				return "Separator";
+		}
     }
     
-    std::string toStringNodeDivider(const NodeVariant& nod){
-        return toStringTokenDivider(std::get<Divider>(nod));
+    nlohmann::json printNodeDivider(const NodeVariant& nod){
+        return printTokenDivider(std::get<Divider>(nod));
     }
    
     bool tryDividerRule(const TokenRuleContext& context){
@@ -73,7 +65,7 @@ namespace Parser{
 			divider.type = Divider::Type::ClearBoth;
 		}
 		else if(context.page[context.pagePos] == '='){
-			divider.type = Divider::Type::Seperator;
+			divider.type = Divider::Type::Separator;
 		}
 		
 		std::size_t pos = context.pagePos;
@@ -115,7 +107,7 @@ namespace Parser{
             case Divider::Type::ClearRight:
                 con.out << "<div class='PageClearerRight'></div>"_AM;
                 break;
-            case Divider::Type::Seperator:
+            case Divider::Type::Separator:
                 //has no effect on html
                 break;
             default:

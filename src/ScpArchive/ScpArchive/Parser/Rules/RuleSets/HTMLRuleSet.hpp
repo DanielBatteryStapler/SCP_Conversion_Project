@@ -5,14 +5,14 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-	std::string toStringNodeHTML(const NodeVariant& nod);
+	nlohmann::json printNodeHTML(const NodeVariant& nod);
 	
     void handleHTML(TreeContext& context, const Token& token);
 	
 	void toHtmlNodeHTML(const HtmlContext& con, const Node& nod);
 	
 	const inline auto htmlRuleSet = RuleSet{"HTML", {
-	    NodePrintRule{Node::Type::HTML, toStringNodeHTML},
+	    NodePrintRule{Node::Type::HTML, printNodeHTML},
 	    
 	    SectionRule{SectionType::HTML, {"html", "embed", "embedvideo", "embedaudio"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Contain, ParameterType::None, false},

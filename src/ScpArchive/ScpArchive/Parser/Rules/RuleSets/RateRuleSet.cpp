@@ -1,9 +1,9 @@
 #include "RateRuleSet.hpp"
 
 namespace Parser{
-	std::string toStringNodeRate(const NodeVariant& nod){
+	nlohmann::json printNodeRate(const NodeVariant& nod){
         const Rate& rate = std::get<Rate>(nod);
-        return "Rate:" + std::to_string(rate.rating);
+        return rate.rating;
 	}
 	
     void handleRate(TreeContext& context, const Token& token){

@@ -3,42 +3,45 @@
 #include <sstream>
 
 namespace Parser{
-    std::string toStringTokenSection(const TokenVariant& tok){
+    nlohmann::json printTokenSection(const TokenVariant& tok){
         const Section& section = std::get<Section>(tok);
-        std::stringstream ss;
-        ss << "Section:" << section.typeString << ", " << section.mainParameter << ", {";
+        nlohmann::json out;
+        out["typeString"] = section.typeString;
+        out["mainParameter"] = section.mainParameter;
+        out["parameters"] = nlohmann::json::object();
         for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
-            ss << i->first << ": " << i->second << ", ";
+            out["parameters"][i->first] = i->second;
         }
-        ss << "}";
-        return ss.str();
+        return out;
     }
     
-    std::string toStringTokenSectionStart(const TokenVariant& tok){
+    nlohmann::json printTokenSectionStart(const TokenVariant& tok){
         const SectionStart& section = std::get<SectionStart>(tok);
-        std::stringstream ss;
-        ss << "SectionStart:" << section.typeString << ", " << section.mainParameter << ", {";
+        nlohmann::json out;
+        out["typeString"] = section.typeString;
+        out["mainParameter"] = section.mainParameter;
+        out["parameters"] = nlohmann::json::object();
         for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
-            ss << i->first << ": " << i->second << ", ";
+            out["parameters"][i->first] = i->second;
         }
-        ss << "}";
-        return ss.str();
+        return out;
     }
     
-    std::string toStringTokenSectionEnd(const TokenVariant& tok){
+    nlohmann::json printTokenSectionEnd(const TokenVariant& tok){
         const SectionEnd& section = std::get<SectionEnd>(tok);
-        return "SectionEnd:" + section.typeString;
+        return section.typeString;
     }
     
-    std::string toStringTokenSectionComplete(const TokenVariant& tok){
+    nlohmann::json printTokenSectionComplete(const TokenVariant& tok){
         const SectionComplete& section = std::get<SectionComplete>(tok);
-        std::stringstream ss;
-        ss << "SectionComplete:" << section.typeString << ", " << section.mainParameter << ", {";
+        nlohmann::json out;
+        out["typeString"] = section.typeString;
+        out["mainParameter"] = section.mainParameter;
+        out["parameters"] = nlohmann::json::object();
         for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
-            ss << i->first << ": " << i->second << ", ";
+            out["parameters"][i->first] = i->second;
         }
-        ss << "}";
-        return ss.str();
+        return out;
     }
     
     namespace{

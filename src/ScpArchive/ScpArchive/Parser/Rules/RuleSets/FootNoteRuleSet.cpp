@@ -1,12 +1,12 @@
 #include "FootNoteRuleSet.hpp"
 
 namespace Parser{
-	std::string toStringNodeFootNote(const NodeVariant& nod){
-        return "FootNote:" + std::to_string(std::get<FootNote>(nod).number);
+	nlohmann::json printNodeFootNote(const NodeVariant& nod){
+        return std::get<FootNote>(nod).number;
 	}
 	
-	std::string toStringNodeFootNoteBlock(const NodeVariant& nod){
-        return "FootNoteBlock:\"" + std::get<FootNoteBlock>(nod).title + "\"";
+	nlohmann::json printNodeFootNoteBlock(const NodeVariant& nod){
+        return std::get<FootNoteBlock>(nod).title;
 	}
 	
     void handleFootNote(TreeContext& context, const Token& token){

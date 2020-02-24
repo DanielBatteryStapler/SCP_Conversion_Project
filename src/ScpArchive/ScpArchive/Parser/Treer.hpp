@@ -7,40 +7,28 @@ namespace Parser{
 	
 	struct Size{
         std::string size;
-        
-        bool operator==(const Size& nod)const;
 	};
 	
 	struct Span{
         std::map<std::string, std::string> parameters;
-        
-        bool operator==(const Span& nod)const;
 	};
 	
 	struct Anchor{
 		std::string name;
-		
-		bool operator==(const Anchor& nod)const;
 	};
 	
 	struct Div{
         std::map<std::string, std::string> parameters;
-        
-        bool operator==(const Div& nod)const;
 	};
 	
 	struct A{
 		std::map<std::string, std::string> parameters;
-        
-        bool operator==(const A& nod)const;
 	};
 	
 	enum class AlignType{Unknown, Left, Right, Center, Justify};
 	struct Align{
         using Type = AlignType;
         Type type = Type::Unknown;
-        
-        bool operator==(const Align& nod)const;
 	};
 	
 	struct StyleFormat{
@@ -48,22 +36,17 @@ namespace Parser{
 		Type type;
 		
 		std::string color;//optional
-		
-		bool operator==(const StyleFormat& nod)const;
 	};
 	
 	struct Paragraph{
-		bool operator==(const Paragraph& nod)const;
 	};
 	
 	struct List{
         using Type = ListPrefix::Type;
         Type type = Type::Unknown;
-		bool operator==(const List& nod)const;
     };
     
     struct ListElement{
-		bool operator==(const ListElement& nod)const;
     };
 	
 	struct AdvList{
@@ -71,26 +54,19 @@ namespace Parser{
         Type type = Type::Unknown;
         
         std::map<std::string, std::string> parameters;
-        
-		bool operator==(const AdvList& nod)const;
 	};
 	
 	struct AdvListElement{
         std::map<std::string, std::string> parameters;
-        
-		bool operator==(const AdvListElement& nod)const;
 	};
 	
 	struct QuoteBox{
-		bool operator==(const QuoteBox& nod)const;
 	};
 	
 	struct Collapsible{
         std::string closedText;
         std::string openedText;
         bool defaultShow;
-        
-        bool operator==(const Collapsible& nod)const;
 	};
 	
 	struct Image{
@@ -105,102 +81,92 @@ namespace Parser{
         std::string cssClass;
         enum class AlignmentType{Default, Center, Left, Right, FloatLeft, FloatRight};
         AlignmentType alignment = AlignmentType::Default;
-        
-        bool operator==(const Image& nod)const;
 	};
     
     struct Code{
         std::string contents;
         std::string type;
         
-        bool operator==(const Code& nod)const;
+		bool operator==(const Code& code)const;//needs this so std::vector<Code>'s can be compared
     };
     
     struct IFrame{
         std::string source;
         std::map<std::string, std::string> parameters;
-        
-        bool operator==(const IFrame& nod)const;
     };
     
     struct HTML{
         std::string contents;
-        
-        bool operator==(const HTML& nod)const;
     };
     
     struct TabView{
-        bool operator==(const TabView& nod)const;
     };
     
     struct Tab{
         std::string title;
-        bool operator==(const Tab& nod)const;
     };
     
     struct TableOfContents{
         enum class AlignmentType{Default, FloatLeft, FloatRight};
         AlignmentType alignment = AlignmentType::Default;
-        bool operator==(const TableOfContents& nod)const;
     };
     
     struct FootNote{
         unsigned int number;
-        bool operator==(const FootNote& nod)const;
     };
     
     struct FootNoteBlock{
         std::string title;
-        bool operator==(const FootNoteBlock& nod)const;
     };
     
     struct Table{
-        bool operator==(const Table& nod)const;
     };
     
     struct TableRow{
-        bool operator==(const TableRow& nod)const;
     };
     
     struct TableElement{
         using AlignmentType = TableMarker::AlignmentType;
         AlignmentType alignment;
         unsigned int span;
-        bool operator==(const TableElement& nod)const;
     };
     
     struct AdvTable{
         std::map<std::string, std::string> parameters;
-        bool operator==(const AdvTable& nod)const;
     };
     
     struct AdvTableRow{
         std::map<std::string, std::string> parameters;
-        bool operator==(const AdvTableRow& nod)const;
     };
     
     struct AdvTableElement{
         bool isHeader;
         std::map<std::string, std::string> parameters;
-        bool operator==(const AdvTableElement& nod)const;
     };
     
     struct Rate{
         int rating;
-        bool operator==(const Rate& nod)const;
     };
     
 	struct RootPage{
-		bool operator==(const RootPage& nod)const;
 	};
 	
-	enum class NodeType{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
-        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate,
-        QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
+	const inline std::vector<std::string> NodeTypeNames =
+		{"Unknown", "RootPage", "Table", "TableRow", "TableElement", "AdvTable", "AdvTableRow", "AdvTableElement",
+		"FootNote", "FootNoteBlock", "TableOfContents", "TabView", "Tab", "Collapsible", "Rate", "Image", "HTML", "IFrame", "Code",
+		"QuoteBox", "Div", "Align", "List", "ListElement", "AdvList", "AdvListElement", "Paragraph", "CenterText", "Heading", "Divider",
+		"LineBreak", "PlainText", "LiteralText", "HyperLink", "StyleFormat", "Span", "Anchor", "Size", "A"};
+		
+	enum class NodeType
+		{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
+        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, Image, HTML, IFrame, Code,
+        QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A};
-	using NodeVariant = std::variant<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
-        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate,
-        QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider, Image, HTML, IFrame, Code,
+        
+	using NodeVariant = std::variant
+		<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
+        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, Image, HTML, IFrame, Code,
+        QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A>;
 	
 	struct Node{
@@ -213,7 +179,10 @@ namespace Parser{
 		bool operator==(const Node& nod)const;
 	};
 	
-	std::string toString(const Node& nod, int tab = 0);
+	
+	std::string getNodeTypeName(Node::Type type);
+	nlohmann::json printNodeVariant(const Node& nod);
+	nlohmann::json printNode(const Node& nod);
 	std::ostream& operator<<(std::ostream& out, const Node& nod);
 	
 	struct CSS{

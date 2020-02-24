@@ -1,14 +1,13 @@
 #include "ARuleSet.hpp"
 
 namespace Parser{
-    std::string toStringNodeA(const NodeVariant& nod){
+    nlohmann::json printNodeA(const NodeVariant& nod){
         const A& a = std::get<A>(nod);
-        std::string output = "A:{";
+        nlohmann::json out = nlohmann::json::object();
         for(auto i = a.parameters.begin(); i != a.parameters.end(); i++){
-            output += i->first + ": " + i->second + ", ";
+            out[i->first] = i->second;
         }
-        output += "}";
-        return output;
+        return out;
     }
     
     void handleA(TreeContext& context, const Token& token){

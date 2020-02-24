@@ -4,8 +4,8 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-	std::string toStringNodeFootNote(const NodeVariant& nod);
-	std::string toStringNodeFootNoteBlock(const NodeVariant& nod);
+	nlohmann::json printNodeFootNote(const NodeVariant& nod);
+	nlohmann::json printNodeFootNoteBlock(const NodeVariant& nod);
 	
     void handleFootNote(TreeContext& context, const Token& token);
     void handleFootNoteBlock(TreeContext& context, const Token& token);
@@ -16,8 +16,8 @@ namespace Parser{
 	void toHtmlNodeFootNoteBlock(const HtmlContext& con, const Node& nod);
 	
 	const inline auto footNoteRuleSet = RuleSet{"FootNote", {
-		NodePrintRule{Node::Type::FootNote, toStringNodeFootNote},
-		NodePrintRule{Node::Type::FootNoteBlock, toStringNodeFootNoteBlock},
+		NodePrintRule{Node::Type::FootNote, printNodeFootNote},
+		NodePrintRule{Node::Type::FootNoteBlock, printNodeFootNoteBlock},
 		
 		SectionRule{SectionType::FootNote, {"footnote"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::None, true},

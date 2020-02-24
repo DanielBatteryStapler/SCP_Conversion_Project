@@ -4,14 +4,14 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringNodeSpan(const NodeVariant& nod);
+    nlohmann::json printNodeSpan(const NodeVariant& nod);
     
     void handleSpan(TreeContext& context, const Token& token);
 	
 	void toHtmlNodeSpan(const HtmlContext& con, const Node& nod);
 	
 	const inline auto spanRuleSet = RuleSet{"Span", {
-	    NodePrintRule{Node::Type::Span, toStringNodeSpan},
+	    NodePrintRule{Node::Type::Span, printNodeSpan},
 	    
 		SectionRule{SectionType::Span, {"span", "span_"}, SubnameType::None, ModuleType::Unknown, {},
                 ContentType::Surround, ParameterType::Quoted, true},

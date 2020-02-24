@@ -4,14 +4,14 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-	std::string toStringNodeIFrame(const NodeVariant& nod);
+	nlohmann::json printNodeIFrame(const NodeVariant& nod);
 	
     void handleIFrame(TreeContext& context, const Token& token);
 	
 	void toHtmlNodeIFrame(const HtmlContext& con, const Node& nod);
 	
 	const inline auto iframeRuleSet = RuleSet{"IFrame", {
-	    NodePrintRule{Node::Type::IFrame, toStringNodeIFrame},
+	    NodePrintRule{Node::Type::IFrame, printNodeIFrame},
 	    
 	    SectionRule{SectionType::IFrame, {"iframe"}, SubnameType::Parameter, ModuleType::Unknown, {},
                 ContentType::None, ParameterType::Quoted, false},

@@ -3,33 +3,38 @@
 #include <sstream>
 
 namespace Parser{
-	std::string toStringNodeImage(const NodeVariant& nod){
+	nlohmann::json printNodeImage(const NodeVariant& nod){
         const Image& image = std::get<Image>(nod);
-        std::stringstream ss;
-        ss << "Image:" << image.source << "," << (image.newWindow?"true":"false") << "," << image.link << ","
-        << image.alt << "," << image.title << "," << image.width << "," << image.height << ","
-        << image.style << "," << image.cssClass << ",";
+        nlohmann::json out;
+        out["source"] = image.source;
+        out["newWindow"] = image.newWindow;
+        out["link"] = image.link;
+        out["style"] = image.style;
+        out["cssClass"] = image.cssClass;
         switch(image.alignment){
-        case Image::AlignmentType::Default:
-            ss << "Default";
-            break;
-        case Image::AlignmentType::Center:
-            ss << "Center";
-            break;
-        case Image::AlignmentType::Left:
-            ss << "Left";
-            break;
-        case Image::AlignmentType::Right:
-            ss << "Right";
-            break;
-        case Image::AlignmentType::FloatLeft:
-            ss << "FloatLeft";
-            break;
-        case Image::AlignmentType::FloatRight:
-            ss << "FloatRight";
-            break;
+			case Image::AlignmentType::Default:
+				out["alignment"] = "Default";
+				break;
+			case Image::AlignmentType::Center:
+				out["alignment"] = "Center";
+				break;
+			case Image::AlignmentType::Left:
+				out["alignment"] = "Left";
+				break;
+			case Image::AlignmentType::Right:
+				out["alignment"] = "Right";
+				break;
+			case Image::AlignmentType::FloatLeft:
+				out["alignment"] = "FloatLeft";
+				break;
+			case Image::AlignmentType::FloatRight:
+				out["alignment"] = "FloatRight";
+				break;
+			default:
+				out["alignment"] = "Unknown";
+				break;
         }
-        return ss.str();
+        return out;
 	}
 	
     void handleImage(TreeContext& context, const Token& token){

@@ -4,14 +4,14 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringNodeSize(const NodeVariant& nod);
+    nlohmann::json printNodeSize(const NodeVariant& nod);
 	
     void handleSize(TreeContext& context, const Token& token);
 	
 	void toHtmlNodeSize(const HtmlContext& con, const Node& nod);
 	
 	const inline auto sizeRuleSet = RuleSet{"Size", {
-        NodePrintRule{Node::Type::Size, toStringNodeSize},
+        NodePrintRule{Node::Type::Size, printNodeSize},
         
         TreeRule{{Token::Type::Section, SectionType::Size}, handleSize},
 		

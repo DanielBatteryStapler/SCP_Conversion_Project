@@ -1,12 +1,12 @@
 #include "TabViewRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringNodeTabView(const NodeVariant& nod){
-        return "TabView";
+    nlohmann::json printNodeTabView(const NodeVariant& nod){
+        return {};
     }
     
-    std::string toStringNodeTab(const NodeVariant& nod){
-        return "Tab:" + std::get<Tab>(nod).title;
+    nlohmann::json printNodeTab(const NodeVariant& nod){
+        return std::get<Tab>(nod).title;
     }
 	
     void handleTabView(TreeContext& context, const Token& token){

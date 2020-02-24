@@ -1,15 +1,15 @@
 #include "TableOfContentsRuleSet.hpp"
 
 namespace Parser{
-    std::string toStringNodeTableOfContents(const NodeVariant& nod){
+    nlohmann::json printNodeTableOfContents(const NodeVariant& nod){
         const TableOfContents& toc = std::get<TableOfContents>(nod);
         switch(toc.alignment){
             case TableOfContents::AlignmentType::Default:
-                return "TableOfContents:Default";
+                return "Default";
             case TableOfContents::AlignmentType::FloatLeft:
-                return "TableOfContents:FloatLeft";
+                return "FloatLeft";
             case TableOfContents::AlignmentType::FloatRight:
-                return "TableOfContents:FloatRight";
+                return "FloatRight";
         }
     }
 

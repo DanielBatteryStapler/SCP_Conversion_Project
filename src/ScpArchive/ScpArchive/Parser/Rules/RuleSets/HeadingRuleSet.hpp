@@ -4,8 +4,8 @@
 #include "../RuleSet.hpp"
 
 namespace Parser{
-    std::string toStringTokenHeading(const TokenVariant& tok);
-    std::string toStringNodeHeading(const NodeVariant& nod);
+    nlohmann::json printTokenHeading(const TokenVariant& tok);
+    nlohmann::json printNodeHeading(const NodeVariant& nod);
 	
 	bool tryHeadingRule(const TokenRuleContext& context);
 	TokenRuleResult doHeadingRule(const TokenRuleContext& context);
@@ -15,8 +15,8 @@ namespace Parser{
 	void toHtmlNodeHeading(const HtmlContext& con, const Node& nod);
 	
 	const inline auto headingRuleSet = RuleSet{"Heading", {
-	    TokenPrintRule{Token::Type::Heading, toStringTokenHeading},
-	    NodePrintRule{Node::Type::Heading, toStringNodeHeading},
+	    TokenPrintRule{Token::Type::Heading, printTokenHeading},
+	    NodePrintRule{Node::Type::Heading, printNodeHeading},
 	    
 		TokenRule{tryHeadingRule, doHeadingRule},
 		

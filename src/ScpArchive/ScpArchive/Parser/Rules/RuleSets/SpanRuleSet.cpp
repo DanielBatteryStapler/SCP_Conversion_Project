@@ -3,15 +3,13 @@
 #include <sstream>
 
 namespace Parser{
-    std::string toStringNodeSpan(const NodeVariant& nod){
+    nlohmann::json printNodeSpan(const NodeVariant& nod){
         const Span& span = std::get<Span>(nod);
-        std::stringstream ss;
-        ss << "Span:{";
+        nlohmann::json out = nlohmann::json::object();
         for(auto i = span.parameters.begin(); i != span.parameters.end(); i++){
-            ss << i->first << ": " << i->second << ", ";
+            out[i->first] = i->second;
         }
-        ss << "}";
-        return ss.str();
+        return out;
     }
     
     void handleSpan(TreeContext& context, const Token& token){

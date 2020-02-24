@@ -1,9 +1,8 @@
 #include "CodeRuleSet.hpp"
 
 namespace Parser{
-	std::string toStringNodeCode(const NodeVariant& nod){
-        const Code& code = std::get<Code>(nod);
-        return "Code:\"" + code.contents + "\"";
+	nlohmann::json printNodeCode(const NodeVariant& nod){
+        return std::get<Code>(nod).contents;
 	}
     
     void handleCode(TreeContext& context, const Token& token){

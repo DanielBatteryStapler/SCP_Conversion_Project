@@ -3,29 +3,20 @@
 #include <sstream>
 
 namespace Parser{
-	std::string toStringNodeAlign(const NodeVariant& nod){
+	nlohmann::json printNodeAlign(const NodeVariant& nod){
         const Align& align = std::get<Align>(nod);
-        
-        std::stringstream ss;
-        ss << "Align:";
         switch(align.type){
-        case Align::Type::Unknown:
-            ss << "Unknown";
-            break;
-        case Align::Type::Center:
-            ss << "Center";
-            break;
-        case Align::Type::Left:
-            ss << "Left";
-            break;
-        case Align::Type::Right:
-            ss << "Right";
-            break;
-        case Align::Type::Justify:
-            ss << "Justify";
-            break;
+			default:
+				return "Unknown";
+			case Align::Type::Center:
+				return "Center";
+			case Align::Type::Left:
+				return "Left";
+			case Align::Type::Right:
+				return "Right";
+			case Align::Type::Justify:
+				return "Justify";
         }
-        return ss.str();
 	}
     
     void handleAlign(TreeContext& context, const Token& token){

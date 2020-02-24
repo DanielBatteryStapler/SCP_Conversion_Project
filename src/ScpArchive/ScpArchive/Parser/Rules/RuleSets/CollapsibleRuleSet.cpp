@@ -3,11 +3,13 @@
 #include <sstream>
 
 namespace Parser{
-    std::string toStringNodeCollapsible(const NodeVariant& nod){
+    nlohmann::json printNodeCollapsible(const NodeVariant& nod){
         const Collapsible& collapsible = std::get<Collapsible>(nod);
-        std::stringstream ss;
-        ss << "Collapsible: \"" << collapsible.openedText << "\"->\"" << collapsible.closedText << "\", " << (collapsible.defaultShow?"true":"false");
-        return ss.str();
+        nlohmann::json out;
+        out["openedText"] = collapsible.openedText;
+        out["closedText"] = collapsible.closedText;
+        out["defaultShow"] = collapsible.defaultShow;
+        return out;
     }
     
     void handleCollapsible(TreeContext& context, const Token& token){

@@ -46,118 +46,43 @@ namespace Parser{
 		}
 		return output;
 	}
-	
-	bool Section::operator==(const Section& tok)const{
-		return type == tok.type && typeString == tok.typeString && moduleType == tok.moduleType && mainParameter == tok.mainParameter && parameters == tok.parameters;
-	}
 		
-	bool SectionEnd::operator==(const SectionEnd& tok)const{
-		return type == tok.type && typeString == tok.typeString;
-	}
-	
-	bool SectionComplete::operator==(const SectionComplete& tok)const{
-		return type == tok.type && typeString == tok.typeString && moduleType == tok.moduleType && mainParameter == tok.mainParameter && parameters == tok.parameters && contents == tok.contents;
-	}
-	
-	bool Divider::operator==(const Divider& tok)const{
-		return type == tok.type;
-	}
-    
-	bool Heading::operator==(const Heading& tok)const{
-		return degree == tok.degree && hidden == tok.hidden;
-	}
-		
-	bool QuoteBoxPrefix::operator==(const QuoteBoxPrefix& tok)const{
-		return degree == tok.degree;
-	}
-	
-    bool ListPrefix::operator==(const ListPrefix& tok)const{
-        return type == tok.type && degree == tok.degree;
-    }
-	
-	bool InlineFormat::operator==(const InlineFormat& tok)const{
-		return type == tok.type && begin == tok.begin && end == tok.end && color == tok.color;
-	}
-	
-	bool TableMarker::operator==(const TableMarker& tok)const{
-        return type == tok.type && alignment == tok.alignment && span == tok.span;
-	}
-	
-	bool HyperLink::operator==(const HyperLink& tok)const{
-		return shownText == tok.shownText && url == tok.url && newWindow == tok.newWindow;
-	}
-	
-	bool LiteralText::operator==(const LiteralText& tok)const{
-		return text == tok.text;
-	}
-		
-	bool PlainText::operator==(const PlainText& tok)const{
-		return text == tok.text;
-	}
-	
-	bool CenterText::operator==(const CenterText& tok)const{
-        return true;
-	}
-	
-	bool LineBreak::operator==(const LineBreak& tok)const{
-		return true;
-	}
-	
-	bool NewLine::operator==(const NewLine& tok)const{
-		return true;
-	}
-	
 	Token::Type Token::getType()const{
 		return static_cast<Type>(token.index());
 	}
 	
 	bool Token::operator==(const Token& tok)const{
-		return token == tok.token && sourceStart == tok.sourceStart && sourceEnd == tok.sourceEnd && source == tok.source;
+		return printToken(*this) == printToken(tok);
 	}
 	
-	std::string tokenVariantToString(const Token& tok){
-		std::stringstream ss;
-		
+	std::string getTokenTypeName(Token::Type type){
+		return TokenTypeNames.at(static_cast<std::size_t>(type));
+	}
+	
+	nlohmann::json printTokenVariant(const Token& tok){
 		const std::vector<TokenPrintRule> tokenPrintRules = getTokenPrintRules();
 		Token::Type tokType = tok.getType();
 		
 		for(const TokenPrintRule& printRule : tokenPrintRules){
             if(printRule.type == tokType){
-                return printRule.toString(tok.token);
+                return printRule.print(tok.token);
             }
 		}
 		throw std::runtime_error("Attempted to print a Token with no valid TokenPrintRule");
 	}
 	
-	std::string toString(const Token& tok){
-		
-		std::stringstream ss;
-		
-		ss << "{";
-		ss << tokenVariantToString(tok);
-		ss << "} -> [" << tok.sourceStart << ", " << tok.sourceEnd << ") = \"";
-		for(char c : tok.source){
-			switch(c){
-				default:
-					ss << c;
-					break;
-				case '\n':
-					ss << "\\n";
-					break;
-				case '\r':
-					ss << "\\r";
-					break;
-				case '\t':
-					ss << "\\t";
-					break;
-			}
-		}
-		ss << "\"";
-		return ss.str();
+	nlohmann::json printToken(const Token& tok){
+		nlohmann::json out;
+		out["type"] = getTokenTypeName(tok.getType());
+		out["source"] = tok.source;
+		out["sourceStart"] = tok.sourceStart;
+		out["sourceEnd"] = tok.sourceEnd;
+		out["data"] = printTokenVariant(tok);
+		return out;
 	}
 	
 	std::ostream& operator<<(std::ostream& out, const Token& tok){
-		out << toString(tok);
+		out << printToken(tok).dump(4);
 		return out;
 	}
 	
