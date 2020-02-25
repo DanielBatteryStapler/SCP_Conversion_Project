@@ -18,6 +18,7 @@
 #include "RuleSets/FootNoteRuleSet.hpp"
 #include "RuleSets/RateRuleSet.hpp"
 #include "RuleSets/ARuleSet.hpp"
+#include "RuleSets/ForumRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -54,6 +55,7 @@ namespace Parser{
 	    footNoteRuleSet,
 	    rateRuleSet,
 	    aRuleSet,
+	    forumRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,

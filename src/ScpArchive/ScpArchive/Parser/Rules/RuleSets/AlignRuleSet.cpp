@@ -1,7 +1,5 @@
 #include "AlignRuleSet.hpp"
 
-#include <sstream>
-
 namespace Parser{
 	nlohmann::json printNodeAlign(const NodeVariant& nod){
         const Align& align = std::get<Align>(nod);

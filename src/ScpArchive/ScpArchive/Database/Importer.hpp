@@ -17,18 +17,22 @@ namespace Importer{
         
         void setPageMap(std::string raw, Database::ID id);
         Database::ID getPageMap(std::string raw);
+        std::string getPageMapRaw(Database::ID id);
         bool pageMapExists(std::string raw);
         
         void setFileMap(std::string raw, Database::ID id);
         Database::ID getFileMap(std::string raw);
+        std::string getFileMapRaw(Database::ID id);
         bool fileMapExists(std::string raw);
         
         void setThreadMap(std::string raw, Database::ID id);
         Database::ID getThreadMap(std::string raw);
+        std::string getThreadMapRaw(Database::ID id);
         bool threadMapExists(std::string raw);
         
         void setCategoryMap(std::string raw, Database::ID id);
         Database::ID getCategoryMap(std::string raw);
+        std::string getCategoryMapRaw(Database::ID id);
         bool categoryMapExists(std::string raw);
         
 	private:

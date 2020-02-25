@@ -352,6 +352,8 @@ namespace Tests{
 				importMap.setThreadMap(rawB, idB);
 				assertEquals(idA, importMap.getThreadMap(rawA));
 				assertEquals(idB, importMap.getThreadMap(rawB));
+				assertEquals(rawA, importMap.getThreadMapRaw(idA));
+				assertEquals(rawB, importMap.getThreadMapRaw(idB));
 			}
 			{
 				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
@@ -376,6 +378,8 @@ namespace Tests{
 				importMap.setCategoryMap(rawB, idB);
 				assertEquals(idA, importMap.getCategoryMap(rawA));
 				assertEquals(idB, importMap.getCategoryMap(rawB));
+				assertEquals(rawA, importMap.getCategoryMapRaw(idA));
+				assertEquals(rawB, importMap.getCategoryMapRaw(idB));
 			}
 			{
 				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
@@ -400,6 +404,8 @@ namespace Tests{
 				importMap.setPageMap(rawB, idB);
 				assertEquals(idA, importMap.getPageMap(rawA));
 				assertEquals(idB, importMap.getPageMap(rawB));
+				assertEquals(rawA, importMap.getPageMapRaw(idA));
+				assertEquals(rawB, importMap.getPageMapRaw(idB));
 			}
 			{
 				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
@@ -424,6 +430,8 @@ namespace Tests{
 				importMap.setFileMap(rawB, idB);
 				assertEquals(idA, importMap.getFileMap(rawA));
 				assertEquals(idB, importMap.getFileMap(rawB));
+				assertEquals(rawA, importMap.getFileMapRaw(idA));
+				assertEquals(rawB, importMap.getFileMapRaw(idB));
 			}
 		});
 	}

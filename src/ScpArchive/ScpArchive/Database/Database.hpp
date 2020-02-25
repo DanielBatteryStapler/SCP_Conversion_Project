@@ -6,10 +6,11 @@
 #include <vector>
 #include <soci/soci.h>
 
+#include "../Config.hpp"
+
 class Database{
 	public:
 		using ID = std::int64_t;
-		using TimeStamp = std::int64_t;
 		
 		struct PageRevision{
 			std::string title;
@@ -69,6 +70,7 @@ class Database{
 		
 		void setIdMap(short category, std::string sourceId, Database::ID id);
 		std::optional<Database::ID> getIdMap(short category, std::string sourceId);
+		std::optional<std::string> getIdMapRaw(short category, Database::ID id);
 		bool idMapExists(short category, std::string sourceId);
 		
 		int64_t getNumberOfPages();
@@ -110,7 +112,7 @@ class Database{
 		Database::ID createForumThread(Database::ForumThread thread);
 		void resetForumThread(Database::ID id, Database::ForumThread thread);
 		Database::ForumThread getForumThread(Database::ID thread);
-		std::vector<Database::ID> getForumThreads(Database::ID category);
+		std::vector<Database::ID> getForumThreads(Database::ID category, std::int64_t count = 25, std::int64_t offset = 0);
 		
 		Database::ID createForumPost(Database::ForumPost post);
 		Database::ForumPost getForumPost(Database::ID post);

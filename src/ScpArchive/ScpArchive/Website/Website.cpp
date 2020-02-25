@@ -96,6 +96,17 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
             }
         }
         else{
+			if(uri.size() > 1 && uri[0] == "forum"){//if they're trying to access the form, we need to translate that into the correct page they actually want
+				if(uri[1][0] == 's'){
+					uri.insert(uri.begin(), "forum:start");
+				}
+				else if(uri[1][0] == 'c'){
+					uri.insert(uri.begin(), "forum:category");
+				}
+				else if(uri[1][0] == 't'){
+					uri.insert(uri.begin(), "forum:thread");
+				}
+			}
             std::optional<Database::ID> pageId = webCon.db->getPageId(uri[0]);
             
             std::map<std::string, std::string> parameters;
@@ -128,6 +139,7 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
 }
 
 bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
+	
 	if(parameters.find("showAnnotatedSource") != parameters.end()){
 		Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
         
@@ -243,13 +255,22 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     
     Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
     
+    
+	if(pageName == "forum:start"){
+		revision.sourceCode = "[[module ForumStart]]";
+		//really strange special case, idk why the page doesn't just have this in it? forum:category and forum:thread do.
+	}
+    
     Parser::ParserParameters parserParameters = {};
     parserParameters.database = webCon.db.get();
     parserParameters.page.name = pageName;
     parserParameters.page.tags = webCon.db->getPageTags(pageId);
+    parserParameters.urlParameters = parameters;
     
     Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
     Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
+    
+    //std::cout << Parser::printNode(pageTree.pageRoot).dump(4) << "\n";
     
     reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
     << "Content-Type: text/html\r\n\r\n"_AM

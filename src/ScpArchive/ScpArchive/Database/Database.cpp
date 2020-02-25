@@ -170,6 +170,18 @@ std::optional<Database::ID> Database::getIdMap(short category, std::string sourc
 	}
 }
 
+std::optional<std::string> Database::getIdMapRaw(short category, Database::ID id){
+	std::string sourceId;
+	sql << "SELECT sourceId FROM idMap WHERE category=:category AND id=:id",
+		use(category), use(id), into(sourceId);
+	if(sql.got_data()){
+		return sourceId;
+	}
+	else{
+		return {};
+	}
+}
+
 int64_t Database::getNumberOfPages(){
 	std::size_t pageCount;
 	sql << "SELECT COUNT(*) FROM pages", into(pageCount);
@@ -467,9 +479,10 @@ Database::ForumThread Database::getForumThread(Database::ID thread){
 	return forumThread;
 }
 
-std::vector<Database::ID> Database::getForumThreads(Database::ID category){
+std::vector<Database::ID> Database::getForumThreads(Database::ID category, std::int64_t count, std::int64_t offset){
 	Database::ID thread;
-	soci::statement stmt = (sql.prepare << "SELECT id FROM forumThreads WHERE parent=:category", use(category), into(thread));
+	soci::statement stmt = (sql.prepare << "SELECT id FROM forumThreads WHERE parent=:category ORDER BY timestamp DESC LIMIT :offset, :count",
+							use(category), into(thread), use(offset), use(count));
 	stmt.execute();
 	
 	std::vector<Database::ID> threads;
@@ -513,10 +526,10 @@ std::vector<Database::ID> Database::getForumReplies(Database::ID parentThread, s
 	Database::ID post;
 	std::optional<soci::statement> stmt;
 	if(parentPost){
-		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost=:post", use(parentThread), use(*parentPost), into(post));
+		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost=:post ORDER BY timeStamp ASC", use(parentThread), use(*parentPost), into(post));
 	}
 	else{
-		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost IS NULL", use(parentThread), into(post));
+		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost IS NULL ORDER BY timeStamp ASC", use(parentThread), into(post));
 	}
 	stmt->execute();
 	

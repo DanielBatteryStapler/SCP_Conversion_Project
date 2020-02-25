@@ -19,4 +19,6 @@ namespace Config{
 	std::string getScraperFolder();
 }
 
+using TimeStamp = std::int64_t;
+
 #endif // CONFIG_HPP

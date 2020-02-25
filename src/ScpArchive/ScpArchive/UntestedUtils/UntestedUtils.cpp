@@ -16,7 +16,7 @@ namespace UntestedUtils{
 			Type type;
 			std::string name;
 			std::string title;
-			Database::TimeStamp timeStamp;
+			TimeStamp timeStamp;
 			std::vector<std::string> linkedNames;
 		};
 	}

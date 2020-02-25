@@ -25,6 +25,14 @@ namespace Importer{
 			return *id;
 		}
 		
+		inline std::string getMapRawDetail(Database* db, Database::MapType type, Database::ID id){
+			std::optional<std::string> raw = db->getIdMapRaw(static_cast<short>(type), id);
+			if(!raw){
+				throw std::runtime_error("Attempted to get ImportMap raw but no mapping exists");
+			}
+			return *raw;
+		}
+		
 		inline bool mapExistsDetail(Database* db, Database::MapType type, std::string raw){
 			std::optional<Database::ID> id = db->getIdMap(static_cast<short>(type), raw);
 			if(id){
@@ -44,6 +52,10 @@ namespace Importer{
 		return getMapDetail(db, Database::MapType::Page, raw);
 	}
 	
+	std::string ImportMap::getPageMapRaw(Database::ID id){
+		return getMapRawDetail(db, Database::MapType::Page, id);
+	}
+	
 	bool ImportMap::pageMapExists(std::string raw){
 		return mapExistsDetail(db, Database::MapType::Page, raw);
 	}
@@ -54,6 +66,10 @@ namespace Importer{
 	
 	Database::ID ImportMap::getFileMap(std::string raw){
 		return getMapDetail(db, Database::MapType::File, raw);
+	}
+	
+	std::string ImportMap::getFileMapRaw(Database::ID id){
+		return getMapRawDetail(db, Database::MapType::File, id);
 	}
 	
 	bool ImportMap::fileMapExists(std::string raw){
@@ -68,6 +84,10 @@ namespace Importer{
         return getMapDetail(db, Database::MapType::Thread, raw);
     }
     
+    std::string ImportMap::getThreadMapRaw(Database::ID id){
+		return getMapRawDetail(db, Database::MapType::Thread, id);
+	}
+    
     bool ImportMap::threadMapExists(std::string raw){
 		return mapExistsDetail(db, Database::MapType::Thread, raw);
 	}
@@ -79,6 +99,10 @@ namespace Importer{
     Database::ID ImportMap::getCategoryMap(std::string raw){
         return getMapDetail(db, Database::MapType::Category, raw);
     }
+    
+    std::string ImportMap::getCategoryMapRaw(Database::ID id){
+		return getMapRawDetail(db, Database::MapType::Category, id);
+	}
 	
 	bool ImportMap::categoryMapExists(std::string raw){
 		return mapExistsDetail(db, Database::MapType::Category, raw);

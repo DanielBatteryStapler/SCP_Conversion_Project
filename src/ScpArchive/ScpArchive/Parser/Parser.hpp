@@ -9,6 +9,8 @@
 #include <functional>
 #include <nlohmann/json.hpp>
 
+#include "../Config.hpp"
+
 class Database;
 
 namespace Parser{
@@ -19,7 +21,7 @@ namespace Parser{
 	
 	enum class SectionType{Unknown, Module, FootNote, FootNoteBlock, TableOfContents, AdvTable, AdvTableRow, AdvTableElement, 
         HTML, IFrame, Iftags, Include, Image, TabView, Tab, Collapsible, Span, Size, Anchor, Align, Div, Code, A, AdvList, AdvListElement};
-	enum class ModuleType{Unknown, CSS, Rate};
+	enum class ModuleType{Unknown, CSS, Rate, ForumStart, ForumCategory, ForumThread};
 	
 	struct Section{
 		SectionType type = SectionType::Unknown;
@@ -155,6 +157,7 @@ namespace Parser{
 	struct ParserParameters{
 	    PageInfo page;
         std::map<std::string, std::string> includeParameters;
+        std::map<std::string, std::string> urlParameters;
         Database* database = nullptr;
         int includeDepth = 0;
 	};

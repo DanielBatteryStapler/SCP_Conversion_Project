@@ -148,6 +148,46 @@ namespace Parser{
         int rating;
     };
     
+    struct ForumStart{
+		struct Category{
+			std::string id;
+			std::string title;
+			std::string description;
+		};
+		struct Group{
+			std::string title;
+			std::string description;
+			std::vector<Category> categories;
+		};
+		std::vector<Group> groups;
+    };
+    
+    struct ForumCategory{
+    	std::string title;
+    	std::string description;
+    	int currentPage;
+    	int totalPages;
+    	struct Thread{
+			std::string id;
+			std::string title;
+			std::string description;
+			TimeStamp timeStamp;
+    	};
+    	std::vector<Thread> threads;
+    };
+    
+    struct ForumThread{
+    	std::string categoryId;
+    	std::string title;
+    	std::string description;
+    	TimeStamp timeStamp;
+    };
+    
+    struct ForumPost{
+    	std::string title;
+    	TimeStamp timeStamp;
+    };
+    
 	struct RootPage{
 	};
 	
@@ -155,19 +195,22 @@ namespace Parser{
 		{"Unknown", "RootPage", "Table", "TableRow", "TableElement", "AdvTable", "AdvTableRow", "AdvTableElement",
 		"FootNote", "FootNoteBlock", "TableOfContents", "TabView", "Tab", "Collapsible", "Rate", "Image", "HTML", "IFrame", "Code",
 		"QuoteBox", "Div", "Align", "List", "ListElement", "AdvList", "AdvListElement", "Paragraph", "CenterText", "Heading", "Divider",
-		"LineBreak", "PlainText", "LiteralText", "HyperLink", "StyleFormat", "Span", "Anchor", "Size", "A"};
+		"LineBreak", "PlainText", "LiteralText", "HyperLink", "StyleFormat", "Span", "Anchor", "Size", "A",
+		"ForumStart", "ForumThread", "ForumCategory", "ForumPost"};
 		
 	enum class NodeType
 		{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
         FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, Image, HTML, IFrame, Code,
         QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider,
-        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A};
+        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A,
+        ForumStart, ForumThread, ForumCategory, ForumPost};
         
 	using NodeVariant = std::variant
 		<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
         FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, Image, HTML, IFrame, Code,
         QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider,
-        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A>;
+        LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A,
+        ForumStart, ForumThread, ForumCategory, ForumPost>;
 	
 	struct Node{
 		using Type = NodeType;
