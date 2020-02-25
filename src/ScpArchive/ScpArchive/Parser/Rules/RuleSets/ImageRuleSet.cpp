@@ -98,10 +98,10 @@ namespace Parser{
             newImage.source = source;
         }
         else if(check(source, 0, "/") && source.find("/", 1) != std::string::npos){
-            newImage.source = "__system/pageFile" + source;
+            newImage.source = "/__system/pageFile" + source;
         }
         else{
-            newImage.source = "__system/pageFile/" + context.parameters.page.name + "/" + urlEncode(source);
+            newImage.source = "/__system/pageFile/" + context.parameters.page.name + "/" + urlEncode(source);
         }
         
         addAsText(context, Node{newImage});

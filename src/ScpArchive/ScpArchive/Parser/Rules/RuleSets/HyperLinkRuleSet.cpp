@@ -205,6 +205,10 @@ namespace Parser{
     
     void toHtmlNodeHyperLink(const HtmlContext& con, const Node& nod){
         const HyperLink& node = std::get<HyperLink>(nod.node);
-        con.out << "<a href='"_AM << node.url << "'>"_AM << node.shownText << "</a>"_AM; 
+        std::string url = node.url;
+        if(url != "" && !check(url, 0, "http://") && !check(url, 0, "https://") && url[0] != '/'){
+			url = '/' + url;//make sure links are using absolute paths
+        }
+        con.out << "<a href='"_AM << url << "'>"_AM << node.shownText << "</a>"_AM; 
     }
 }
