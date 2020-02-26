@@ -170,35 +170,39 @@ namespace Scraper{
             for(std::string page : batch["pageList"]){
                 std::string pageFile = pagesFolder + page + "/data.json";
                 if(!boost::filesystem::exists(pageFile) || boost::filesystem::is_directory(pageFile)){
+                    std::cout << "\tMissing Data for page " << page << "\n";
                     pageErrors.push_back(page);
                 }
                 else if(!pageExists(page) && dataExists(loadJsonFromFile(pageFile))){
                 	//page does not exist on scp-wiki.net, but we have data for it
+                	std::cout << "\tPage " << page << " has stale data\n";
 					pageErrors.push_back(page);
                 }
                 else{
 					//page exists and should exist, check to make sure it's companion discussion thread also exists
 					nlohmann::json pageData = loadJsonFromFile(pageFile);
-					std::string threadId = pageData["discussionId"];
-					if(threadId != ""){
-						bool threadExists = false;
-						
-						nlohmann::json batchData = loadJsonFromFile(batchDataFile);
-						std::int64_t currentTime = batch["timeStamp"].get<std::int64_t>();
-						for(std::string lastBatch : batchData["availableBatches"]){
-							nlohmann::json otherBatchData = loadJsonFromFile(batchesFolder + lastBatch + "/batch.json");
-							if(otherBatchData["timeStamp"].get<std::int64_t>() <= currentTime){//don't look into the future
-								const auto& threadList = otherBatchData["threadList"];
-								if(std::find(threadList.begin(), threadList.end(), threadId) != threadList.end()){
-									threadExists = true;
-									break;
+					if(!pageData["discussionId"].is_null()){
+						std::string threadId = pageData["discussionId"].get<std::string>();
+						if(threadId != ""){
+							bool threadExists = false;
+							
+							nlohmann::json batchData = loadJsonFromFile(batchDataFile);
+							std::int64_t currentTime = batch["timeStamp"].get<std::int64_t>();
+							for(std::string lastBatch : batchData["availableBatches"]){
+								nlohmann::json otherBatchData = loadJsonFromFile(batchesFolder + lastBatch + "/batch.json");
+								if(otherBatchData["timeStamp"].get<std::int64_t>() <= currentTime){//don't look into the future
+									const auto& threadList = otherBatchData["threadList"];
+									if(std::find(threadList.begin(), threadList.end(), threadId) != threadList.end()){
+										threadExists = true;
+										break;
+									}
 								}
 							}
-						}
-						
-						if(threadExists == false){
-							std::cout << "\tMissing discussion thread " << threadId << " needed for page " << page << "\n";
-							batch["threadList"].push_back(threadId);
+							
+							if(threadExists == false){
+								std::cout << "\tMissing discussion thread " << threadId << " needed for page " << page << "\n";
+								batch["threadList"].push_back(threadId);
+							}
 						}
 					}
                 }
@@ -222,10 +226,12 @@ namespace Scraper{
             for(std::string thread : batch["threadList"]){
                 std::string threadFile = threadsFolder + thread + "/data.json";
                 if(!boost::filesystem::exists(threadFile) || boost::filesystem::is_directory(threadFile)){
+                    std::cout << "\tMissing data for thread " << thread << "\n";
                     threadErrors.push_back(thread);
                 }
                 else if(!threadExists(thread) && dataExists(loadJsonFromFile(threadFile))){
                 	//thread does not exist on scp-wiki.net, but we have data for it
+                	std::cout << "\tThread " << thread << " has stale data\n";
 					threadErrors.push_back(thread);
                 }
             }
@@ -251,7 +257,7 @@ namespace Scraper{
             throw std::runtime_error("Cannot check all batch downloads, Timeline File has errors");
 		}
 		for(std::string batch : batchData["availableBatches"]){
-			checkBatchDownloads(batchDataFile, batchesFolder, batchesFolder + batch + "/");
+			checkBatchDownloads(batchesFolder, batchDataFile, batchesFolder + batch + "/");
 		}
 	}
 	
@@ -300,7 +306,10 @@ namespace Scraper{
 					if(start == std::string::npos){
 						break;
 					}
-					output.push_back(temp);
+					trimString(temp);
+					if(temp != ""){
+						output.push_back(temp);
+					}
 				}
 			}
 			pageNumber++;
@@ -348,7 +357,10 @@ namespace Scraper{
 						std::string timeStamp;
 						getData(data, "odate time_", " ", start, timeStamp);
 						if(std::stoll(timeStamp) >= startTime){
-							output.push_back(pageName);
+							trimString(pageName);
+							if(pageName != ""){
+								output.push_back(pageName);
+							}
 						}
 						else{
 							keepGoing = false;//we started seeing pages we've already seen, so stop searching
@@ -1093,7 +1105,10 @@ namespace Scraper{
 				}
 				std::string id;
 				pos = getData(rawList, "/forum/t-", "/", pos, id);
-				output.push_back(id);
+				trimString(id);
+				if(id != ""){
+					output.push_back(id);
+				}
 				countOnPage++;
 			}
 			if(countOnPage == 0){
@@ -1150,7 +1165,10 @@ namespace Scraper{
 						std::string timeStamp;
 						getData(threadData, "odate time_", " ", 0, timeStamp);
 						if(std::stoll(timeStamp) >= startTime){
-							output.push_back(threadId);
+							trimString(threadId);
+							if(threadId != ""){
+								output.push_back(threadId);
+							}
 						}
 						else{
 							keepGoing = false;//we started seeing pages we've already seen, so stop searching
@@ -1211,6 +1229,10 @@ namespace Scraper{
 		std::cout << "\tArchiving thread \"" << threadId << "\"...\n";
 		
 		std::string threadFolder = threadsFolder + threadId + "/";
+		
+		if(boost::filesystem::equivalent(boost::filesystem::path(threadFolder), boost::filesystem::path(threadsFolder))){
+			throw std::runtime_error("Path error on thread " + threadId);
+		}
 		
 		//make sure there isn't any stale data already in the directory
 		boost::filesystem::remove_all(threadFolder);
