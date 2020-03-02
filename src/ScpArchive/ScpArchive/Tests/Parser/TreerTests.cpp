@@ -368,7 +368,7 @@ namespace Tests{
 			Node{
 				RootPage{},
 				{
-					Node{Heading{3, false},
+					Node{Heading{3, false, 0},
 						{
 							Node{PlainText{"heading"}}
 						}
@@ -381,7 +381,7 @@ namespace Tests{
 			Node{
 				RootPage{},
 				{
-					Node{Heading{3, false},
+					Node{Heading{3, false, 0},
 						{
 							Node{PlainText{"heading"}}
 						}
@@ -412,7 +412,7 @@ namespace Tests{
 			Node{
 				RootPage{},
 				{
-					Node{Heading{1, false},
+					Node{Heading{1, false, 0},
 						{
 							Node{PlainText{"s"}},
 							Node{StyleFormat{StyleFormat::Type::Strike},
@@ -1282,17 +1282,17 @@ namespace Tests{
 				{
                     Node{TableOfContents{TableOfContents::AlignmentType::Default},
                         {
-                            Node{Heading{1, false}, {Node{PlainText{"heading"}}}},
-                            Node{Heading{2, false}, {Node{PlainText{"sub-heading"}}}}
+                            Node{Heading{1, false, 0}, {Node{PlainText{"heading"}}}},
+                            Node{Heading{2, false, 1}, {Node{PlainText{"sub-heading"}}}}
                         }
                     },
-                    Node{Heading{1, false}, {Node{PlainText{"heading"}}}},
-                    Node{Heading{2, false}, {Node{PlainText{"sub-heading"}}}},
+                    Node{Heading{1, false, 0}, {Node{PlainText{"heading"}}}},
+                    Node{Heading{2, false, 1}, {Node{PlainText{"sub-heading"}}}},
                     Node{Heading{1, true}, {Node{PlainText{"hidden heading"}}}},
                     Node{TableOfContents{TableOfContents::AlignmentType::FloatRight},
                         {
-                            Node{Heading{1, false}, {Node{PlainText{"heading"}}}},
-                            Node{Heading{2, false}, {Node{PlainText{"sub-heading"}}}}
+                            Node{Heading{1, false, 0}, {Node{PlainText{"heading"}}}},
+                            Node{Heading{2, false, 1}, {Node{PlainText{"sub-heading"}}}}
                         }
                     }
 				}

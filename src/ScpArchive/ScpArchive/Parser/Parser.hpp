@@ -56,7 +56,7 @@ namespace Parser{
 		unsigned int degree;
 		bool hidden;
 		
-		unsigned int tocNumber;
+		std::optional<unsigned int> tocNumber;//only used when in a Node tree and not hidden
 	};
 	
 	struct QuoteBoxPrefix{

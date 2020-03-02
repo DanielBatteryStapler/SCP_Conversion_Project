@@ -10,7 +10,17 @@ namespace Parser{
     }
     
     nlohmann::json printNodeHeading(const NodeVariant& nod){
-        return printTokenHeading(std::get<Heading>(nod));
+        const Heading& heading = std::get<Heading>(nod);
+        nlohmann::json out;
+        out["degree"] = heading.degree;
+        out["hidden"] = heading.hidden;
+        if(heading.hidden == false){
+            out["tocNumber"] = *heading.tocNumber;
+        }
+        else{
+			out["tocNumber"] = nlohmann::json();
+        }
+        return out;
     }
 	
 	bool tryHeadingRule(const TokenRuleContext& context){
@@ -63,7 +73,12 @@ namespace Parser{
     
 	void toHtmlNodeHeading(const HtmlContext& con, const Node& nod){
         const Heading& node = std::get<Heading>(nod.node);
-        con.out << "<h"_AM << std::to_string(node.degree) << " id='toc"_AM << std::to_string(node.tocNumber) << "'>"_AM;
+        
+        con.out << "<h"_AM << std::to_string(node.degree);
+        if(node.hidden == false){
+            con.out << " id='toc"_AM << std::to_string(*node.tocNumber) << "'"_AM;
+        }
+        con.out << ">"_AM;
         delegateNodeBranches(con, nod);
         con.out << "</h"_AM << std::to_string(node.degree) << ">"_AM;
 	}

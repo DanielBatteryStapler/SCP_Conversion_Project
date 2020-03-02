@@ -75,7 +75,7 @@ namespace Parser{
         for(const Node& headingNode : nod.branches){
             const Heading& heading = std::get<Heading>(headingNode.node);
             con.out << "<div style='margin-left:"_AM << std::to_string(heading.degree) << "em;'>"_AM
-            << "<a href='#toc"_AM << std::to_string(heading.tocNumber) << "'>"_AM;
+            << "<a href='#toc"_AM << std::to_string(*heading.tocNumber) << "'>"_AM;
             delegateNodeBranches(con, headingNode);
             con.out << "</a></div>"_AM;
         }
