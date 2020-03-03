@@ -166,6 +166,7 @@ namespace Importer{
 		}
 		else{
 			automatic = 1;
+			choice = 1;
 		}
 		
 		try{
