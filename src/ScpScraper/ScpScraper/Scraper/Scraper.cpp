@@ -173,39 +173,6 @@ namespace Scraper{
                     std::cout << "\tMissing Data for page " << page << "\n";
                     pageErrors.push_back(page);
                 }
-                else if(!pageExists(page) && dataExists(loadJsonFromFile(pageFile))){
-                	//page does not exist on scp-wiki.net, but we have data for it
-                	std::cout << "\tPage " << page << " has stale data\n";
-					pageErrors.push_back(page);
-                }
-                else{
-					//page exists and should exist, check to make sure it's companion discussion thread also exists
-					nlohmann::json pageData = loadJsonFromFile(pageFile);
-					if(!pageData["discussionId"].is_null()){
-						std::string threadId = pageData["discussionId"].get<std::string>();
-						if(threadId != ""){
-							bool threadExists = false;
-							
-							nlohmann::json batchData = loadJsonFromFile(batchDataFile);
-							std::int64_t currentTime = batch["timeStamp"].get<std::int64_t>();
-							for(std::string lastBatch : batchData["availableBatches"]){
-								nlohmann::json otherBatchData = loadJsonFromFile(batchesFolder + lastBatch + "/batch.json");
-								if(otherBatchData["timeStamp"].get<std::int64_t>() <= currentTime){//don't look into the future
-									const auto& threadList = otherBatchData["threadList"];
-									if(std::find(threadList.begin(), threadList.end(), threadId) != threadList.end()){
-										threadExists = true;
-										break;
-									}
-								}
-							}
-							
-							if(threadExists == false){
-								std::cout << "\tMissing discussion thread " << threadId << " needed for page " << page << "\n";
-								batch["threadList"].push_back(threadId);
-							}
-						}
-					}
-                }
             }
             if(pageErrors.size() > 0){
                 std::cout << "Page Errors:\n";
@@ -228,11 +195,6 @@ namespace Scraper{
                 if(!boost::filesystem::exists(threadFile) || boost::filesystem::is_directory(threadFile)){
                     std::cout << "\tMissing data for thread " << thread << "\n";
                     threadErrors.push_back(thread);
-                }
-                else if(!threadExists(thread) && dataExists(loadJsonFromFile(threadFile))){
-                	//thread does not exist on scp-wiki.net, but we have data for it
-                	std::cout << "\tThread " << thread << " has stale data\n";
-					threadErrors.push_back(thread);
                 }
             }
             if(threadErrors.size() > 0){
