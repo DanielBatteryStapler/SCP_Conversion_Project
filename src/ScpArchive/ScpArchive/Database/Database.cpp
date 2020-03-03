@@ -55,6 +55,8 @@ void Database::cleanAndInitDatabase(){
 	"CREATE TABLE forumCategories( \n"
 		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
 			"PRIMARY KEY (id), \n"
+		"sourceId TEXT NOT NULL, \n"
+			"UNIQUE (sourceId(255)), \n"
 		"parent BIGINT NOT NULL, \n"
 			"FOREIGN KEY (parent) REFERENCES forumGroups(id) ON DELETE CASCADE, \n"
 		"title TEXT NOT NULL, \n"
@@ -65,6 +67,8 @@ void Database::cleanAndInitDatabase(){
 	"CREATE TABLE forumThreads( \n"
 		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
 			"PRIMARY KEY (id), \n"
+		"sourceId TEXT NOT NULL, \n"
+			"UNIQUE (sourceId(255)), \n"
 		"parent BIGINT NOT NULL, \n"
 			"FOREIGN KEY (parent) REFERENCES forumCategories(id) ON DELETE CASCADE, \n"
 		"title TEXT NOT NULL, \n"
@@ -94,8 +98,7 @@ void Database::cleanAndInitDatabase(){
 		"name TEXT NOT NULL, \n"
 			"UNIQUE (name(255)), \n"
 		"parent TEXT DEFAULT NULL, \n"
-		"discussion BIGINT DEFAULT NULL, \n"
-			"FOREIGN KEY (discussion) REFERENCES forumThreads(id) ON DELETE RESTRICT \n"
+		"discussion TEXT DEFAULT NULL \n"
 	")ENGINE=InnoDB CHARSET=utf8";
 	
 	sql <<
@@ -154,8 +157,8 @@ void Database::cleanAndInitDatabase(){
 }
 
 void Database::setIdMap(short category, std::string sourceId, Database::ID id){
-	sql << "INSERT INTO idMap(category, id, sourceId) VALUES(:category, :id, :sourceId) ON DUPLICATE KEY UPDATE id=:id",
-		use(category), use(id), use(sourceId), use(id);
+	sql << "INSERT INTO idMap(category, id, sourceId) VALUES(:category, :id, :sourceId) ON DUPLICATE KEY UPDATE sourceId=:sourceId, id=:id",
+		use(category), use(id), use(sourceId), use(sourceId), use(id);
 }
 
 std::optional<Database::ID> Database::getIdMap(short category, std::string sourceId){
@@ -182,9 +185,9 @@ std::optional<std::string> Database::getIdMapRaw(short category, Database::ID id
 	}
 }
 
-int64_t Database::getNumberOfPages(){
-	std::size_t pageCount;
-	sql << "SELECT COUNT(*) FROM pages", into(pageCount);
+std::int64_t Database::getNumberOfPages(){
+	std::int64_t pageCount;
+	sql << "SELECT COUNT(id) FROM pages", into(pageCount);
 	return pageCount;
 }
 
@@ -204,7 +207,7 @@ std::optional<Database::ID> Database::createPage(std::string name){
 
 void Database::resetPage(Database::ID id, std::string name){
 	std::vector<Database::ID> files = getPageFiles(id);
-	sql << "DELETE FROM idMap WHERE category=:category AND id=:id", use(static_cast<short>(MapType::File)), use(id);
+	//sql << "DELETE FROM idMap WHERE category=:category AND id=:id", use(static_cast<short>(MapType::File)), use(id);
 	sql << "DELETE FROM pageTags WHERE page=:page", use(id);
 	sql << "DELETE FROM pageFiles WHERE page=:page", use(id);
 	sql << "DELETE FROM revisions WHERE page=:page", use(id);
@@ -243,8 +246,8 @@ std::vector<Database::ID> Database::getPageList(){
 	return pages;
 }
 
-std::optional<Database::ID> Database::getPageDiscussion(Database::ID id){
-    Database::ID output;
+std::optional<std::string> Database::getPageDiscussion(Database::ID id){
+    std::string output;
     soci::indicator ind;
     sql << "SELECT discussion FROM pages WHERE id = :id", use(id), into(output, ind);
     if(ind == soci::i_null){
@@ -255,7 +258,7 @@ std::optional<Database::ID> Database::getPageDiscussion(Database::ID id){
     }
 }
 
-void Database::setPageDiscussion(Database::ID id, std::optional<Database::ID> discussion){
+void Database::setPageDiscussion(Database::ID id, std::optional<std::string> discussion){
     if(discussion){
 		sql << "UPDATE pages SET discussion=:discussion WHERE id=:id", use(*discussion), use(id);
     }
@@ -430,8 +433,8 @@ std::vector<Database::ID> Database::getForumGroups(){
 }
 
 Database::ID Database::createForumCategory(Database::ID group, Database::ForumCategory category){
-	sql << "INSERT INTO forumCategories(title, description, parent) VALUES(:title, :description, :parent)",
-		use(category.title), use(category.description), use(group);
+	sql << "INSERT INTO forumCategories(title, description, parent, sourceId) VALUES(:title, :description, :parent, :sourceId)",
+		use(category.title), use(category.description), use(group), use(category.sourceId);
 	Database::ID id;
 	sql << "SELECT LAST_INSERT_ID()", into(id);
 	return id;
@@ -439,9 +442,20 @@ Database::ID Database::createForumCategory(Database::ID group, Database::ForumCa
 
 Database::ForumCategory Database::getForumCategory(Database::ID category){
 	Database::ForumCategory forumCategory;
-	sql << "SELECT title, description FROM forumCategories WHERE id=:id",
-		use(category), into(forumCategory.title), into(forumCategory.description);
+	sql << "SELECT title, description, sourceId FROM forumCategories WHERE id=:id",
+		use(category), into(forumCategory.title), into(forumCategory.description), into(forumCategory.sourceId);
 	return forumCategory;
+}
+
+std::optional<Database::ID> Database::getForumCategoryId(std::string sourceId){
+	Database::ID id;
+	sql << "SELECT id FROM forumCategories WHERE sourceId = :sourceId", use(sourceId), into(id);
+	if(sql.got_data()){
+		return id;
+	}
+	else{
+		return {};
+	}
 }
 
 std::vector<Database::ID> Database::getForumCategories(Database::ID group){
@@ -457,10 +471,9 @@ std::vector<Database::ID> Database::getForumCategories(Database::ID group){
 	return categories;
 }
 
-
 Database::ID Database::createForumThread(Database::ForumThread thread){
-	sql << "INSERT INTO forumThreads(parent, title, description, timeStamp) VALUES(:parent, :title, :description, :timeStamp)",
-		use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp);
+	sql << "INSERT INTO forumThreads(parent, title, description, timeStamp, sourceId) VALUES(:parent, :title, :description, :timeStamp, :sourceId)",
+		use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp), use(thread.sourceId);
 	Database::ID id;
 	sql << "SELECT LAST_INSERT_ID()", into(id);
 	return id;
@@ -468,15 +481,26 @@ Database::ID Database::createForumThread(Database::ForumThread thread){
 
 void Database::resetForumThread(Database::ID id, Database::ForumThread thread){
 	sql << "DELETE FROM forumPosts WHERE parentThread=:id", use(id);
-	sql << "UPDATE forumThreads SET parent=:parent, title=:title, description=:description, timestamp=:timestamp WHERE id=:id",
-		use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp), use(id);
+	sql << "UPDATE forumThreads SET parent=:parent, title=:title, description=:description, timestamp=:timestamp, sourceId=:sourceId WHERE id=:id",
+		use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp), use(thread.sourceId), use(id);
 }
 
 Database::ForumThread Database::getForumThread(Database::ID thread){
 	Database::ForumThread forumThread;
-	sql << "SELECT parent, title, description, timestamp FROM forumThreads WHERE id=:id", use(thread),
-		into(forumThread.parent), into(forumThread.title), into(forumThread.description), into(forumThread.timeStamp);
+	sql << "SELECT parent, title, description, timestamp, sourceId FROM forumThreads WHERE id=:id", use(thread),
+		into(forumThread.parent), into(forumThread.title), into(forumThread.description), into(forumThread.timeStamp), into(forumThread.sourceId);
 	return forumThread;
+}
+
+std::optional<Database::ID> Database::getForumThreadId(std::string sourceId){
+	Database::ID id;
+	sql << "SELECT id FROM forumThreads WHERE sourceId = :sourceId", use(sourceId), into(id);
+	if(sql.got_data()){
+		return id;
+	}
+	else{
+		return {};
+	}
 }
 
 std::vector<Database::ID> Database::getForumThreads(Database::ID category, std::int64_t count, std::int64_t offset){
@@ -491,6 +515,12 @@ std::vector<Database::ID> Database::getForumThreads(Database::ID category, std::
 	}
 	
 	return threads;
+}
+
+std::int64_t Database::getNumberOfForumThreads(Database::ID category){
+    std::int64_t threadCount;
+	sql << "SELECT COUNT(id) FROM forumThreads WHERE parent=:category", use(category), into(threadCount);
+	return threadCount;
 }
 
 Database::ID Database::createForumPost(Database::ForumPost post){
@@ -522,14 +552,16 @@ Database::ForumPost Database::getForumPost(Database::ID post){
 	return forumPost;
 }
 
-std::vector<Database::ID> Database::getForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost){
+std::vector<Database::ID> Database::getForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost, std::int64_t count, std::int64_t offset){
 	Database::ID post;
 	std::optional<soci::statement> stmt;
 	if(parentPost){
-		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost=:post ORDER BY timeStamp ASC", use(parentThread), use(*parentPost), into(post));
+		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost=:post ORDER BY timeStamp ASC LIMIT :offset, :count",
+                use(parentThread), use(*parentPost), use(offset), use(count), into(post));
 	}
 	else{
-		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost IS NULL ORDER BY timeStamp ASC", use(parentThread), into(post));
+		stmt = (sql.prepare << "SELECT id FROM forumPosts WHERE parentThread=:thread AND parentPost IS NULL ORDER BY timeStamp ASC LIMIT :offset, :count",
+                use(parentThread), use(offset), use(count), into(post));
 	}
 	stmt->execute();
 	
@@ -539,6 +571,17 @@ std::vector<Database::ID> Database::getForumReplies(Database::ID parentThread, s
 	}
 	
 	return posts;
+}
+
+std::int64_t Database::getNumberOfForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost){
+    std::int64_t postCount;
+    if(parentPost){
+        sql << "SELECT COUNT(id) FROM forumPosts WHERE parentThread=:parentThread AND parentPost=:parentPost", use(parentThread), use(*parentPost), into(postCount);
+    }
+    else{
+        sql << "SELECT COUNT(id) FROM forumPosts WHERE parentThread=:parentThread AND parentPost IS NULL", use(parentThread), into(postCount);
+    }
+	return postCount;
 }
 
 

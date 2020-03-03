@@ -24,7 +24,7 @@ namespace Importer{
         Database::ID getFileMap(std::string raw);
         std::string getFileMapRaw(Database::ID id);
         bool fileMapExists(std::string raw);
-        
+        /*
         void setThreadMap(std::string raw, Database::ID id);
         Database::ID getThreadMap(std::string raw);
         std::string getThreadMapRaw(Database::ID id);
@@ -34,7 +34,7 @@ namespace Importer{
         Database::ID getCategoryMap(std::string raw);
         std::string getCategoryMapRaw(Database::ID id);
         bool categoryMapExists(std::string raw);
-        
+        */
 	private:
 		Database* db;
     };

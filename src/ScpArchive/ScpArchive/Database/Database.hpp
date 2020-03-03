@@ -34,11 +34,13 @@ class Database{
 		};
 		
 		struct ForumCategory{
+			std::string sourceId;
 			std::string title;
 			std::string description;
 		};
 		
 		struct ForumThread{
+			std::string sourceId;
 			Database::ID parent;
 			std::string title;
 			//author not implemented
@@ -82,8 +84,8 @@ class Database{
 		
 		std::vector<Database::ID> getPageList();
 		
-		std::optional<Database::ID> getPageDiscussion(Database::ID id);
-		void setPageDiscussion(Database::ID id, std::optional<Database::ID> discussion);
+		std::optional<std::string> getPageDiscussion(Database::ID id);
+		void setPageDiscussion(Database::ID id, std::optional<std::string> discussion);
 		std::optional<std::string> getPageParent(Database::ID id);
 		void setPageParent(Database::ID id, std::optional<std::string> parent);
 		std::vector<std::string> getPageTags(Database::ID id);
@@ -107,16 +109,20 @@ class Database{
 		
 		Database::ID createForumCategory(Database::ID group, Database::ForumCategory category);
 		Database::ForumCategory getForumCategory(Database::ID category);
+		std::optional<Database::ID> getForumCategoryId(std::string sourceId);
 		std::vector<Database::ID> getForumCategories(Database::ID group);
 		
 		Database::ID createForumThread(Database::ForumThread thread);
 		void resetForumThread(Database::ID id, Database::ForumThread thread);
 		Database::ForumThread getForumThread(Database::ID thread);
+		std::optional<Database::ID> getForumThreadId(std::string sourceId);
 		std::vector<Database::ID> getForumThreads(Database::ID category, std::int64_t count = 25, std::int64_t offset = 0);
+		std::int64_t getNumberOfForumThreads(Database::ID category);
 		
 		Database::ID createForumPost(Database::ForumPost post);
 		Database::ForumPost getForumPost(Database::ID post);
-		std::vector<Database::ID> getForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost = {});
+		std::vector<Database::ID> getForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost = {}, std::int64_t count = 25, std::int64_t offset = 0);
+		std::int64_t getNumberOfForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost = {});
 		
 	private:
 		soci::session sql;

@@ -1,48 +1,7 @@
 #include "ForumRuleSet.hpp"
 
 #include "../../../Database/Database.hpp"
-#include "../../../Database/Importer.hpp"
-
-/*
-struct ForumStart{
-	struct Category{
-		std::string id;
-		std::string title;
-		std::string description;
-	};
-	struct Group{
-		std::string title;
-		std::string description;
-		std::vector<Category> categories;
-	};
-	std::vector<Group> groups;
-};
-
-struct ForumCategory{
-	std::string title;
-	std::string description;
-	int currentPage;
-	int totalPages;
-	struct Thread{
-		std::string id;
-		std::string title;
-		std::string description;
-		TimeStamp timeStamp;
-	};
-	std::vector<Thread> threads;
-};
-
-struct ForumThread{
-	std::string title;
-	std::string description;
-	TimeStamp timeStamp;
-};
-
-struct ForumPost{
-	std::string title;
-	TimeStamp timestamp;
-};
-*/
+#include <cmath>
 
 namespace Parser{
 	nlohmann::json printNodeForumStart(const NodeVariant& nod){
@@ -99,6 +58,7 @@ namespace Parser{
 		const ForumPost& forumPost = std::get<ForumPost>(nod);
 		nlohmann::json out;
 		out["title"] = forumPost.title;
+		out["content"] = forumPost.content;
 		out["timeStamp"] = forumPost.timeStamp;
 		return out;
 	}
@@ -111,7 +71,6 @@ namespace Parser{
             makeDivPushable(context);
             return;
         }
-		Importer::ImportMap importMap{db};
 		ForumStart node;
 		std::vector<Database::ID> groups = db->getForumGroups();
 		for(Database::ID groupId : groups){
@@ -123,7 +82,6 @@ namespace Parser{
 			for(Database::ID categoryId : categories){
 				Database::ForumCategory categoryData = db->getForumCategory(categoryId);
 				ForumStart::Category category;
-				category.id = importMap.getCategoryMapRaw(categoryId);
 				category.title = categoryData.title;
 				category.description = categoryData.description;
 				group.categories.push_back(category);
@@ -141,7 +99,6 @@ namespace Parser{
             makeDivPushable(context);
             return;
         }
-		Importer::ImportMap importMap{db};
         Database::ID categoryId;
         {
 			std::string categoryIdRaw;
@@ -149,8 +106,8 @@ namespace Parser{
 				categoryIdRaw = context.parameters.urlParameters["forum"];
 				if(categoryIdRaw.size() > 2){
 					categoryIdRaw.erase(0, 2);
-					if(importMap.categoryMapExists(categoryIdRaw)){
-						categoryId = importMap.getCategoryMap(categoryIdRaw);
+					if(db->getForumCategoryId(categoryIdRaw)){
+						categoryId = db->getForumCategoryId(categoryIdRaw).value();
 					}
 					else{
 						categoryIdRaw = "";
@@ -170,7 +127,7 @@ namespace Parser{
         int page = 0;
         if(context.parameters.urlParameters.find("p") != context.parameters.urlParameters.end()){
 			try{
-				page = std::stoi(context.parameters.urlParameters["p"]);
+				page = std::stoll(context.parameters.urlParameters["p"]);
 			}
 			catch(std::exception& e){
 				//if there's an error, just use the default value
@@ -181,13 +138,14 @@ namespace Parser{
 		node.title = category.title;
 		node.description = category.description;
 		node.currentPage = page;
-		node.totalPages = 1;
+		constexpr std::int64_t threadsPerPage = 25;
+		node.totalPages = std::ceil(static_cast<long double>(db->getNumberOfForumThreads(categoryId)) / threadsPerPage);
 		{
-			std::vector<Database::ID> threads = db->getForumThreads(categoryId, 25, 25 * page);
+			std::vector<Database::ID> threads = db->getForumThreads(categoryId, threadsPerPage, threadsPerPage * page);
 			for(Database::ID threadId : threads){
 				Database::ForumThread threadData = db->getForumThread(threadId);
 				ForumCategory::Thread thread;
-				thread.id = importMap.getThreadMapRaw(threadId);
+				thread.id = threadData.sourceId;
 				thread.timeStamp = threadData.timeStamp;
 				thread.title = threadData.title;
 				thread.description = threadData.description;
@@ -205,7 +163,6 @@ namespace Parser{
             makeDivPushable(context);
             return;
         }
-		Importer::ImportMap importMap{db};
         Database::ID threadId;
         {
 			std::string threadIdRaw;
@@ -213,8 +170,8 @@ namespace Parser{
 				threadIdRaw = context.parameters.urlParameters["forum"];
 				if(threadIdRaw.size() > 2){
 					threadIdRaw.erase(0, 2);
-					if(importMap.threadMapExists(threadIdRaw)){
-						threadId = importMap.getThreadMap(threadIdRaw);
+					if(db->getForumThreadId(threadIdRaw)){
+						threadId = db->getForumThreadId(threadIdRaw).value();
 					}
 					else{
 						threadIdRaw = "";
@@ -231,25 +188,45 @@ namespace Parser{
 				return;
 			}
         }
+        constexpr std::int64_t postsPerPage = 25;
+        int page = 0;
+        if(context.parameters.urlParameters.find("p") != context.parameters.urlParameters.end()){
+			try{
+				page = std::stoll(context.parameters.urlParameters["p"]);
+			}
+			catch(std::exception& e){
+				//if there's an error, just use the default value
+			}
+        }
         ForumThread thread;
         {
 			Database::ForumThread threadData = db->getForumThread(threadId);
-			thread.categoryId = importMap.getCategoryMapRaw(threadData.parent);
+			thread.categoryId = db->getForumCategory(threadData.parent).sourceId;
 			thread.title = threadData.title;
 			thread.description = threadData.description;
 			thread.timeStamp = threadData.timeStamp;
+			thread.currentPage = page;
+			thread.totalPages = std::ceil(static_cast<long double>(db->getNumberOfForumReplies(threadId)) / postsPerPage);
         }
         Node node{thread};
         //now we just gotta make a tree of all of the replies
         const std::function<void(Node&, Database::ID, std::optional<Database::ID>)> getReplies
-		= [db, &getReplies](Node& node, Database::ID threadId, std::optional<Database::ID> postId)->void{
-			std::vector<Database::ID> replies = db->getForumReplies(threadId, postId);
+		= [db, &getReplies, &page, postsPerPage](Node& node, Database::ID threadId, std::optional<Database::ID> postId)->void{
+			std::vector<Database::ID> replies;
+			if(postId){
+                replies = db->getForumReplies(threadId, *postId, 999, 0);
+                //for now have a ridiculous limit for nested post counts
+			}
+			else{
+                replies = db->getForumReplies(threadId, {}, postsPerPage, postsPerPage * page);
+			}
 			for(Database::ID reply : replies){
 				Database::ForumPost postData = db->getForumPost(reply);
 				ForumPost post;
 				post.title = postData.title;
+				post.content = postData.content;
 				post.timeStamp = postData.timeStamp;
-				Node postNode{post, {Node{PlainText{postData.content}}}};
+				Node postNode{post};
 				getReplies(postNode, threadId, reply);
 				node.branches.push_back(postNode);
 			}
@@ -290,7 +267,7 @@ namespace Parser{
 	void toHtmlNodeForumPost(const HtmlContext& con, const Node& nod){
 		const ForumPost& forum = std::get<ForumPost>(nod.node);
 		con.out << "<div style='margin:10px;border-color:black;border-style:solid;border-width:1px;'><h3>"_AM
-		<< forum.title << "</h3>"_AM;
+		<< forum.title << "</h3>"_AM << allowMarkup(forum.content);///TODO: fix this! this opens up this website to a bunch of security issues
 		delegateNodeBranches(con, nod);
 		con.out << "</div>"_AM;
 	}

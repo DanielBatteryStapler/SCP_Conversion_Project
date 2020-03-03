@@ -329,8 +329,12 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         reqCon.out << "</div>"_AM;
     }
     {//footer
-        reqCon.out << "<div id='articleFooter'>"_AM
-        << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
+        reqCon.out << "<div id='articleFooter'>"_AM;
+        std::optional<std::string> discussion = webCon.db->getPageDiscussion(pageId);
+        if(discussion){
+			reqCon.out << "<a class='item' href='/forum/t-"_AM << discussion.value() << "'>Discuss</a>"_AM;
+        }
+        reqCon.out << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
         << "<a class='item' href='/"_AM << pageName  << "/showSource'>Raw Source</a>"_AM
         << "</div>"_AM;
     }

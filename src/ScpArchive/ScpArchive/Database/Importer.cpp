@@ -75,7 +75,7 @@ namespace Importer{
 	bool ImportMap::fileMapExists(std::string raw){
 		return mapExistsDetail(db, Database::MapType::File, raw);
 	}
-	
+	/*
 	void ImportMap::ImportMap::setThreadMap(std::string raw, Database::ID id){
         setMapDetail(db, Database::MapType::Thread, raw, id);
 	}
@@ -107,7 +107,7 @@ namespace Importer{
 	bool ImportMap::categoryMapExists(std::string raw){
 		return mapExistsDetail(db, Database::MapType::Category, raw);
 	}
-	
+	*/
 	namespace{
 		int64_t getTimeStamp(nlohmann::json time){
 			return std::stoll(time.get<std::string>());
@@ -123,11 +123,12 @@ namespace Importer{
             Database::ID groupId = database->createForumGroup(group);
             for(nlohmann::json jCategory : jGroup["categories"]){
                 Database::ForumCategory category;
+                category.sourceId = jCategory["id"].get<std::string>();
                 category.title = jCategory["title"].get<std::string>();
                 category.description = jCategory["description"].get<std::string>();
                 
                 Database::ID categoryId = database->createForumCategory(groupId, category);
-                map.setCategoryMap(jCategory["id"].get<std::string>(), categoryId);
+                //map.setCategoryMap(jCategory["id"].get<std::string>(), categoryId);
             }
 		}
 	}
@@ -151,22 +152,23 @@ namespace Importer{
 	
 	void importThread(Database* database, ImportMap& map, nlohmann::json threadData){
 		Database::ForumThread thread;
-		thread.parent = map.getCategoryMap(threadData["categoryId"].get<std::string>());
+		thread.sourceId = threadData["id"].get<std::string>();
+		thread.parent = *database->getForumCategoryId(threadData["categoryId"].get<std::string>());
 		thread.title = threadData["title"].get<std::string>();
 		thread.description = threadData["description"].get<std::string>();
 		thread.timeStamp = getTimeStamp(threadData["timeStamp"]);
 		
 		Database::ID threadId = -1;
 		{
-			if(map.threadMapExists(threadData["id"].get<std::string>())){
-				threadId = map.getThreadMap(threadData["id"].get<std::string>());
+			if(database->getForumThreadId(threadData["id"].get<std::string>())){
+				threadId = *database->getForumThreadId(threadData["id"].get<std::string>());
 				database->resetForumThread(threadId, thread);
 			}
 			else{
 				threadId = database->createForumThread(thread);
 			}
 		}
-		map.setThreadMap(threadData["id"].get<std::string>(), threadId);
+		//map.setThreadMap(threadData["id"].get<std::string>(), threadId);
 		
 		importPosts(database, map, threadData["posts"], threadId, {});
 	}
@@ -259,7 +261,7 @@ namespace Importer{
 	
 	void linkPageDiscussionThread(Database* database, ImportMap& map, nlohmann::json pageData){
 		if(pageData["discussionId"].get<std::string>() != ""){
-			database->setPageDiscussion(map.getPageMap(pageData["id"].get<std::string>()), map.getThreadMap(pageData["discussionId"].get<std::string>()));
+			database->setPageDiscussion(map.getPageMap(pageData["id"].get<std::string>()), pageData["discussionId"].get<std::string>());
 		}
 	}
 	

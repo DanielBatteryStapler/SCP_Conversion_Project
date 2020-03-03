@@ -171,6 +171,7 @@ namespace Tests{
                 for(std::size_t y = 0; y < categories.size(); y++){
                     nlohmann::json exCategory = exGroup["categories"][y];
                     Database::ForumCategory acCategory = db->getForumCategory(categories[y]);
+                    assertEquals(exCategory["id"].get<std::string>(), acCategory.sourceId);
                     assertEquals(exCategory["title"].get<std::string>(), acCategory.title);
                     assertEquals(exCategory["description"].get<std::string>(), acCategory.description);
                 }
@@ -271,11 +272,12 @@ namespace Tests{
 			
 			assertEqualsVec({}, db->getForumThreads(categoryId));
 			Importer::importThread(db.get(), map, testThread);
-			Database::ID threadId = map.getThreadMap(testThread["id"].get<std::string>());
+			Database::ID threadId = *db->getForumThreadId(testThread["id"].get<std::string>());
 			assertEqualsVec({threadId}, db->getForumThreads(categoryId));
 			
 			Database::ForumThread thread = db->getForumThread(threadId);
 			assertEquals(categoryId, thread.parent);
+			assertEquals(testThread["id"].get<std::string>(), thread.sourceId);
 			assertEquals(testThread["title"].get<std::string>(), thread.title);
 			assertEquals(testThread["description"].get<std::string>(), thread.description);
 			assertEquals(std::stoll(testThread["timeStamp"].get<std::string>()), thread.timeStamp);
@@ -316,71 +318,18 @@ namespace Tests{
 			
 			Importer::importForumGroups(database.get(), map, testForumGroups);
 			Importer::importThread(database.get(), map, testThread);
-			Database::ID threadId = map.getThreadMap(testThread["id"].get<std::string>());
 			
 			assertTrue(database->getPageDiscussion(pageAId) == std::nullopt);
 			assertTrue(database->getPageDiscussion(pageBId) == std::nullopt);
 			Importer::linkPageDiscussionThread(database.get(), map, testPageA);
 			Importer::linkPageDiscussionThread(database.get(), map, testPageB);
 			assertTrue(database->getPageDiscussion(pageAId) == std::nullopt);
-			assertEquals(threadId, *database->getPageDiscussion(pageBId));
+			assertEquals(testThread["id"].get<std::string>(), *database->getPageDiscussion(pageBId));
 			
 			Database::eraseDatabase(std::move(database));
 		});
 		
 		tester.add("Importer::ImportMap", [](){
-			{
-				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
-				database->cleanAndInitDatabase();
-				Importer::ImportMap importMap(database.get());
-				
-				Database::ID idA = 0;//just some valid, but meaningless test ids
-				Database::ID idB = 1;
-				
-				std::string rawA = "testRawIDA";
-				std::string rawB = "testRawIDB";
-				
-				shouldThrowException([&](){
-					importMap.getThreadMap(rawA);
-				});
-				shouldThrowException([&](){
-					importMap.getThreadMap(rawB);
-				});
-				assertTrue(!importMap.threadMapExists(rawA));
-				importMap.setThreadMap(rawA, idA);
-				assertTrue(importMap.threadMapExists(rawA));
-				importMap.setThreadMap(rawB, idB);
-				assertEquals(idA, importMap.getThreadMap(rawA));
-				assertEquals(idB, importMap.getThreadMap(rawB));
-				assertEquals(rawA, importMap.getThreadMapRaw(idA));
-				assertEquals(rawB, importMap.getThreadMapRaw(idB));
-			}
-			{
-				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
-				database->cleanAndInitDatabase();
-				Importer::ImportMap importMap(database.get());
-				
-				Database::ID idA = 0;//just some valid, but meaningless test ids
-				Database::ID idB = 1;
-				
-				std::string rawA = "testRawIDA";
-				std::string rawB = "testRawIDB";
-				
-				shouldThrowException([&](){
-					importMap.getCategoryMap(rawA);
-				});
-				shouldThrowException([&](){
-					importMap.getCategoryMap(rawB);
-				});
-				assertTrue(!importMap.categoryMapExists(rawA));
-				importMap.setCategoryMap(rawA, idA);
-				assertTrue(importMap.categoryMapExists(rawA));
-				importMap.setCategoryMap(rawB, idB);
-				assertEquals(idA, importMap.getCategoryMap(rawA));
-				assertEquals(idB, importMap.getCategoryMap(rawB));
-				assertEquals(rawA, importMap.getCategoryMapRaw(idA));
-				assertEquals(rawB, importMap.getCategoryMapRaw(idB));
-			}
 			{
 				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
 				database->cleanAndInitDatabase();

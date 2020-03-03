@@ -116,6 +116,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/EntityEscapeRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/FootNoteRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/FootNoteRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ForumRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ForumRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HTMLRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HTMLRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/HeadingRuleSet.cpp" />

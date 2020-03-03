@@ -181,10 +181,13 @@ namespace Parser{
     	std::string title;
     	std::string description;
     	TimeStamp timeStamp;
+    	int currentPage;
+    	int totalPages;
     };
     
     struct ForumPost{
     	std::string title;
+    	std::string content;
     	TimeStamp timeStamp;
     };
     
