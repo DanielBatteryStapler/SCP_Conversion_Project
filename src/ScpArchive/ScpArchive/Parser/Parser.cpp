@@ -140,7 +140,7 @@ namespace Parser{
                 start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
             }
             return str;
-        };
+        }
 	}
 	
 	TokenedPage tokenizePage(std::string page, ParserParameters parameters){

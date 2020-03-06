@@ -24,7 +24,7 @@ namespace Parser{
     nlohmann::json printNodeList(const NodeVariant& nod){
         const List& list = std::get<List>(nod);
         switch(list.type){
-            case List::Type::Unknown:
+            default:
                 return "Unknown";
             case List::Type::Bullet:
                 return "Bullet";
@@ -132,7 +132,6 @@ namespace Parser{
     }
 	
 	void toHtmlNodeListElement(const HtmlContext& con, const Node& nod){
-        const ListElement& node = std::get<ListElement>(nod.node);
         con.out << "<li>"_AM;
         delegateNodeBranches(con, nod);
         con.out << "</li>"_AM;

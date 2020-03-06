@@ -117,7 +117,7 @@ namespace Tests{
 			Database::ForumGroup group;
 			Database::ID groupId = db->createForumGroup(group);
 			Database::ForumCategory category;
-			Database::ID categoryId = db->createForumCategory(groupId, category);
+			db->createForumCategory(groupId, category);
 			
             assertTrue(std::nullopt == db->getPageDiscussion(*pageA));
             db->setPageDiscussion(*pageA, "thread-b");
@@ -197,11 +197,11 @@ namespace Tests{
 			Database::PageRevision rev;
 			rev.title = "testRevA";
 			
-			Database::ID revId = db->createPageRevision(pageId, rev);
+			db->createPageRevision(pageId, rev);
 			assertEquals(rev.title, db->getLatestPageRevision(pageId).title);
 			
 			rev.title = "testRevB";
-			revId = db->createPageRevision(pageId, rev);
+			db->createPageRevision(pageId, rev);
 			assertEquals(rev.title, db->getLatestPageRevision(pageId).title);
 			
 			Database::eraseDatabase(std::move(db));

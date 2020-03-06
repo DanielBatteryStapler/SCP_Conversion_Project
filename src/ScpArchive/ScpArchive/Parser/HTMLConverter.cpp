@@ -68,7 +68,7 @@ namespace Parser{
 				return "rgba("  + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", 0.25)";
 			}
 		}
-	};
+	}
 	
 	void convertTokenedPageToHtml(MarkupOutStream& out, const TokenedPage& page){
 		std::size_t pos = 0; 

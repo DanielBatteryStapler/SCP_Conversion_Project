@@ -57,7 +57,6 @@ namespace Parser{
 	}
 	
 	void toHtmlNodeQuoteBox(const HtmlContext& con, const Node& nod){
-        const QuoteBox& node = std::get<QuoteBox>(nod.node);
         con.out << "<blockquote>"_AM;
         delegateNodeBranches(con, nod);
         con.out << "</blockquote>"_AM;

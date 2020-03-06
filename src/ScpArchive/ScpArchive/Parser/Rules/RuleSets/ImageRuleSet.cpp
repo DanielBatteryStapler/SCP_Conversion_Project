@@ -127,6 +127,8 @@ namespace Parser{
                 case Image::AlignmentType::FloatRight:
                     con.out << "ImageFloatRight";
                     break;
+				default:
+					throw std::runtime_error("Error when rendering Image node");
             }
             con.out << "'>"_AM;
         }

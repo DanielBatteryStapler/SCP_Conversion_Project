@@ -13,7 +13,7 @@ namespace Parser{
 	TokenRuleResult doEntityEscapeRule(const TokenRuleContext& context){
 		std::size_t pos = context.pagePos + 2;
 		std::size_t startPos = pos;
-		std::size_t endPos;
+		std::size_t endPos = 0;
 		while(pos < context.page.size()){
 			if(check(context.page, pos, ">@")){
 				endPos = pos;

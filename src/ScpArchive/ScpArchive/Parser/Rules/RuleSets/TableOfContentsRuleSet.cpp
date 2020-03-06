@@ -10,6 +10,8 @@ namespace Parser{
                 return "FloatLeft";
             case TableOfContents::AlignmentType::FloatRight:
                 return "FloatRight";
+			default:
+				return "Unknown";
         }
     }
 

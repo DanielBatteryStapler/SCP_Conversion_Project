@@ -111,7 +111,7 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
             
             std::map<std::string, std::string> parameters;
             
-            for(int i = 1; i < uri.size(); i += 2){
+            for(std::size_t i = 1; i < uri.size(); i += 2){
                 if(i + 1 < uri.size()){
                     parameters[uri[i]] = uri[i + 1];
                 }
@@ -196,14 +196,14 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
         Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
         
-        int codeNum;
+        std::size_t codeNum;
         try{
-            codeNum = std::stoi(parameters.find("code")->second) - 1;
+            codeNum = std::stoull(parameters.find("code")->second) - 1;
         }
         catch(std::exception& e){
             return false;
         }
-        if(codeNum < 0 || pageTree.codeData.size() <= codeNum){
+        if(pageTree.codeData.size() <= codeNum){
             return false;
         }
         if(pageTree.codeData[codeNum].type == "css"){
@@ -229,14 +229,14 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
         Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens, parserParameters);
         
-        int cssNum;
+        std::size_t cssNum;
         try{
-            cssNum = std::stoi(parameters.find("css")->second) - 1;
+            cssNum = std::stoull(parameters.find("css")->second) - 1;
         }
         catch(std::exception& e){
             return false;
         }
-        if(cssNum < 0 || pageTree.cssData.size() <= cssNum){
+        if(pageTree.cssData.size() <= cssNum){
             return false;
         }
         

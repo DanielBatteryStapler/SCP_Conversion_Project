@@ -127,8 +127,7 @@ namespace Importer{
                 category.title = jCategory["title"].get<std::string>();
                 category.description = jCategory["description"].get<std::string>();
                 
-                Database::ID categoryId = database->createForumCategory(groupId, category);
-                //map.setCategoryMap(jCategory["id"].get<std::string>(), categoryId);
+                database->createForumCategory(groupId, category);
             }
 		}
 	}
@@ -158,17 +157,14 @@ namespace Importer{
 		thread.description = threadData["description"].get<std::string>();
 		thread.timeStamp = getTimeStamp(threadData["timeStamp"]);
 		
-		Database::ID threadId = -1;
-		{
-			if(database->getForumThreadId(threadData["id"].get<std::string>())){
-				threadId = *database->getForumThreadId(threadData["id"].get<std::string>());
-				database->resetForumThread(threadId, thread);
-			}
-			else{
-				threadId = database->createForumThread(thread);
-			}
+		Database::ID threadId;
+		if(database->getForumThreadId(threadData["id"].get<std::string>())){
+			threadId = *database->getForumThreadId(threadData["id"].get<std::string>());
+			database->resetForumThread(threadId, thread);
 		}
-		//map.setThreadMap(threadData["id"].get<std::string>(), threadId);
+		else{
+			threadId = database->createForumThread(thread);
+		}
 		
 		importPosts(database, map, threadData["posts"], threadId, {});
 	}

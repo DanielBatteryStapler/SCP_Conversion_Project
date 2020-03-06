@@ -282,7 +282,7 @@ namespace Tests{
 			assertEquals(testThread["description"].get<std::string>(), thread.description);
 			assertEquals(std::stoll(testThread["timeStamp"].get<std::string>()), thread.timeStamp);
 			
-			assertEquals(1, db->getForumReplies(threadId).size());
+			assertEquals(1u, db->getForumReplies(threadId).size());
 			Database::ID postAId = db->getForumReplies(threadId)[0];
 			Database::ForumPost postA = db->getForumPost(postAId);
 			assertEquals(threadId, postA.parentThread);
@@ -291,7 +291,7 @@ namespace Tests{
 			assertEquals(testThread["posts"][0]["content"].get<std::string>(), postA.content);
 			assertEquals(std::stoll(testThread["posts"][0]["timeStamp"].get<std::string>()), postA.timeStamp);
 			
-			assertEquals(1, db->getForumReplies(threadId, postAId).size());
+			assertEquals(1u, db->getForumReplies(threadId, postAId).size());
 			Database::ID postBId = db->getForumReplies(threadId, postAId)[0];
 			Database::ForumPost postB = db->getForumPost(postBId);
 			assertEquals(threadId, postB.parentThread);

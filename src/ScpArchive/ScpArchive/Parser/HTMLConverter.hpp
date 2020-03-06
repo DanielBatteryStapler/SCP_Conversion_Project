@@ -18,6 +18,6 @@ namespace Parser{
 	void convertTokenedPageToHtml(MarkupOutStream& out, const TokenedPage& page);
 	
 	std::string formatTimeStamp(TimeStamp timeStamp);
-};
+}
 
 #endif // HTMLCONVERTER_HPP

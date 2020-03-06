@@ -102,24 +102,16 @@ namespace Parser{
             makeDivPushable(context);
             return;
         }
-        Database::ID categoryId;
+        std::optional<Database::ID> categoryId;
 		std::string categoryIdSource;
 		if(context.parameters.urlParameters.find("forum") != context.parameters.urlParameters.end()){
 			categoryIdSource = context.parameters.urlParameters["forum"];
 			if(categoryIdSource.size() > 2){
 				categoryIdSource.erase(0, 2);
-				if(db->getForumCategoryId(categoryIdSource)){
-					categoryId = db->getForumCategoryId(categoryIdSource).value();
-				}
-				else{
-					categoryIdSource = "";
-				}
-			}
-			else{
-				categoryIdSource = "";
+				categoryId = db->getForumCategoryId(categoryIdSource);
 			}
 		}
-		if(categoryIdSource == ""){
+		if(!categoryId){
 			makeDivPushable(context);
 			addAsText(context, Node{PlainText{"Forum failed: invalid category id"}});
 			makeDivPushable(context);
@@ -139,15 +131,15 @@ namespace Parser{
         
 		ForumCategory node;
 		{
-			Database::ForumCategory category = db->getForumCategory(categoryId);
+			Database::ForumCategory category = db->getForumCategory(categoryId.value());
 			node.id = categoryIdSource;
 			node.title = category.title;
 			node.description = category.description;
 			node.currentPage = page;
-			node.totalPages = std::ceil(static_cast<long double>(db->getNumberOfForumThreads(categoryId)) / threadsPerPage);
+			node.totalPages = std::ceil(static_cast<long double>(db->getNumberOfForumThreads(categoryId.value())) / threadsPerPage);
 		}
 		{
-			std::vector<Database::ID> threads = db->getForumThreads(categoryId, threadsPerPage, threadsPerPage * page);
+			std::vector<Database::ID> threads = db->getForumThreads(categoryId.value(), threadsPerPage, threadsPerPage * page);
 			for(Database::ID threadId : threads){
 				Database::ForumThread threadData = db->getForumThread(threadId);
 				ForumCategory::Thread thread;
@@ -169,24 +161,16 @@ namespace Parser{
             makeDivPushable(context);
             return;
         }
-        Database::ID threadId;
+        std::optional<Database::ID> threadId;
 		std::string threadIdSource;
 		if(context.parameters.urlParameters.find("forum") != context.parameters.urlParameters.end()){
 			threadIdSource = context.parameters.urlParameters["forum"];
 			if(threadIdSource.size() > 2){
 				threadIdSource.erase(0, 2);
-				if(db->getForumThreadId(threadIdSource)){
-					threadId = db->getForumThreadId(threadIdSource).value();
-				}
-				else{
-					threadIdSource = "";
-				}
-			}
-			else{
-				threadIdSource = "";
+				threadId = db->getForumThreadId(threadIdSource);
 			}
 		}
-		if(threadIdSource == ""){
+		if(!threadId){
 			makeDivPushable(context);
 			addAsText(context, Node{PlainText{"Forum failed: invalid thread id"}});
 			makeDivPushable(context);
@@ -205,14 +189,14 @@ namespace Parser{
         }
         ForumThread thread;
         {
-			Database::ForumThread threadData = db->getForumThread(threadId);
+			Database::ForumThread threadData = db->getForumThread(threadId.value());
 			thread.id = threadIdSource;
 			thread.categoryId = db->getForumCategory(threadData.parent).sourceId;
 			thread.title = threadData.title;
 			thread.description = threadData.description;
 			thread.timeStamp = threadData.timeStamp;
 			thread.currentPage = page;
-			thread.totalPages = std::ceil(static_cast<long double>(db->getNumberOfForumReplies(threadId)) / postsPerPage);
+			thread.totalPages = std::ceil(static_cast<long double>(db->getNumberOfForumReplies(threadId.value())) / postsPerPage);
         }
         Node node{thread};
         //now we just gotta make a tree of all of the replies
@@ -237,7 +221,7 @@ namespace Parser{
 				node.branches.push_back(postNode);
 			}
         };
-        getReplies(node, threadId, {});
+        getReplies(node, threadId.value(), {});
 		addAsDiv(context, node);
 	}
 

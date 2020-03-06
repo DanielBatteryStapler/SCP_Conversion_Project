@@ -30,9 +30,9 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--doBatches" />
+				<Option parameters="--runWebsite" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
 					<Add directory="./" />
 					<Add directory="ScpArchive/Tests/Database" />
 					<Add directory="ScpArchive/Website" />
@@ -49,8 +49,10 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-pedantic" />
 			<Add option="-Wall" />
 			<Add option="-std=c++17" />
+			<Add option="-Werror" />
 			<Add directory="/usr/include/soci" />
 			<Add directory="/usr/include/mysql" />
 		</Compiler>

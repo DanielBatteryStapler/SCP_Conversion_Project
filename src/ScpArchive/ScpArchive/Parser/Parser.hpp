@@ -177,6 +177,6 @@ namespace Parser{
 	
 	TokenedPage tokenizePage(std::string page, ParserParameters parameters = {});
 	std::vector<std::string> getPageLinks(std::string page);
-};
+}
 
 #endif // PARSER_HPP

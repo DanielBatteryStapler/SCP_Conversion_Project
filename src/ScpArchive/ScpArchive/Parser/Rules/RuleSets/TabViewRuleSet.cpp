@@ -38,8 +38,6 @@ namespace Parser{
     }
 	
 	void toHtmlNodeTabView(const HtmlContext& con, const Node& nod){
-        const TabView& tabView = std::get<TabView>(nod.node);
-        
         std::string formId = getUniqueHtmlId(con);
         con.out << "<div class='TabView'>"_AM
         << "<div class='TabViewButtons'>"_AM
@@ -55,7 +53,6 @@ namespace Parser{
         {
             std::size_t num = 0;
             for(auto i = nod.branches.begin(); i != nod.branches.end(); i++, num++){
-                const Tab& tab = std::get<Tab>(i->node);
                 con.out << "<input type='radio' name='"_AM << formId << "' id='"_AM << radioIds[num] << "'"_AM << (num==0?" checked":"") << "></input>"_AM;
                 convertNodeToHtml(con, *i);
             }

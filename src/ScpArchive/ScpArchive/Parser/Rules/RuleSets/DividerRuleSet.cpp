@@ -49,7 +49,7 @@ namespace Parser{
 				return checkFunction('~');
 			}
 			else if(check(context.page, context.pagePos, "====")){
-				return checkFunction('====');
+				return checkFunction('=');
 			}
 		}
 		return false;

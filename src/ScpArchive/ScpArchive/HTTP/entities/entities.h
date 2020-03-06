@@ -1,3 +1,4 @@
+extern "C"{
 /*	Copyright 2012 Christoph Gärtner
 	Distributed under the Boost Software License, Version 1.0
 */
@@ -18,3 +19,4 @@ extern size_t decode_html_entities_utf8(char *dest, const char *src);
 */
 
 #endif
+}

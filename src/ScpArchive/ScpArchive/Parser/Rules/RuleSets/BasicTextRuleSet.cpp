@@ -167,6 +167,9 @@ namespace Parser{
 			size = 3;
 			output = "…";
 		}
+		else{
+			throw std::runtime_error("Error when processing typography token");
+		}
 		
 		TokenRuleResult result;
 		result.newPos = context.pagePos + size;
@@ -221,14 +224,12 @@ namespace Parser{
     }
     
 	void toHtmlNodeParagraph(const HtmlContext& con, const Node& nod){
-        const Paragraph& node = std::get<Paragraph>(nod.node);
         con.out << "<p>"_AM;
         delegateNodeBranches(con, nod);
         con.out << "</p>"_AM;
 	}
 	
 	void toHtmlNodeLineBreak(const HtmlContext& con, const Node& nod){
-        const LineBreak& node = std::get<LineBreak>(nod.node);
         con.out << "<br />"_AM;
 	}
 	
