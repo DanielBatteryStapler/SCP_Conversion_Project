@@ -28,6 +28,7 @@ namespace Parser{
 	nlohmann::json printNodeForumCategory(const NodeVariant& nod){
 		const ForumCategory& forumCategory = std::get<ForumCategory>(nod);
 		nlohmann::json out;
+		out["id"] = forumCategory.id;
 		out["title"] = forumCategory.title;
 		out["description"] = forumCategory.description;
 		out["currentPage"] = forumCategory.currentPage;
@@ -47,6 +48,7 @@ namespace Parser{
 	nlohmann::json printNodeForumThread(const NodeVariant& nod){
 		const ForumThread& forumThread = std::get<ForumThread>(nod);
 		nlohmann::json out;
+		out["id"] = forumThread.id;
 		out["categoryId"] = forumThread.categoryId;
 		out["title"] = forumThread.title;
 		out["description"] = forumThread.description;
@@ -82,6 +84,7 @@ namespace Parser{
 			for(Database::ID categoryId : categories){
 				Database::ForumCategory categoryData = db->getForumCategory(categoryId);
 				ForumStart::Category category;
+				category.id = categoryData.sourceId;
 				category.title = categoryData.title;
 				category.description = categoryData.description;
 				group.categories.push_back(category);
@@ -100,30 +103,30 @@ namespace Parser{
             return;
         }
         Database::ID categoryId;
-        {
-			std::string categoryIdRaw;
-			if(context.parameters.urlParameters.find("forum") != context.parameters.urlParameters.end()){
-				categoryIdRaw = context.parameters.urlParameters["forum"];
-				if(categoryIdRaw.size() > 2){
-					categoryIdRaw.erase(0, 2);
-					if(db->getForumCategoryId(categoryIdRaw)){
-						categoryId = db->getForumCategoryId(categoryIdRaw).value();
-					}
-					else{
-						categoryIdRaw = "";
-					}
+		std::string categoryIdSource;
+		if(context.parameters.urlParameters.find("forum") != context.parameters.urlParameters.end()){
+			categoryIdSource = context.parameters.urlParameters["forum"];
+			if(categoryIdSource.size() > 2){
+				categoryIdSource.erase(0, 2);
+				if(db->getForumCategoryId(categoryIdSource)){
+					categoryId = db->getForumCategoryId(categoryIdSource).value();
 				}
 				else{
-					categoryIdRaw = "";
+					categoryIdSource = "";
 				}
 			}
-			if(categoryIdRaw == ""){
-				makeDivPushable(context);
-				addAsText(context, Node{PlainText{"Forum failed: invalid category id"}});
-				makeDivPushable(context);
-				return;
+			else{
+				categoryIdSource = "";
 			}
-        }
+		}
+		if(categoryIdSource == ""){
+			makeDivPushable(context);
+			addAsText(context, Node{PlainText{"Forum failed: invalid category id"}});
+			makeDivPushable(context);
+			return;
+		}
+		
+		constexpr std::int64_t threadsPerPage = 20;
         int page = 0;
         if(context.parameters.urlParameters.find("p") != context.parameters.urlParameters.end()){
 			try{
@@ -133,13 +136,16 @@ namespace Parser{
 				//if there's an error, just use the default value
 			}
         }
-        Database::ForumCategory category = db->getForumCategory(categoryId);
+        
 		ForumCategory node;
-		node.title = category.title;
-		node.description = category.description;
-		node.currentPage = page;
-		constexpr std::int64_t threadsPerPage = 25;
-		node.totalPages = std::ceil(static_cast<long double>(db->getNumberOfForumThreads(categoryId)) / threadsPerPage);
+		{
+			Database::ForumCategory category = db->getForumCategory(categoryId);
+			node.id = categoryIdSource;
+			node.title = category.title;
+			node.description = category.description;
+			node.currentPage = page;
+			node.totalPages = std::ceil(static_cast<long double>(db->getNumberOfForumThreads(categoryId)) / threadsPerPage);
+		}
 		{
 			std::vector<Database::ID> threads = db->getForumThreads(categoryId, threadsPerPage, threadsPerPage * page);
 			for(Database::ID threadId : threads){
@@ -164,31 +170,30 @@ namespace Parser{
             return;
         }
         Database::ID threadId;
-        {
-			std::string threadIdRaw;
-			if(context.parameters.urlParameters.find("forum") != context.parameters.urlParameters.end()){
-				threadIdRaw = context.parameters.urlParameters["forum"];
-				if(threadIdRaw.size() > 2){
-					threadIdRaw.erase(0, 2);
-					if(db->getForumThreadId(threadIdRaw)){
-						threadId = db->getForumThreadId(threadIdRaw).value();
-					}
-					else{
-						threadIdRaw = "";
-					}
+		std::string threadIdSource;
+		if(context.parameters.urlParameters.find("forum") != context.parameters.urlParameters.end()){
+			threadIdSource = context.parameters.urlParameters["forum"];
+			if(threadIdSource.size() > 2){
+				threadIdSource.erase(0, 2);
+				if(db->getForumThreadId(threadIdSource)){
+					threadId = db->getForumThreadId(threadIdSource).value();
 				}
 				else{
-					threadIdRaw = "";
+					threadIdSource = "";
 				}
 			}
-			if(threadIdRaw == ""){
-				makeDivPushable(context);
-				addAsText(context, Node{PlainText{"Forum failed: invalid thread id"}});
-				makeDivPushable(context);
-				return;
+			else{
+				threadIdSource = "";
 			}
-        }
-        constexpr std::int64_t postsPerPage = 25;
+		}
+		if(threadIdSource == ""){
+			makeDivPushable(context);
+			addAsText(context, Node{PlainText{"Forum failed: invalid thread id"}});
+			makeDivPushable(context);
+			return;
+		}
+        
+        constexpr std::int64_t postsPerPage = 10;
         int page = 0;
         if(context.parameters.urlParameters.find("p") != context.parameters.urlParameters.end()){
 			try{
@@ -201,6 +206,7 @@ namespace Parser{
         ForumThread thread;
         {
 			Database::ForumThread threadData = db->getForumThread(threadId);
+			thread.id = threadIdSource;
 			thread.categoryId = db->getForumCategory(threadData.parent).sourceId;
 			thread.title = threadData.title;
 			thread.description = threadData.description;
@@ -251,24 +257,125 @@ namespace Parser{
 	void toHtmlNodeForumCategory(const HtmlContext& con, const Node& nod){
 		const ForumCategory& forum = std::get<ForumCategory>(nod.node);
 		con.out << "<h1>"_AM << forum.title << "</h1><p>"_AM << forum.description << "</p><table><tbody>"_AM;
+		const auto makePageSelect = [&](){
+			con.out << "<div class='pageSelect'>"_AM;
+			const auto makePageButton = [&forum, &con](int page){
+				std::string pageStr = std::to_string(page);
+				con.out
+				<< "<a href='/forum/c-"_AM << forum.id << "/p/"_AM << pageStr << "'>"_AM
+				<< "<div class='pageButton'>"_AM << pageStr << "</div></a>"_AM;
+			};
+			
+			if(forum.currentPage > 0){
+				makePageButton(0);
+			}
+			if(forum.currentPage > 2){
+				con.out << "...";
+			}
+			if(forum.currentPage > 1){
+				makePageButton(forum.currentPage - 1);
+			}
+			con.out << "<div class='pageButton currentPageButton'>"_AM << std::to_string(forum.currentPage) << "</div>"_AM;
+			if(forum.currentPage < forum.totalPages - 2){
+				makePageButton(forum.currentPage + 1);
+			}
+			if(forum.currentPage < forum.totalPages - 3){
+				con.out << "...";
+			}
+			if(forum.currentPage < forum.totalPages - 1){
+				makePageButton(forum.totalPages - 1);
+			}
+			con.out << "</div>"_AM;
+		};
+		makePageSelect();
 		for(const ForumCategory::Thread& thread : forum.threads){
-			con.out << "<tr><td><a href='/forum/t-"_AM << thread.id << "'>"_AM << thread.title << "</td></tr>"_AM;
+			con.out << "<tr><td><a href='/forum/t-"_AM << thread.id << "'>"_AM << thread.title << "</td>"_AM
+			<< "<td>"_AM << formatTimeStamp(thread.timeStamp) << "</td></tr>"_AM;
 		}
+		makePageSelect();
 		con.out << "</tbody></table>"_AM;
 	}
 
 	void toHtmlNodeForumThread(const HtmlContext& con, const Node& nod){
 		const ForumThread& forum = std::get<ForumThread>(nod.node);
-		con.out << "<div style='border-color:black;border-style:solid;border-width:1px;'><h1>"_AM
-		<< forum.title << "</h1>"_AM << forum.description << "</div>"_AM;
+		con.out
+		<< "<div class='threadContainer'>"_AM
+		<< "<div class='threadTitle'>"_AM << forum.title << "</div>"_AM
+		<< "<div class='threadInfo'>"_AM
+		//author should be in here somewhere
+		<< formatTimeStamp(forum.timeStamp)
+		<< "</div>"_AM
+		<< "<div class='threadDescription'>"_AM << allowMarkup(forum.description) << "</div>"_AM///TODO: fix allowMarkup(...) security hole
+		<< "</div>"_AM;
+		const auto makePageSelect = [&](){
+			con.out << "<div class='pageSelect'>"_AM;
+			const auto makePageButton = [&forum, &con](int page){
+				std::string pageStr = std::to_string(page);
+				con.out
+				<< "<a href='/forum/t-"_AM << forum.id << "/p/"_AM << pageStr << "'>"_AM
+				<< "<div class='pageButton'>"_AM << pageStr << "</div></a>"_AM;
+			};
+			
+			if(forum.currentPage > 0){
+				makePageButton(0);
+			}
+			if(forum.currentPage > 2){
+				con.out << "...";
+			}
+			if(forum.currentPage > 1){
+				makePageButton(forum.currentPage - 1);
+			}
+			con.out << "<div class='pageButton currentPageButton'>"_AM << std::to_string(forum.currentPage) << "</div>"_AM;
+			if(forum.currentPage < forum.totalPages - 2){
+				makePageButton(forum.currentPage + 1);
+			}
+			if(forum.currentPage < forum.totalPages - 3){
+				con.out << "...";
+			}
+			if(forum.currentPage < forum.totalPages - 1){
+				makePageButton(forum.totalPages - 1);
+			}
+			con.out << "</div>"_AM;
+		};
+		makePageSelect();
 		delegateNodeBranches(con, nod);
+		makePageSelect();
 	}
 
 	void toHtmlNodeForumPost(const HtmlContext& con, const Node& nod){
 		const ForumPost& forum = std::get<ForumPost>(nod.node);
-		con.out << "<div style='margin:10px;border-color:black;border-style:solid;border-width:1px;'><h3>"_AM
-		<< forum.title << "</h3>"_AM << allowMarkup(forum.content);///TODO: fix this! this opens up this website to a bunch of security issues
+		con.out << "<div class='postContainer'>"_AM
+		<< "<div class='postHeader'>"_AM
+		<< "<div class='postTitle'>"_AM << forum.title << "</div>"_AM
+		<< "<div class='postInfo'>"_AM
+		//author should be in here somewhere
+		<< formatTimeStamp(forum.timeStamp)
+		<< "</div>"_AM
+		<< "</div>"_AM
+		<< "<div class='postContent'>"_AM << allowMarkup(forum.content) << "</div>"_AM;///TODO: fix allowMarkup(...) security hole
 		delegateNodeBranches(con, nod);
 		con.out << "</div>"_AM;
 	}
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

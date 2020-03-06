@@ -2,6 +2,9 @@
 
 #include "Rules/RuleSet.hpp"
 
+#include <ctime>
+#include <iomanip>
+
 namespace Parser{
     
     void convertNodeToHtml(const HtmlContext& con, const Node& nod){
@@ -108,7 +111,11 @@ namespace Parser{
 		
 	}
 	
-	
+	std::string formatTimeStamp(TimeStamp timeStamp){
+		std::stringstream str;
+		str << std::put_time(std::gmtime(&timeStamp), "%A %d %B, %Y, %T") << " UTC";
+		return str.str();
+	}
 	
 	
 	

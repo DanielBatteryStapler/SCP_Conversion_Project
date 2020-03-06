@@ -139,6 +139,71 @@ body{
 	margin: 5px;
 }
 
+/*for the forum*/
+.pageSelect{
+    text-align: center;
+    margin: 0.5rem;
+}
+.pageButton{
+    display: inline-block;
+    background-color: lightgray;
+    padding: 1px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    min-width: 1.5rem;
+    margin: 1px;
+    text-align: center;
+}
+.currentPageButton{
+    border-color: #901;
+}
+/*forum thread stuff*/
+.threadContainer{
+    border-radius: 10px;
+    background-color: lightgray;
+    padding: 0.5rem;
+}
+
+.threadTitle{
+    font-size: 1.5rem;
+    color: #901;
+}
+
+.threadInfo{
+    border-style: solid;
+    border-width: 0px 0px 1px 0px;
+    padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
+.threadDescription{
+    padding: 0.5rem;
+}
+
+/*forum post stuff*/
+.postContainer{
+    padding: 0.5rem 0.5rem 0rem 1.5rem;
+}
+
+.postHeader{
+    border-radius: 10px 10px 0px 0px;
+    background-color: lightgray;
+    padding: 0.5rem;
+}
+
+.postTitle{
+    font-size: 1.1rem;
+    color: #901;
+}
+
+.postInfo{
+    
+}
+
+.postContent{
+    padding: 0rem 0.5rem 0rem 0.5rem;
+}
+
 /*for the things in the article*/
 h1{margin-top:1rem;margin-bottom:0.5rem;font-size:2rem;}
 h2{margin-bottom:0.5rem;font-size:1.3rem;}

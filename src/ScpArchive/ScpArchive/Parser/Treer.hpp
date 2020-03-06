@@ -163,6 +163,7 @@ namespace Parser{
     };
     
     struct ForumCategory{
+    	std::string id;
     	std::string title;
     	std::string description;
     	int currentPage;
@@ -177,6 +178,7 @@ namespace Parser{
     };
     
     struct ForumThread{
+    	std::string id;
     	std::string categoryId;
     	std::string title;
     	std::string description;

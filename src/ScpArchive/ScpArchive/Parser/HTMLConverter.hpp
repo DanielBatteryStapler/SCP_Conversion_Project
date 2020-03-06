@@ -16,6 +16,8 @@ namespace Parser{
     
 	void convertPageTreeToHtml(MarkupOutStream& out, const PageTree& tree);
 	void convertTokenedPageToHtml(MarkupOutStream& out, const TokenedPage& page);
+	
+	std::string formatTimeStamp(TimeStamp timeStamp);
 };
 
 #endif // HTMLCONVERTER_HPP

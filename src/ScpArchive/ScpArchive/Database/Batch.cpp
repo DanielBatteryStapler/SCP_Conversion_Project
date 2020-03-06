@@ -11,7 +11,7 @@ namespace Importer{
 	namespace{
 		struct TimelineEntry{
 			std::string batchId;
-			std::int64_t timeStamp;
+			TimeStamp timeStamp;
 			enum Status{Applied, Available, Error};
 			Status status;
 			
@@ -26,9 +26,9 @@ namespace Importer{
 				throw std::runtime_error("There are Unhandled Batch Errors, Aborting.");
 			}
 			
-			const auto getTimeStamp = [&](std::string batchId)->std::int64_t{
+			const auto getTimeStamp = [&](std::string batchId)->TimeStamp{
 				nlohmann::json batch = Json::loadJsonFromFile(batchesFolder + batchId + "/batch.json");
-				return batch["timeStamp"].get<std::int64_t>();
+				return batch["timeStamp"].get<TimeStamp>();
 			};
 			
 			
