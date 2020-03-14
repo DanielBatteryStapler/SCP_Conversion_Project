@@ -5,6 +5,7 @@ full table definitions can be found in src/ScpArchive/Database/Database.cpp
 
 # Scraper Data File Map:
 - batchData.json
+- authors.json
 - batches
   - <batchId>
     - batch.json
@@ -141,7 +142,11 @@ notice the lack of timestamp, as this does not have an impact on the timeline of
 	  - ...
   - ...
 
-
+## authors.json
+- 0
+  - id: <authorId>
+  - name: <authorName>
+- ...
 
 
 

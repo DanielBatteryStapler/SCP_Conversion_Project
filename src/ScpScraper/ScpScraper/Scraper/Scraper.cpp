@@ -136,19 +136,27 @@ namespace Scraper{
 		std::cout << "Downloading batch data...\n";
 		nlohmann::json batch = loadJsonFromFile(batchFolder + "batch.json");
 		
+		std::string pagesFolder = batchFolder + "pages/";
+		std::vector<std::string> pageList = batch["pageList"];
+		
+		std::string threadsFolder = batchFolder + "threads/";
+		std::vector<std::string> threadList = batch["threadList"];
+		
 		{
-			std::string pagesFolder = batchFolder + "pages/";
 			boost::filesystem::remove_all(pagesFolder);
 			boost::filesystem::create_directory(pagesFolder);
-			std::vector<std::string> pageList = batch["pageList"];
 			downloadPageList(pagesFolder, pageList);
 		}
 		{
-			std::string threadsFolder = batchFolder + "threads/";
 			boost::filesystem::remove_all(threadsFolder);
 			boost::filesystem::create_directory(threadsFolder);
-			std::vector<std::string> threadList = batch["threadList"];
 			downloadThreadList(threadsFolder, threadList);
+		}
+		{
+			std::string authorsFile = batchFolder + "authors.json";
+			boost::filesystem::remove_all(authorsFile);
+			std::vector<std::string> authorList = getAuthorList(pagesFolder, pageList, threadsFolder, threadList);
+			downloadAuthorList(authorsFile, authorList);
 		}
 	}
 	
@@ -210,7 +218,36 @@ namespace Scraper{
                 std::cout << "No thread errors in Batch Download.\n";
             }
 		}
-		saveJsonToFile(batchFolder + "batch.json", batch);
+		
+		std::cout << "\tChecking Author Errors...\n";
+		{
+			std::string authorsFile = batchFolder + "authors.json";
+			std::cout << "Getting Author List...\n";
+			std::vector<std::string> correctAuthorList = getAuthorList(pagesFolder, batch["pageList"], threadsFolder, batch["threadList"]);
+			std::cout << "Checking for Missing Author Data...\n";
+			bool errorFound = false;
+			if(!boost::filesystem::exists(authorsFile) || boost::filesystem::is_directory(authorsFile)){
+				errorFound = true;
+			}
+			if(!errorFound){
+				nlohmann::json authorData = loadJsonFromFile(authorsFile);
+				std::vector<std::string> foundAuthorList;
+				for(const nlohmann::json& author : authorData){
+					foundAuthorList.push_back(author["id"].get<std::string>());
+				}
+				if(correctAuthorList != foundAuthorList){
+					errorFound = true;
+				}
+			}
+			
+			if(errorFound){
+				std::cout << "Fixing Author Errors...\n";
+				downloadAuthorList(authorsFile, correctAuthorList);
+			}
+			else{
+				std::cout << "No Author Errors Found.\n";
+			}
+		}
 	}
 	
 	void checkAllBatchDownloads(std::string batchesFolder, std::string batchDataFile){
@@ -380,7 +417,7 @@ namespace Scraper{
 						func();
 					}
 					else{
-						std::this_thread::sleep_for(std::chrono::milliseconds(10));
+						std::this_thread::sleep_for(std::chrono::milliseconds(100));
 					}
 				}
 			}
@@ -1389,11 +1426,73 @@ namespace Scraper{
 	}
 	
 	
+	std::vector<std::string> getAuthorList(std::string pagesFolder, std::vector<std::string> pageList, std::string threadsFolder, std::vector<std::string> threadList){
+		std::vector<std::string> output;
+		
+		const auto dataExists = [](const nlohmann::json& data)->bool{
+			return !(data.find("nonExistent") != data.end() && data["nonExistent"].get<bool>());
+		};
+		
+		for(const std::string& page : pageList){
+			nlohmann::json pageData = loadJsonFromFile(pagesFolder + page + "/data.json");
+			if(dataExists(pageData)){
+				for(const nlohmann::json& revision : pageData["revisions"]){
+					output.push_back(revision["authorId"].get<std::string>());
+				}
+				for(const nlohmann::json& file : pageData["files"]){
+					output.push_back(file["authorId"].get<std::string>());
+				}
+			}
+		}
+		
+		const std::function<void(const nlohmann::json&)> handlePosts = [&output, &handlePosts](const nlohmann::json& posts){
+			for(const nlohmann::json& post : posts){
+				output.push_back(post["authorId"].get<std::string>());
+				handlePosts(post["posts"]);
+			}
+		};
+		
+		for(const std::string& thread : threadList){
+			nlohmann::json threadData = loadJsonFromFile(threadsFolder + thread + "/data.json");
+			if(dataExists(threadData)){
+				output.push_back(threadData["authorId"].get<std::string>());
+				handlePosts(threadData["posts"]);
+			}
+		}
+		
+		std::sort(output.begin(), output.end());
+		output.erase(std::unique(output.begin(), output.end()), output.end());
+		output.erase(std::remove(output.begin(), output.end(), "deleted"), output.end());
+		output.erase(std::remove(output.begin(), output.end(), "wikidot"), output.end());
+		
+		return output;
+	}
 	
+	void downloadAuthorList(std::string authorsFile, std::vector<std::string> authorList){
+		nlohmann::json authorData = nlohmann::json::array();
+		
+		authorData = executeCollectionOnThreads(authorList,  [](std::string authorId)->nlohmann::json{
+			return getAuthorData(authorId);
+		});
+		
+		saveJsonToFile(authorsFile, authorData);
+	}
 	
-	
-	
-	
+	nlohmann::json getAuthorData(std::string authorId){
+		
+		std::string body = performAjaxRequest("users/UserInfoWinModule", {{"user_id", authorId}})["body"].get<std::string>();
+		
+		nlohmann::json output;
+		
+		output["id"] = authorId;
+		std::string name;
+		getData(body, "<h1>", "</h1>", 0, name);
+		output["name"] = name;
+		
+		std::cout << "\t\tGot data for author " << authorId << ", \"" << name << "\"\n";
+		
+		return output;
+	}
 	
 	
 	

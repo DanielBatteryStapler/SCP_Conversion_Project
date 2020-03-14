@@ -5,7 +5,6 @@
 #include <boost/filesystem.hpp>
 
 int main(int argc, char** argv){
-	
 	std::string dataFolder = "/home/daniel/File Collections/scpArchive/newBatchArchive/";
 	std::string batchDataFile = dataFolder + "batchData.json";
 	std::string batchesFolder = dataFolder + "batches/";

@@ -46,6 +46,10 @@ namespace Scraper{
 	void downloadFullThreadArchive(std::string threadsFolder, std::string threadId);
 	nlohmann::json getThreadPostReplies(const nlohmann::json& divTree, int offset);
 	nlohmann::json getThreadPost(const nlohmann::json& divTree);
+	
+	std::vector<std::string> getAuthorList(std::string pagesFolder, std::vector<std::string> pageList, std::string threadsFolder, std::vector<std::string> threadList);
+	void downloadAuthorList(std::string authorsFile, std::vector<std::string> authorList);
+	nlohmann::json getAuthorData(std::string authorId);
 }
 
 #endif // SCAPER_HPP
