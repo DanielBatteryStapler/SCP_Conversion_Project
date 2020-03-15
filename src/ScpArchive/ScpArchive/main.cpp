@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 	else if(argc == 2 && std::string(argv[1]) == "--importFrontPage"){
         nlohmann::json frontPage = Json::loadJsonFromFile("/home/daniel/Projects/SCP_Conversion_Project/data/customFrontPage/pages/__front-page/data.json");
         std::ifstream pageFile("/home/daniel/Projects/SCP_Conversion_Project/data/customFrontPage/pages/__front-page/frontpage.txt");
-		std::string str((std::istreambuf_iterator<char>(pageFile)), std::istreambuf_iterator<char>());
+		std::string str{std::istreambuf_iterator<char>(pageFile), std::istreambuf_iterator<char>()};
         frontPage["revisions"][0]["sourceCode"] = str;
         Json::saveJsonToFile("/home/daniel/Projects/SCP_Conversion_Project/data/customFrontPage/pages/__front-page/data.json", frontPage);
         

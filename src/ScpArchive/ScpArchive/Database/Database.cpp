@@ -6,15 +6,9 @@ using soci::use;
 using soci::into;
 
 #include "../Config.hpp"
-#include "Json.hpp"
-#include "Importer.hpp"
 
 Database::~Database(){
 	
-}
-
-namespace{
-	using namespace Json;
 }
 
 std::unique_ptr<Database> Database::connectToDatabase(std::string databaseName){
@@ -40,9 +34,18 @@ void Database::cleanAndInitDatabase(){
 	sql << "DROP TABLE IF EXISTS forumThreads";
 	sql << "DROP TABLE IF EXISTS forumCategories";
 	sql << "DROP TABLE IF EXISTS forumGroups";
+	sql << "DROP TABLE IF EXISTS authors";
 	sql << "DROP TABLE IF EXISTS idMap";
 	
 	//recreate tables
+	sql <<
+	"CREATE TABLE authors( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"type TINYINT NOT NULL, \n"
+		"name TEXT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
 	sql <<
 	"CREATE TABLE forumGroups( \n"
 		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
@@ -72,7 +75,8 @@ void Database::cleanAndInitDatabase(){
 		"parent BIGINT NOT NULL, \n"
 			"FOREIGN KEY (parent) REFERENCES forumCategories(id) ON DELETE CASCADE, \n"
 		"title TEXT NOT NULL, \n"
-		//author not implemented
+		"authorId BIGINT, \n"
+			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
 		"description TEXT NOT NULL, \n"
 		"timeStamp BIGINT NOT NULL \n"
 	")ENGINE=InnoDB CHARSET=utf8";
@@ -86,7 +90,8 @@ void Database::cleanAndInitDatabase(){
 		"parentPost BIGINT, \n"
 			"FOREIGN KEY (parentPost) REFERENCES forumPosts(id) ON DELETE CASCADE, \n"
 		"title TEXT NOT NULL, \n"
-		//author not implemented
+		"authorId BIGINT, \n"
+			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
 		"content TEXT NOT NULL, \n"
 		"timeStamp BIGINT NOT NULL \n"
 	")ENGINE=InnoDB CHARSET=utf8";
@@ -118,9 +123,10 @@ void Database::cleanAndInitDatabase(){
 			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
 		"name TEXT NOT NULL COLLATE utf8_bin, \n"
 			"UNIQUE (page, name(255)), \n"
+		"authorId BIGINT, \n"
+			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
 		"description TEXT NOT NULL, \n"
 		"timeStamp BIGINT NOT NULL \n"
-		//author not implemented
 	")ENGINE=InnoDB CHARSET=utf8";
 	
 	sql <<
@@ -138,7 +144,8 @@ void Database::cleanAndInitDatabase(){
 		"page BIGINT NOT NULL, \n"
 			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
 		"title TEXT NOT NULL, \n"
-		//author not implemented
+		"authorId BIGINT, \n"
+			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
 		"timeStamp BIGINT NOT NULL, \n"
 		"changeMessage TEXT NOT NULL, \n"
 		"changeType TEXT NOT NULL, \n"
@@ -154,17 +161,28 @@ void Database::cleanAndInitDatabase(){
 			"UNIQUE (category, sourceId(255)) \n"
 	")ENGINE=InnoDB CHARSET=utf8";
 	
+	
+	{
+		//make sure the "system" author exists
+		Author system;
+		system.name = "system";
+		system.type = Author::Type::System;
+		ID systemId = createAuthor(system);
+		///TODO: go into ScpScraper and make it so when it outputs data it uses something like "system" for the id instead of "wikidot"
+		//if we accidentally show this id to end users, it could seem like we're misrepresenting a trademark, which would be very bad
+		setIdMap(MapCategory::Author, "wikidot", systemId);
+	}
 }
 
-void Database::setIdMap(short category, std::string sourceId, Database::ID id){
+void Database::setIdMap(MapCategory category, std::string sourceId, Database::ID id){
 	sql << "INSERT INTO idMap(category, id, sourceId) VALUES(:category, :id, :sourceId) ON DUPLICATE KEY UPDATE sourceId=:sourceId, id=:id",
-		use(category), use(id), use(sourceId), use(sourceId), use(id);
+		use(static_cast<short>(category)), use(id), use(sourceId), use(sourceId), use(id);
 }
 
-std::optional<Database::ID> Database::getIdMap(short category, std::string sourceId){
+std::optional<Database::ID> Database::getIdMap(MapCategory category, std::string sourceId){
 	Database::ID id;
 	sql << "SELECT id FROM idMap WHERE category=:category AND sourceId=:sourceID",
-		use(category), use(sourceId), into(id);
+		use(static_cast<short>(category)), use(sourceId), into(id);
 	if(sql.got_data()){
 		return id;
 	}
@@ -173,10 +191,10 @@ std::optional<Database::ID> Database::getIdMap(short category, std::string sourc
 	}
 }
 
-std::optional<std::string> Database::getIdMapRaw(short category, Database::ID id){
+std::optional<std::string> Database::getIdMapRaw(MapCategory category, Database::ID id){
 	std::string sourceId;
 	sql << "SELECT sourceId FROM idMap WHERE category=:category AND id=:id",
-		use(category), use(id), into(sourceId);
+		use(static_cast<short>(category)), use(id), into(sourceId);
 	if(sql.got_data()){
 		return sourceId;
 	}
@@ -308,9 +326,16 @@ void Database::setPageTags(Database::ID id, std::vector<std::string> tags){
 }
 
 Database::ID Database::createPageRevision(Database::ID page, Database::PageRevision revision){
-	sql << "INSERT INTO revisions(page, title, timeStamp, changeMessage, changeType, sourceCode)"
-	"VALUES(:page, :title, :timeStamp, :changeMessage, :changeType, :sourceCode)",
-		use(page), use(revision.title), use(revision.timeStamp), use(revision.changeMessage), use(revision.changeType), use(revision.sourceCode);
+	if(revision.authorId){
+		sql << "INSERT INTO revisions(page, title, authorId, timeStamp, changeMessage, changeType, sourceCode)"
+		"VALUES(:page, :title, :authorId, :timeStamp, :changeMessage, :changeType, :sourceCode)",
+			use(page), use(revision.title), use(*revision.authorId), use(revision.timeStamp), use(revision.changeMessage), use(revision.changeType), use(revision.sourceCode);
+	}
+	else{
+		sql << "INSERT INTO revisions(page, title, authorId, timeStamp, changeMessage, changeType, sourceCode)"
+		"VALUES(:page, :title, NULL, :timeStamp, :changeMessage, :changeType, :sourceCode)",
+			use(page), use(revision.title), use(revision.timeStamp), use(revision.changeMessage), use(revision.changeType), use(revision.sourceCode);
+	}
 	Database::ID revisionId;
 	sql << "SELECT LAST_INSERT_ID()", into(revisionId);
 	return revisionId;
@@ -318,12 +343,19 @@ Database::ID Database::createPageRevision(Database::ID page, Database::PageRevis
 
 Database::PageRevision Database::getPageRevision(Database::ID revision){
 	Database::PageRevision page;
-	
-	sql << "SELECT title, timeStamp, changeMessage, changeType, sourceCode FROM revisions WHERE id=:id",
-		use(revision), into(page.title), into(page.timeStamp), into(page.changeMessage), into(page.changeType), into(page.sourceCode);
+	Database::ID authorId;
+	soci::indicator ind;
+	sql << "SELECT title, authorId, timeStamp, changeMessage, changeType, sourceCode FROM revisions WHERE id=:id",
+		use(revision), into(page.title), into(authorId, ind), into(page.timeStamp), into(page.changeMessage), into(page.changeType), into(page.sourceCode);
 	if(sql.got_data() == false){
 		throw std::runtime_error("Cannot find SQL data");
 	}
+	if(ind == soci::i_null){
+		page.authorId = {};
+    }
+    else{
+		page.authorId = authorId;
+    }
 	return page;
 }
 
@@ -347,8 +379,14 @@ std::vector<Database::ID> Database::getPageRevisions(Database::ID page){
 
 std::optional<Database::ID> Database::createPageFile(Database::ID page, Database::PageFile file){
 	try{
-		sql << "INSERT INTO pageFiles(page, name, description, timeStamp) VALUES(:page, :name, :description, :timeStamp)",
-			use(page), use(file.name), use(file.description), use(file.timeStamp);
+		if(file.authorId){
+			sql << "INSERT INTO pageFiles(page, name, authorId, description, timeStamp) VALUES(:page, :name, :authorId, :description, :timeStamp)",
+				use(page), use(file.name), use(*file.authorId), use(file.description), use(file.timeStamp);
+		}
+		else{
+			sql << "INSERT INTO pageFiles(page, name, authorId, description, timeStamp) VALUES(:page, :name, NULL, :description, :timeStamp)",
+				use(page), use(file.name), use(file.description), use(file.timeStamp);
+		}
 		Database::ID id;
 		sql << "SELECT LAST_INSERT_ID()", into(id);
 		return id;
@@ -371,10 +409,18 @@ std::optional<Database::ID> Database::getPageFileId(Database::ID page, std::stri
 
 Database::PageFile Database::getPageFile(Database::ID file){
 	Database::PageFile pageFile;
-	sql << "SELECT name, description, timestamp FROM pageFiles WHERE id=:id",
-		use(file), into(pageFile.name), into(pageFile.description), into(pageFile.timeStamp);
+	Database::ID authorId;
+	soci::indicator ind;
+	sql << "SELECT name, authorId, description, timestamp FROM pageFiles WHERE id=:id",
+		use(file), into(pageFile.name), into(authorId, ind), into(pageFile.description), into(pageFile.timeStamp);
 	if(sql.got_data() == false){
 		throw std::runtime_error("Cannot find SQL data");
+	}
+	if(ind == soci::i_null){
+		pageFile.authorId = {};
+	}
+	else{
+		pageFile.authorId = authorId;
 	}
 	return pageFile;
 }
@@ -416,6 +462,9 @@ Database::ID Database::createForumGroup(Database::ForumGroup group){
 Database::ForumGroup Database::getForumGroup(Database::ID group){
 	Database::ForumGroup forumGroup;
 	sql << "SELECT title, description FROM forumGroups WHERE id=:id", use(group), into(forumGroup.title), into(forumGroup.description);
+	if(sql.got_data() == false){
+		throw std::runtime_error("Cannot find SQL data");
+	}
 	return forumGroup;
 }
 
@@ -444,6 +493,9 @@ Database::ForumCategory Database::getForumCategory(Database::ID category){
 	Database::ForumCategory forumCategory;
 	sql << "SELECT title, description, sourceId FROM forumCategories WHERE id=:id",
 		use(category), into(forumCategory.title), into(forumCategory.description), into(forumCategory.sourceId);
+	if(sql.got_data() == false){
+		throw std::runtime_error("Cannot find SQL data");
+	}
 	return forumCategory;
 }
 
@@ -472,8 +524,14 @@ std::vector<Database::ID> Database::getForumCategories(Database::ID group){
 }
 
 Database::ID Database::createForumThread(Database::ForumThread thread){
-	sql << "INSERT INTO forumThreads(parent, title, description, timeStamp, sourceId) VALUES(:parent, :title, :description, :timeStamp, :sourceId)",
-		use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp), use(thread.sourceId);
+	if(thread.authorId){
+		sql << "INSERT INTO forumThreads(parent, title, authorId, description, timeStamp, sourceId) VALUES(:parent, :title, :authorId, :description, :timeStamp, :sourceId)",
+			use(thread.parent), use(thread.title), use(*thread.authorId), use(thread.description), use(thread.timeStamp), use(thread.sourceId);
+	}
+	else{
+		sql << "INSERT INTO forumThreads(parent, title, authorId, description, timeStamp, sourceId) VALUES(:parent, :title, NULL, :description, :timeStamp, :sourceId)",
+			use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp), use(thread.sourceId);
+	}
 	Database::ID id;
 	sql << "SELECT LAST_INSERT_ID()", into(id);
 	return id;
@@ -481,14 +539,33 @@ Database::ID Database::createForumThread(Database::ForumThread thread){
 
 void Database::resetForumThread(Database::ID id, Database::ForumThread thread){
 	sql << "DELETE FROM forumPosts WHERE parentThread=:id", use(id);
-	sql << "UPDATE forumThreads SET parent=:parent, title=:title, description=:description, timestamp=:timestamp, sourceId=:sourceId WHERE id=:id",
-		use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp), use(thread.sourceId), use(id);
+	if(thread.authorId){
+		sql << "UPDATE forumThreads SET parent=:parent, title=:title, authorId=:authorId, description=:description, timestamp=:timestamp, sourceId=:sourceId WHERE id=:id",
+			use(thread.parent), use(thread.title), use(*thread.authorId), use(thread.description), use(thread.timeStamp), use(thread.sourceId), use(id);
+	}
+	else{
+		sql << "UPDATE forumThreads SET parent=:parent, title=:title, authorId=NULL, description=:description, timestamp=:timestamp, sourceId=:sourceId WHERE id=:id",
+			use(thread.parent), use(thread.title), use(thread.description), use(thread.timeStamp), use(thread.sourceId), use(id);
+	}
 }
 
 Database::ForumThread Database::getForumThread(Database::ID thread){
 	Database::ForumThread forumThread;
-	sql << "SELECT parent, title, description, timestamp, sourceId FROM forumThreads WHERE id=:id", use(thread),
-		into(forumThread.parent), into(forumThread.title), into(forumThread.description), into(forumThread.timeStamp), into(forumThread.sourceId);
+	
+	Database::ID authorId;
+	soci::indicator ind;
+	
+	sql << "SELECT parent, title, authorId, description, timestamp, sourceId FROM forumThreads WHERE id=:id", use(thread),
+		into(forumThread.parent), into(forumThread.title), into(authorId, ind), into(forumThread.description), into(forumThread.timeStamp), into(forumThread.sourceId);
+	if(sql.got_data() == false){
+		throw std::runtime_error("Cannot find SQL data");
+	}
+	if(ind == soci::i_null){
+		forumThread.authorId = {};
+	}
+	else{
+		forumThread.authorId = authorId;
+	}
 	return forumThread;
 }
 
@@ -525,29 +602,41 @@ std::int64_t Database::getNumberOfForumThreads(Database::ID category){
 
 Database::ID Database::createForumPost(Database::ForumPost post){
 	if(post.parentPost){
-		sql << "INSERT INTO forumPosts(parentThread, parentPost, title, content, timeStamp) VALUES(:parentThread, :parentPost, :title, :content, :timeStamp)",
+		sql << "INSERT INTO forumPosts(parentThread, parentPost, title, authorId, content, timeStamp) VALUES(:parentThread, :parentPost, :title, NULL, :content, :timeStamp)",
 			use(post.parentThread), use(*post.parentPost), use(post.title), use(post.content), use(post.timeStamp);
 	}
 	else{
-		sql << "INSERT INTO forumPosts(parentThread, parentPost, title, content, timeStamp) VALUES(:parentThread, NULL, :title, :content, :timeStamp)",
+		sql << "INSERT INTO forumPosts(parentThread, parentPost, title, authorId, content, timeStamp) VALUES(:parentThread, NULL, :title, NULL, :content, :timeStamp)",
 			use(post.parentThread), use(post.title), use(post.content), use(post.timeStamp);
 	}
 	Database::ID id;
 	sql << "SELECT LAST_INSERT_ID()", into(id);
+	if(post.authorId){
+		sql << "UPDATE forumPosts SET authorId=:authorId WHERE id=:id",
+			use(*post.authorId), use(id);
+	}
 	return id;
 }
 
 Database::ForumPost Database::getForumPost(Database::ID post){
 	Database::ForumPost forumPost;
 	Database::ID parentPost;
-	soci::indicator ind;
-	sql << "SELECT parentThread, parentPost, title, content, timestamp FROM forumPosts WHERE id=:id", use(post),
-		into(forumPost.parentThread), into(parentPost, ind), into(forumPost.title), into(forumPost.content), into(forumPost.timeStamp);
-    if(ind == soci::i_null){
+	soci::indicator ind_parent;
+	Database::ID authorId;
+	soci::indicator ind_author;
+	sql << "SELECT parentThread, parentPost, title, authorId, content, timestamp FROM forumPosts WHERE id=:id", use(post),
+		into(forumPost.parentThread), into(parentPost, ind_parent), into(forumPost.title), into(authorId, ind_author), into(forumPost.content), into(forumPost.timeStamp);
+    if(ind_parent == soci::i_null){
 		forumPost.parentPost = {};
     }
     else{
 		forumPost.parentPost = parentPost;
+    }
+    if(ind_author == soci::i_null){
+		forumPost.authorId = {};
+    }
+    else{
+		forumPost.authorId = authorId;
     }
 	return forumPost;
 }
@@ -584,7 +673,30 @@ std::int64_t Database::getNumberOfForumReplies(Database::ID parentThread, std::o
 	return postCount;
 }
 
+Database::ID Database::createAuthor(Database::Author author){
+	sql << "INSERT INTO authors(type, name) VALUES(:type, :name)",
+			use(static_cast<short>(author.type)), use(author.name);
+	Database::ID id;
+	sql << "SELECT LAST_INSERT_ID()", into(id);
+	return id;
+}
 
+void Database::resetAuthor(Database::ID id, Database::Author author){
+	sql << "UPDATE authors SET type=:type, name=:name WHERE id=:id",
+			use(static_cast<short>(author.type)), use(author.name), use(id);
+}
+
+Database::Author Database::getAuthor(Database::ID id){
+	Database::Author out;
+	short type;
+	sql << "SELECT type, name FROM authors WHERE id=:id",
+		use(id), into(type), into(out.name);
+	if(sql.got_data() == false){
+		throw std::runtime_error("Cannot find SQL data");
+	}
+	out.type = static_cast<Author::Type>(type);
+	return out;
+}
 
 
 

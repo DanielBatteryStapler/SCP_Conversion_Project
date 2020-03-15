@@ -24,35 +24,29 @@ namespace Importer{
         Database::ID getFileMap(std::string raw);
         std::string getFileMapRaw(Database::ID id);
         bool fileMapExists(std::string raw);
-        /*
-        void setThreadMap(std::string raw, Database::ID id);
-        Database::ID getThreadMap(std::string raw);
-        std::string getThreadMapRaw(Database::ID id);
-        bool threadMapExists(std::string raw);
         
-        void setCategoryMap(std::string raw, Database::ID id);
-        Database::ID getCategoryMap(std::string raw);
-        std::string getCategoryMapRaw(Database::ID id);
-        bool categoryMapExists(std::string raw);
-        */
+        void setAuthorMap(std::string raw, Database::ID id);
+        Database::ID getAuthorMap(std::string raw);
+        std::string getAuthorMapRaw(Database::ID id);
+        bool authorMapExists(std::string raw);
+        
 	private:
 		Database* db;
     };
 	
-	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups);
+	void importAuthors(Database* database, ImportMap& map, const nlohmann::json& authorsData);
+	void importAuthor(Database* database, ImportMap& map, const nlohmann::json& authorData);
+	
+	void importForumGroups(Database* database, ImportMap& map, const nlohmann::json& forumGroups);
 	void importThreadsFromFolder(Database* database, ImportMap& map, std::string threadsDirectory, std::vector<std::string> threads);
 	void importPosts(Database* database, ImportMap& map, const nlohmann::json& posts, Database::ID parentThread, std::optional<Database::ID> parentPost);
-	void importThread(Database* database, ImportMap& map, nlohmann::json threadData);
+	void importThread(Database* database, ImportMap& map, const nlohmann::json& threadData);
 	
-	void importBasicPageDataFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages);
-	void importBasicPageData(Database* database, ImportMap& map, nlohmann::json pageData);
-	
-	void performPageDataLinksFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages);
-	void linkPageParent(Database* database, ImportMap& map, nlohmann::json pageData);
-	void linkPageDiscussionThread(Database* database, ImportMap& map, nlohmann::json pageData);
+	void importPagesFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages);
+	void importPage(Database* database, ImportMap& map, const nlohmann::json& pageData);
 	
 	void uploadPageFilesFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages);
-	void uploadPageFiles(Database* database, ImportMap& map, nlohmann::json pageData, std::string pageDirectory);
+	void uploadPageFiles(Database* database, ImportMap& map, const nlohmann::json& pageData, std::string pageDirectory);
 }
 
 #endif // IMPORTER_HPP

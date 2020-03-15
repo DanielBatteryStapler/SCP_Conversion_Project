@@ -422,6 +422,39 @@ namespace Tests{
 			
 			Database::eraseDatabase(std::move(db));
 		});
+		
+		
+		tester.add("Database::Author", [](){
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
+			db->cleanAndInitDatabase();
+			
+			Database::Author a;
+			a.type = Database::Author::Type::System;
+			a.name = "testA";
+			Database::ID aId = db->createAuthor(a);
+			
+			Database::Author b;
+			b.type = Database::Author::Type::User;
+			b.name = "testB";
+			Database::ID bId = db->createAuthor(b);
+			
+			Database::Author aTest = db->getAuthor(aId);
+			assertEquals(static_cast<short>(a.type), static_cast<short>(aTest.type));
+			assertEquals(a.name, aTest.name);
+			
+			Database::Author bTest = db->getAuthor(bId);
+			assertEquals(static_cast<short>(b.type), static_cast<short>(bTest.type));
+			assertEquals(b.name, bTest.name);
+			
+			b.name = "new-name";
+			db->resetAuthor(bId, b);
+			
+			bTest = db->getAuthor(bId);
+			assertEquals(static_cast<short>(b.type), static_cast<short>(bTest.type));
+			assertEquals(b.name, bTest.name);
+			
+			Database::eraseDatabase(std::move(db));
+		});
 	}
 }
 

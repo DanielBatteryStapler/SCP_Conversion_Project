@@ -14,7 +14,7 @@ class Database{
 		
 		struct PageRevision{
 			std::string title;
-			//author not implemented
+			std::optional<Database::ID> authorId;
 			TimeStamp timeStamp;
 			std::string changeMessage;
 			std::string changeType;
@@ -23,7 +23,7 @@ class Database{
 		
 		struct PageFile{
 			std::string name;
-			//author not implemented
+			std::optional<Database::ID> authorId;
 			std::string description;
 			TimeStamp timeStamp;
 		};
@@ -43,7 +43,7 @@ class Database{
 			std::string sourceId;
 			Database::ID parent;
 			std::string title;
-			//author not implemented
+			std::optional<Database::ID> authorId;
 			std::string description;
 			TimeStamp timeStamp;
 		};
@@ -52,12 +52,18 @@ class Database{
 			Database::ID parentThread;
 			std::optional<Database::ID> parentPost;
 			std::string title;
-			//author not implemented
+			std::optional<Database::ID> authorId;
 			std::string content;
 			TimeStamp timeStamp;
 		};
 		
-		enum class MapType:short{Page=0, File=1, Thread=2, Category=3};
+		struct Author{
+			enum class Type:short{User=0, System=1};
+			Type type = Type::User;
+			std::string name;
+		};
+		
+		enum class MapCategory:short{Page=0, File=1, Author=2};
 		
 	private:
 		Database() = default;
@@ -70,10 +76,9 @@ class Database{
 		
 		void cleanAndInitDatabase();
 		
-		void setIdMap(short category, std::string sourceId, Database::ID id);
-		std::optional<Database::ID> getIdMap(short category, std::string sourceId);
-		std::optional<std::string> getIdMapRaw(short category, Database::ID id);
-		bool idMapExists(short category, std::string sourceId);
+		void setIdMap(MapCategory category, std::string sourceId, Database::ID id);
+		std::optional<Database::ID> getIdMap(MapCategory category, std::string sourceId);
+		std::optional<std::string> getIdMapRaw(MapCategory category, Database::ID id);
 		
 		int64_t getNumberOfPages();
 		
@@ -123,6 +128,10 @@ class Database{
 		Database::ForumPost getForumPost(Database::ID post);
 		std::vector<Database::ID> getForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost = {}, std::int64_t count = 25, std::int64_t offset = 0);
 		std::int64_t getNumberOfForumReplies(Database::ID parentThread, std::optional<Database::ID> parentPost = {});
+		
+		Database::ID createAuthor(Database::Author author);
+		void resetAuthor(Database::ID id, Database::Author author);
+		Database::Author getAuthor(Database::ID id);
 		
 	private:
 		soci::session sql;

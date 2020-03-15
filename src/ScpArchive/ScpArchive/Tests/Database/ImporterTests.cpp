@@ -148,6 +148,16 @@ namespace Tests{
 				}
 			}
 		};
+		
+		const nlohmann::json testAuthorA = {
+			{"id", "authorAID"}, 
+			{"name", "Author A's Name"}
+		};
+		
+		const nlohmann::json testAuthorB = {
+			{"id", "authorBID"}, 
+			{"name", "Agent Buthor B"}
+		};
 	}
 
 	void addImporterTests(Tester& tester){
@@ -180,12 +190,15 @@ namespace Tests{
 			Database::eraseDatabase(std::move(db));
 		});
 		
-		tester.add("Importer::importBasicPageData", [](){
+		tester.add("Importer::importPage", [](){
 			std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
 			database->cleanAndInitDatabase();
 			Importer::ImportMap map(database.get());
 			
-			Importer::importBasicPageData(database.get(), map, testPageA);
+			Importer::importAuthor(database.get(), map, testAuthorA);
+			Importer::importAuthor(database.get(), map, testAuthorB);
+			
+			Importer::importPage(database.get(), map, testPageA);
 			
 			assertEquals(1u, database->getNumberOfPages());
 			
@@ -200,8 +213,6 @@ namespace Tests{
 					assertEquals(expectedTags[i], actualTags[i]);
 				}
 			}
-			assertTrue(std::nullopt == database->getPageDiscussion(pageId));
-			assertTrue(std::nullopt == database->getPageParent(pageId));
 			{
 				std::vector<Database::ID> pageRevisions = database->getPageRevisions(pageId);
 				
@@ -215,6 +226,7 @@ namespace Tests{
 					assertEquals(exRev["changeMessage"].get<std::string>(), acRev.changeMessage);
 					assertEquals(exRev["changeType"].get<std::string>(), acRev.changeType);
 					assertEquals(exRev["sourceCode"].get<std::string>(), acRev.sourceCode);
+                    assertEquals(map.getAuthorMap(exRev["authorId"].get<std::string>()), acRev.authorId.value());
 				}
 			}
 			
@@ -237,24 +249,27 @@ namespace Tests{
 			Database::eraseDatabase(std::move(database));
 		});
 		
-		tester.add("Importer::linkPageParent", [](){
+		tester.add("Importer::importPage Parents", [](){
 			std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
 			database->cleanAndInitDatabase();
 			Importer::ImportMap map(database.get());
 			
-			Importer::importBasicPageData(database.get(), map, testPageA);
+			Importer::importAuthor(database.get(), map, testAuthorA);
+			Importer::importAuthor(database.get(), map, testAuthorB);
+			
+			Importer::importPage(database.get(), map, testPageA);
 			Database::ID pageAId = *database->getPageId(testPageA["name"].get<std::string>());
 			
-			Importer::importBasicPageData(database.get(), map, testPageB);
+			Importer::importPage(database.get(), map, testPageB);
 			Database::ID pageBId = *database->getPageId(testPageB["name"].get<std::string>());
 			
 			assertEquals(2u, database->getNumberOfPages());
 			
-			assertTrue(database->getPageParent(pageAId) == std::nullopt);
-			assertTrue(database->getPageParent(pageBId) == std::nullopt);
+			//assertTrue(database->getPageParent(pageAId) == std::nullopt);
+			//assertTrue(database->getPageParent(pageBId) == std::nullopt);
 			
-			Importer::linkPageParent(database.get(), map, testPageA);
-			Importer::linkPageParent(database.get(), map, testPageB);
+			//Importer::linkPageParent(database.get(), map, testPageA);
+			//Importer::linkPageParent(database.get(), map, testPageB);
 			
 			assertEquals(testPageB["name"].get<std::string>(), *database->getPageParent(pageAId));
 			assertTrue(database->getPageParent(pageBId) == std::nullopt);
@@ -266,6 +281,9 @@ namespace Tests{
 			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			db->cleanAndInitDatabase();
 			Importer::ImportMap map(db.get());
+			
+			Importer::importAuthor(db.get(), map, testAuthorA);
+			Importer::importAuthor(db.get(), map, testAuthorB);
 			
 			Importer::importForumGroups(db.get(), map, testForumGroups);
 			Database::ID categoryId = db->getForumCategories(db->getForumGroups()[0])[0];
@@ -290,6 +308,7 @@ namespace Tests{
 			assertEquals(testThread["posts"][0]["title"].get<std::string>(), postA.title);
 			assertEquals(testThread["posts"][0]["content"].get<std::string>(), postA.content);
 			assertEquals(std::stoll(testThread["posts"][0]["timeStamp"].get<std::string>()), postA.timeStamp);
+			assertEquals(map.getAuthorMap(testThread["posts"][0]["authorId"].get<std::string>()), postA.authorId.value());
 			
 			assertEquals(1u, db->getForumReplies(threadId, postAId).size());
 			Database::ID postBId = db->getForumReplies(threadId, postAId)[0];
@@ -299,38 +318,69 @@ namespace Tests{
 			assertEquals(testThread["posts"][0]["posts"][0]["title"].get<std::string>(), postB.title);
 			assertEquals(testThread["posts"][0]["posts"][0]["content"].get<std::string>(), postB.content);
 			assertEquals(std::stoll(testThread["posts"][0]["posts"][0]["timeStamp"].get<std::string>()), postB.timeStamp);
-			
-			assertEqualsVec({}, db->getForumReplies(threadId, postBId));
+			assertEquals(map.getAuthorMap(testThread["posts"][0]["posts"][0]["authorId"].get<std::string>()), postB.authorId.value());
 			
 			Database::eraseDatabase(std::move(db));
 		});
 		
-		tester.add("Importer::linkPageDiscussionThread", [](){
+		tester.add("Importer::importPage Discussion Linking", [](){
 			std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
 			database->cleanAndInitDatabase();
 			Importer::ImportMap map(database.get());
 			
-			Importer::importBasicPageData(database.get(), map, testPageA);
-			Database::ID pageAId = *database->getPageId(testPageA["name"].get<std::string>());
-			
-			Importer::importBasicPageData(database.get(), map, testPageB);
-			Database::ID pageBId = *database->getPageId(testPageB["name"].get<std::string>());
+			Importer::importAuthor(database.get(), map, testAuthorA);
+			Importer::importAuthor(database.get(), map, testAuthorB);
 			
 			Importer::importForumGroups(database.get(), map, testForumGroups);
 			Importer::importThread(database.get(), map, testThread);
 			
-			assertTrue(database->getPageDiscussion(pageAId) == std::nullopt);
-			assertTrue(database->getPageDiscussion(pageBId) == std::nullopt);
-			Importer::linkPageDiscussionThread(database.get(), map, testPageA);
-			Importer::linkPageDiscussionThread(database.get(), map, testPageB);
+			Importer::importPage(database.get(), map, testPageA);
+			Database::ID pageAId = *database->getPageId(testPageA["name"].get<std::string>());
+			
+			Importer::importPage(database.get(), map, testPageB);
+			Database::ID pageBId = *database->getPageId(testPageB["name"].get<std::string>());
+			
+			//assertTrue(database->getPageDiscussion(pageAId) == std::nullopt);
+			//assertTrue(database->getPageDiscussion(pageBId) == std::nullopt);
+			//Importer::linkPageDiscussionThread(database.get(), map, testPageA);
+			//Importer::linkPageDiscussionThread(database.get(), map, testPageB);
 			assertTrue(database->getPageDiscussion(pageAId) == std::nullopt);
 			assertEquals(testThread["id"].get<std::string>(), *database->getPageDiscussion(pageBId));
 			
 			Database::eraseDatabase(std::move(database));
 		});
 		
+		tester.add("Importer::importAuthor", [](){
+			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
+			db->cleanAndInitDatabase();
+			Importer::ImportMap map(db.get());
+			
+			Database::Author wikidot = db->getAuthor(map.getAuthorMap("wikidot"));
+			assertEquals(static_cast<short>(Database::Author::Type::System), static_cast<short>(wikidot.type));
+			
+			assertTrue(map.authorMapExists(testAuthorA["id"].get<std::string>()) == false);
+			
+			Importer::importAuthor(db.get(), map, testAuthorA);
+			assertTrue(map.authorMapExists(testAuthorA["id"].get<std::string>()));
+			
+			Database::ID authorId = map.getAuthorMap(testAuthorA["id"].get<std::string>());
+			Database::Author aTest = db->getAuthor(authorId);
+			assertEquals(static_cast<short>(Database::Author::Type::User), static_cast<short>(aTest.type));
+			assertEquals(testAuthorA["name"].get<std::string>(), aTest.name);
+			
+			//make sure that importing the same thing twice works
+			Importer::importAuthor(db.get(), map, testAuthorA);
+			
+			assertEquals(authorId, map.getAuthorMap(testAuthorA["id"].get<std::string>()));
+			aTest = db->getAuthor(map.getAuthorMap(testAuthorA["id"].get<std::string>()));
+			assertEquals(static_cast<short>(Database::Author::Type::User), static_cast<short>(aTest.type));
+			assertEquals(testAuthorA["name"].get<std::string>(), aTest.name);
+			
+			Database::eraseDatabase(std::move(db));
+		});
+		
 		tester.add("Importer::ImportMap", [](){
-			{
+			{//MapCategory::Page
 				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
 				database->cleanAndInitDatabase();
 				Importer::ImportMap importMap(database.get());
@@ -356,7 +406,7 @@ namespace Tests{
 				assertEquals(rawA, importMap.getPageMapRaw(idA));
 				assertEquals(rawB, importMap.getPageMapRaw(idB));
 			}
-			{
+			{//MapCategory::File
 				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
 				database->cleanAndInitDatabase();
 				Importer::ImportMap importMap(database.get());
@@ -381,6 +431,32 @@ namespace Tests{
 				assertEquals(idB, importMap.getFileMap(rawB));
 				assertEquals(rawA, importMap.getFileMapRaw(idA));
 				assertEquals(rawB, importMap.getFileMapRaw(idB));
+			}
+			{//MapCategory::Author
+				std::unique_ptr<Database> database = Database::connectToDatabase(Config::getTestingDatabaseName());
+				database->cleanAndInitDatabase();
+				Importer::ImportMap importMap(database.get());
+				
+				Database::ID idA = 0;//just some valid, but meaningless test ids
+				Database::ID idB = 1;
+				
+				std::string rawA = "testRawIDA";
+				std::string rawB = "testRawIDB";
+				
+				shouldThrowException([&](){
+					importMap.getAuthorMap(rawA);
+				});
+				shouldThrowException([&](){
+					importMap.getAuthorMap(rawB);
+				});
+				assertTrue(!importMap.authorMapExists(rawA));
+				importMap.setAuthorMap(rawA, idA);
+				assertTrue(importMap.authorMapExists(rawA));
+				importMap.setAuthorMap(rawB, idB);
+				assertEquals(idA, importMap.getAuthorMap(rawA));
+				assertEquals(idB, importMap.getAuthorMap(rawB));
+				assertEquals(rawA, importMap.getAuthorMapRaw(idA));
+				assertEquals(rawB, importMap.getAuthorMapRaw(idB));
 			}
 		});
 	}

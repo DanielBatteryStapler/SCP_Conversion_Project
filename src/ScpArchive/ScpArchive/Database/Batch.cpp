@@ -238,18 +238,21 @@ namespace Importer{
 		if(type == "initial"){
 			database->cleanAndInitDatabase();
 			
+			importAuthors(database.get(), map, Json::loadJsonFromFile(batchFolder + "authors.json"));
+			
 			importForumGroups(database.get(), map, batch["forumGroups"]);
 			importThreadsFromFolder(database.get(), map, batchFolder + "threads/", batch["threadList"]);
 			
-			importBasicPageDataFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
-			performPageDataLinksFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
+			importPagesFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
 			uploadPageFilesFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
 		}
 		else if(type == "diff" || type == "user"){
+			
+			importAuthors(database.get(), map, Json::loadJsonFromFile(batchFolder + "authors.json"));
+			
 			importThreadsFromFolder(database.get(), map, batchFolder + "threads/", batch["threadList"]);
 			
-			importBasicPageDataFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
-			performPageDataLinksFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
+			importPagesFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
 			uploadPageFilesFromFolder(database.get(), map, batchFolder + "pages/", batch["pageList"]);
 		}
 		else{

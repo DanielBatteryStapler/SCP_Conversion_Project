@@ -13,28 +13,28 @@ namespace Importer{
 	}
 	
 	namespace{
-		inline void setMapDetail(Database* db, Database::MapType type, std::string raw, Database::ID id){
-			db->setIdMap(static_cast<short>(type), raw, id);
+		inline void setMapDetail(Database* db, Database::MapCategory category, std::string raw, Database::ID id){
+			db->setIdMap(category, raw, id);
 		}
 		
-		inline Database::ID getMapDetail(Database* db, Database::MapType type, std::string raw){
-			std::optional<Database::ID> id = db->getIdMap(static_cast<short>(type), raw);
+		inline Database::ID getMapDetail(Database* db, Database::MapCategory category, std::string raw){
+			std::optional<Database::ID> id = db->getIdMap(category, raw);
 			if(!id){
 				throw std::runtime_error("Attempted to get ImportMap but no mapping exists");
 			}
 			return *id;
 		}
 		
-		inline std::string getMapRawDetail(Database* db, Database::MapType type, Database::ID id){
-			std::optional<std::string> raw = db->getIdMapRaw(static_cast<short>(type), id);
+		inline std::string getMapRawDetail(Database* db, Database::MapCategory category, Database::ID id){
+			std::optional<std::string> raw = db->getIdMapRaw(category, id);
 			if(!raw){
 				throw std::runtime_error("Attempted to get ImportMap raw but no mapping exists");
 			}
 			return *raw;
 		}
 		
-		inline bool mapExistsDetail(Database* db, Database::MapType type, std::string raw){
-			std::optional<Database::ID> id = db->getIdMap(static_cast<short>(type), raw);
+		inline bool mapExistsDetail(Database* db, Database::MapCategory category, std::string raw){
+			std::optional<Database::ID> id = db->getIdMap(category, raw);
 			if(id){
                 return true;
 			}
@@ -45,76 +45,84 @@ namespace Importer{
 	}
 	
 	void ImportMap::setPageMap(std::string raw, Database::ID id){
-		setMapDetail(db, Database::MapType::Page, raw, id);
+		setMapDetail(db, Database::MapCategory::Page, raw, id);
 	}
 	
 	Database::ID ImportMap::getPageMap(std::string raw){
-		return getMapDetail(db, Database::MapType::Page, raw);
+		return getMapDetail(db, Database::MapCategory::Page, raw);
 	}
 	
 	std::string ImportMap::getPageMapRaw(Database::ID id){
-		return getMapRawDetail(db, Database::MapType::Page, id);
+		return getMapRawDetail(db, Database::MapCategory::Page, id);
 	}
 	
 	bool ImportMap::pageMapExists(std::string raw){
-		return mapExistsDetail(db, Database::MapType::Page, raw);
+		return mapExistsDetail(db, Database::MapCategory::Page, raw);
 	}
 	
 	void ImportMap::setFileMap(std::string raw, Database::ID id){
-		setMapDetail(db, Database::MapType::File, raw, id);
+		setMapDetail(db, Database::MapCategory::File, raw, id);
 	}
 	
 	Database::ID ImportMap::getFileMap(std::string raw){
-		return getMapDetail(db, Database::MapType::File, raw);
+		return getMapDetail(db, Database::MapCategory::File, raw);
 	}
 	
 	std::string ImportMap::getFileMapRaw(Database::ID id){
-		return getMapRawDetail(db, Database::MapType::File, id);
+		return getMapRawDetail(db, Database::MapCategory::File, id);
 	}
 	
 	bool ImportMap::fileMapExists(std::string raw){
-		return mapExistsDetail(db, Database::MapType::File, raw);
-	}
-	/*
-	void ImportMap::ImportMap::setThreadMap(std::string raw, Database::ID id){
-        setMapDetail(db, Database::MapType::Thread, raw, id);
+		return mapExistsDetail(db, Database::MapCategory::File, raw);
 	}
 	
-    Database::ID ImportMap::ImportMap::getThreadMap(std::string raw){
-        return getMapDetail(db, Database::MapType::Thread, raw);
+	void ImportMap::setAuthorMap(std::string raw, Database::ID id){
+        setMapDetail(db, Database::MapCategory::Author, raw, id);
     }
     
-    std::string ImportMap::getThreadMapRaw(Database::ID id){
-		return getMapRawDetail(db, Database::MapType::Thread, id);
-	}
-    
-    bool ImportMap::threadMapExists(std::string raw){
-		return mapExistsDetail(db, Database::MapType::Thread, raw);
-	}
-    
-    void ImportMap::setCategoryMap(std::string raw, Database::ID id){
-        setMapDetail(db, Database::MapType::Category, raw, id);
+    Database::ID ImportMap::getAuthorMap(std::string raw){
+        return getMapDetail(db, Database::MapCategory::Author, raw);
     }
     
-    Database::ID ImportMap::getCategoryMap(std::string raw){
-        return getMapDetail(db, Database::MapType::Category, raw);
-    }
-    
-    std::string ImportMap::getCategoryMapRaw(Database::ID id){
-		return getMapRawDetail(db, Database::MapType::Category, id);
+    std::string ImportMap::getAuthorMapRaw(Database::ID id){
+		return getMapRawDetail(db, Database::MapCategory::Author, id);
 	}
 	
-	bool ImportMap::categoryMapExists(std::string raw){
-		return mapExistsDetail(db, Database::MapType::Category, raw);
+	bool ImportMap::authorMapExists(std::string raw){
+		return mapExistsDetail(db, Database::MapCategory::Author, raw);
 	}
-	*/
+	
 	namespace{
 		int64_t getTimeStamp(nlohmann::json time){
 			return std::stoll(time.get<std::string>());
 		}
 	}
 	
-	void importForumGroups(Database* database, ImportMap& map, nlohmann::json forumGroups){
+	void importAuthors(Database* database, ImportMap& map, const nlohmann::json& authorsData){
+        std::cout << "Importing Authors...\n";
+        for(const nlohmann::json& author : authorsData){
+            importAuthor(database, map, author);
+        }
+    }
+	
+	void importAuthor(Database* database, ImportMap& map, const nlohmann::json& authorData){
+		Database::Author author;
+		author.type = Database::Author::Type::User;
+		author.name = authorData["name"].get<std::string>();
+		
+		std::string sourceId = authorData["id"].get<std::string>();
+		if(map.authorMapExists(sourceId)){
+            Database::ID id = map.getAuthorMap(sourceId);
+            database->resetAuthor(id, author);
+		}
+		else{
+            Database::ID id = database->createAuthor(author);
+            map.setAuthorMap(sourceId, id);
+		}
+	}
+	
+	void importForumGroups(Database* database, ImportMap& map, const nlohmann::json& forumGroups){
+		std::cout << "Importing Forum Group Data...\n";
 		for(nlohmann::json jGroup : forumGroups){
             Database::ForumGroup group;
             group.title = jGroup["title"].get<std::string>();
@@ -139,9 +147,10 @@ namespace Importer{
 	}
 	
 	void importThreadsFromFolder(Database* database, ImportMap& map, std::string threadsDirectory, std::vector<std::string> threads){
+		std::cout << "Importing Threads...\n";
 		for(std::string thread : threads){
 			std::string threadFolder = threadsDirectory + thread + "/";
-			std::cout << "Importing thread " << thread << "\n";
+			std::cout << "\tImporting Thread " << thread << "\n";
 			nlohmann::json threadData = Json::loadJsonFromFile(threadFolder + "data.json");
 			if(threadExists(threadData)){
 				importThread(database, map, threadData);
@@ -149,13 +158,16 @@ namespace Importer{
 		}
 	}
 	
-	void importThread(Database* database, ImportMap& map, nlohmann::json threadData){
+	void importThread(Database* database, ImportMap& map, const nlohmann::json& threadData){
 		Database::ForumThread thread;
 		thread.sourceId = threadData["id"].get<std::string>();
 		thread.parent = *database->getForumCategoryId(threadData["categoryId"].get<std::string>());
 		thread.title = threadData["title"].get<std::string>();
 		thread.description = threadData["description"].get<std::string>();
 		thread.timeStamp = getTimeStamp(threadData["timeStamp"]);
+		if(threadData["authorId"].get<std::string>() != "deleted"){
+            thread.authorId = map.getAuthorMap(threadData["authorId"].get<std::string>());
+		}
 		
 		Database::ID threadId;
 		if(database->getForumThreadId(threadData["id"].get<std::string>())){
@@ -177,6 +189,9 @@ namespace Importer{
 			newPost.title = post["title"].get<std::string>();
 			newPost.content = post["content"].get<std::string>();
 			newPost.timeStamp = getTimeStamp(post["timeStamp"]);
+			if(post["authorId"].get<std::string>() != "deleted"){
+                newPost.authorId = map.getAuthorMap(post["authorId"].get<std::string>());
+            }   
 			Database::ID postId = database->createForumPost(newPost);
 			importPosts(database, map, post["posts"], parentThread, postId);
 		}
@@ -188,18 +203,19 @@ namespace Importer{
 		}
 	}
 	
-	void importBasicPageDataFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages){
+	void importPagesFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages){
+		std::cout << "Importing Pages...\n";
 		for(std::string page : pages){
 			std::string pageFolder = pagesDirectory + page + "/";
-			std::cout << "Importing page " << page << "\n";
+			std::cout << "\tImporting Page " << page << "\n";
 			nlohmann::json pageData = Json::loadJsonFromFile(pageFolder + "data.json");
 			if(pageExists(pageData)){
-				importBasicPageData(database, map, pageData);
+				importPage(database, map, pageData);
 			}
 		}
 	}
 	
-	void importBasicPageData(Database* database, ImportMap& map, nlohmann::json pageData){
+	void importPage(Database* database, ImportMap& map, const nlohmann::json& pageData){
 		Database::ID pageId = -1;
 		{
 			std::optional<Database::ID> existing = database->getPageId(pageData["name"].get<std::string>());
@@ -217,6 +233,13 @@ namespace Importer{
 			database->setPageTags(pageId, tags);
 		}
 		
+		if(pageData["parent"].get<std::string>() != ""){
+			database->setPageParent(pageId, pageData["parent"].get<std::string>());
+		}
+		if(pageData["discussionId"].get<std::string>() != ""){
+			database->setPageDiscussion(pageId, pageData["discussionId"].get<std::string>());
+		}
+		
 		for(nlohmann::json rev : pageData["revisions"]){
 			Database::PageRevision revision;
 			revision.title = rev["title"].get<std::string>();
@@ -224,6 +247,9 @@ namespace Importer{
 			revision.changeMessage = rev["changeMessage"].get<std::string>();
 			revision.changeType = rev["changeType"].get<std::string>();
 			revision.sourceCode = rev["sourceCode"].get<std::string>();
+			if(rev["authorId"].get<std::string>() != "deleted"){
+                revision.authorId = map.getAuthorMap(rev["authorId"].get<std::string>());
+			}
 			database->createPageRevision(pageId, revision);
 		}
 		for(nlohmann::json file : pageData["files"]){
@@ -233,31 +259,6 @@ namespace Importer{
 			pageFile.timeStamp = getTimeStamp(file["timeStamp"]);
 			Database::ID fileId = database->createPageFile(pageId, pageFile).value();
 			map.setFileMap(file["id"].get<std::string>(), fileId);
-		}
-	}
-	
-	void performPageDataLinksFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages){
-		for(std::string page : pages){
-			std::string pageFolder = pagesDirectory + page + "/";
-			std::cout << "Linking " << pageFolder << "\n";
-			nlohmann::json pageJson = Json::loadJsonFromFile(pageFolder + "data.json");
-			
-			if(pageExists(pageJson)){
-				linkPageParent(database, map, pageJson);
-				linkPageDiscussionThread(database, map, pageJson);
-			}
-		}
-	}
-	
-	void linkPageParent(Database* database, ImportMap& map, nlohmann::json pageData){
-		if(pageData["parent"].get<std::string>() != ""){
-			database->setPageParent(map.getPageMap(pageData["id"].get<std::string>()), pageData["parent"].get<std::string>());
-		}
-	}
-	
-	void linkPageDiscussionThread(Database* database, ImportMap& map, nlohmann::json pageData){
-		if(pageData["discussionId"].get<std::string>() != ""){
-			database->setPageDiscussion(map.getPageMap(pageData["id"].get<std::string>()), pageData["discussionId"].get<std::string>());
 		}
 	}
 	
@@ -272,7 +273,7 @@ namespace Importer{
 		}
 	}
 	
-	void uploadPageFiles(Database* database, ImportMap& map, nlohmann::json pageData, std::string pageDirectory){
+	void uploadPageFiles(Database* database, ImportMap& map, const nlohmann::json& pageData, std::string pageDirectory){
 		for(nlohmann::json file : pageData["files"]){
 			Database::ID fileId = map.getFileMap(file["id"].get<std::string>());
 			std::string filePath = pageDirectory + "files/" + file["id"].get<std::string>();
