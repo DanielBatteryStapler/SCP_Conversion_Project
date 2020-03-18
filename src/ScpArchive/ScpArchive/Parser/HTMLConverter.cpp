@@ -117,7 +117,17 @@ namespace Parser{
 		return str.str();
 	}
 	
-	
+	std::string redirectLink(std::string rawLink){
+		std::string output = rawLink;
+		const auto doRedirect = [&rawLink, &output](std::string oldPrefix, std::string newPrefix){
+			if(check(rawLink, 0, oldPrefix)){
+				output = newPrefix + rawLink.substr(oldPrefix.size(), rawLink.size() - oldPrefix.size());
+			}
+		};
+		doRedirect("http://www.scp-wiki.net/", "/");
+		doRedirect("http://scp-wiki.wdfiles.com/local--files/", "/__system/pageFile/");
+		return output;
+	}
 	
 	
 }

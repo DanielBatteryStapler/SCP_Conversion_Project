@@ -18,6 +18,7 @@ namespace Parser{
 	void convertTokenedPageToHtml(MarkupOutStream& out, const TokenedPage& page);
 	
 	std::string formatTimeStamp(TimeStamp timeStamp);
+	std::string redirectLink(std::string rawLink);
 }
 
 #endif // HTMLCONVERTER_HPP
