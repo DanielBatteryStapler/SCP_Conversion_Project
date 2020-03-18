@@ -67,18 +67,25 @@ namespace Parser{
 	
 	void toHtmlNodeFootNote(const HtmlContext& con, const Node& nod){
         const FootNote& footnote = std::get<FootNote>(nod.node);
-        con.out << "<sup>["_AM << std::to_string(footnote.number) << "]</sup>"_AM;
+        con.out << "<a class='footNote' id='footNote"_AM << std::to_string(footnote.number) << "' href='#footNoteBlock"_AM << std::to_string(footnote.number) << "'>"_AM
+        << "<sup>["_AM << std::to_string(footnote.number) << "]</sup></a>"_AM
+        << "<div class='footNoteDropDownAnchor'><div class='footNoteDropDown'>"_AM;
+        delegateNodeBranches(con, nod);
+        con.out << "</div></div>"_AM;
+       
 	}
 	
 	void toHtmlNodeFootNoteBlock(const HtmlContext& con, const Node& nod){
         if(nod.branches.size() > 0){
             const FootNoteBlock& block = std::get<FootNoteBlock>(nod.node);
             con.out << "<h2>"_AM << block.title << "</h2>"_AM
-            << "<ol>"_AM;
+            << "<ol class='footNoteBlock'>"_AM;
+            std::size_t i = 1;
             for(const Node& branch : nod.branches){
-                con.out << "<li>"_AM;
+                con.out << "<li><a class='footNoteBlockLabel' id='footNoteBlock"_AM << std::to_string(i) << "' href='#footNote"_AM << std::to_string(i) << "'>"_AM << std::to_string(i) << ".</a> "_AM;
                 delegateNodeBranches(con, branch);
                 con.out << "</li>"_AM;
+                i++;
             }
             con.out << "</ol>"_AM;
         }

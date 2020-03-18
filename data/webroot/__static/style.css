@@ -204,6 +204,47 @@ body{
     padding: 0rem 0.5rem 0rem 0.5rem;
 }
 
+/*footnotes*/
+.footNoteBlock{
+    padding-left: 2rem;
+}
+
+.footNoteBlock li{
+    list-style-type: none;
+}
+
+.footNoteBlockLabel{
+    float: left;
+    padding-right: 0.1rem;
+}
+
+.footNoteDropDown{
+    display: block;
+    position: absolute;
+    background-color: white;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    z-index: 1;
+    margin-left: -10rem;
+    width: 20rem;
+    padding: 0px 1rem 0px 1rem;
+}
+
+
+.footNoteDropDownAnchor{
+    position: relative;
+    display: none;
+}
+
+.footNote{
+    display: inline;
+}
+
+.footNote:hover+.footNoteDropDownAnchor{
+    display: inline;
+}
+
 /*for the things in the article*/
 h1{margin-top:1rem;margin-bottom:0.5rem;font-size:2rem;}
 h2{margin-bottom:0.5rem;font-size:1.3rem;}
@@ -265,4 +306,4 @@ input[type=checkbox]:checked~.CollapsibleShownText{display:block;}
 /*for showing the selected tab*/
 input[type=radio]:checked+.TabSection{display:block;}
 
-.rate-points{color:white;padding:4px;}
+.rate-points{color:white;padding:4px;}ine;
