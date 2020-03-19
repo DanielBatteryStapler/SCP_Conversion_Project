@@ -182,7 +182,7 @@ namespace Parser{
 		
 		while(pos < context.page.size()){
 			char c = context.page[pos];
-			if(isalnum(c) || c == '.' || c == '-' || c == ':' || c == '/' || c == '_' || c == '&' || c == '?' || c == '#' || c == '=' || c == '%'){
+			if(isalnum(c) || c == '+' || c == '.' || c == '-' || c == ':' || c == '/' || c == '_' || c == '&' || c == '?' || c == '#' || c == '=' || c == '%'){
 				link.url += c;
 				pos++;
 			}
