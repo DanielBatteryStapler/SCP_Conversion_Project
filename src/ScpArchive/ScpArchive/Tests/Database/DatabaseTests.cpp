@@ -143,6 +143,40 @@ namespace Tests{
 			Database::eraseDatabase(std::move(db));
 		});
 		
+		tester.add("Database::PageVote", [](){
+            std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
+			
+			db->cleanAndInitDatabase();
+			
+            auto pageA = db->createPage("test-page-a");
+            assertEquals(0u, db->getPageVotes(*pageA).size());
+            assertEquals(0, db->countPageVotes(*pageA));
+            
+            Database::PageVote downVote;
+            downVote.authorId = 1;
+            downVote.type = Database::PageVote::Type::Down;
+            db->addPageVote(*pageA, downVote);
+            assertEquals(1u, db->getPageVotes(*pageA).size());
+            assertTrue(db->getPageVotes(*pageA)[0].authorId == downVote.authorId);
+            assertTrue(db->getPageVotes(*pageA)[0].type == Database::PageVote::Type::Down);
+            
+            Database::PageVote upVote;
+            upVote.type = Database::PageVote::Type::Up;
+            db->addPageVote(*pageA, upVote);
+            assertEquals(2u, db->getPageVotes(*pageA).size());
+            
+            db->addPageVote(*pageA, upVote);
+            assertEquals(3u, db->getPageVotes(*pageA).size());
+            
+            assertEquals(1, db->countPageVotes(*pageA));
+			
+			db->resetPage(*pageA, "test-page-a");
+            assertEquals(0u, db->getPageVotes(*pageA).size());
+            assertEquals(0, db->countPageVotes(*pageA));
+			
+			Database::eraseDatabase(std::move(db));
+		});
+		
 		tester.add("Database::createPageRevision", [](){
 			std::unique_ptr<Database> db = Database::connectToDatabase(Config::getTestingDatabaseName());
 			

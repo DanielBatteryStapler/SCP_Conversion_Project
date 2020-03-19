@@ -25,6 +25,7 @@ void Database::eraseDatabase(std::unique_ptr<Database>&& database){
 
 void Database::cleanAndInitDatabase(){
 	//remove all tables
+	sql << "DROP TABLE IF EXISTS pageVotes";
 	sql << "DROP TABLE IF EXISTS pageTags";
 	sql << "DROP TABLE IF EXISTS pageFileData";
 	sql << "DROP TABLE IF EXISTS pageFiles";
@@ -113,6 +114,17 @@ void Database::cleanAndInitDatabase(){
 		"page BIGINT NOT NULL, \n"
 			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
 		"tag TEXT NOT NULL \n"
+	")ENGINE=InnoDB CHARSET=utf8";
+	
+	sql <<
+	"CREATE TABLE pageVotes( \n"
+		"id BIGINT NOT NULL AUTO_INCREMENT, \n"
+			"PRIMARY KEY (id), \n"
+		"page BIGINT NOT NULL, \n"
+			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
+		"authorId BIGINT, \n"
+			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
+		"vote TINYINT NOT NULL \n"
 	")ENGINE=InnoDB CHARSET=utf8";
 	
 	sql <<
@@ -226,6 +238,7 @@ std::optional<Database::ID> Database::createPage(std::string name){
 void Database::resetPage(Database::ID id, std::string name){
 	std::vector<Database::ID> files = getPageFiles(id);
 	//sql << "DELETE FROM idMap WHERE category=:category AND id=:id", use(static_cast<short>(MapType::File)), use(id);
+	sql << "DELETE FROM pageVotes WHERE page=:page", use(id);
 	sql << "DELETE FROM pageTags WHERE page=:page", use(id);
 	sql << "DELETE FROM pageFiles WHERE page=:page", use(id);
 	sql << "DELETE FROM revisions WHERE page=:page", use(id);
@@ -323,6 +336,68 @@ void Database::setPageTags(Database::ID id, std::vector<std::string> tags){
 	for(auto tag : tags){
 		sql << "INSERT INTO pageTags(page, tag) VALUES(:page, :tag)", use(id), use(tag);
 	}
+}
+
+void Database::addPageVote(Database::ID id, Database::PageVote vote){
+	short voteValue;
+	switch(vote.type){
+		default:
+			throw std::runtime_error("Found PageVote with invalid Type");
+		case Database::PageVote::Type::Up:
+			voteValue = 1;
+			break;
+		case Database::PageVote::Type::Down:
+			voteValue = -1;
+			break;
+	}
+	if(vote.authorId){
+		sql << "INSERT INTO pageVotes(page, authorId, vote)"
+		"VALUES(:page, :authorId, :vote)",
+			use(id), use(vote.authorId.value()), use(voteValue);
+	}
+	else{
+		sql << "INSERT INTO pageVotes(page, authorId, vote)"
+		"VALUES(:page, NULL, :vote)",
+			use(id), use(voteValue);
+	}
+}
+
+std::vector<Database::PageVote> Database::getPageVotes(Database::ID id){
+	soci::indicator ind;
+	Database::ID authorId;
+	short value;
+	soci::statement stmt = (sql.prepare << "SELECT authorId, vote FROM pageVotes WHERE page=:page", use(id), into(authorId, ind), into(value));
+	stmt.execute();
+	
+	std::vector<Database::PageVote> pageVotes;
+	while(stmt.fetch()){
+		Database::PageVote vote;
+		if(ind == soci::i_null){
+			vote.authorId = {};
+		}
+		else{
+			vote.authorId = authorId;
+		}
+		switch(value){
+			default:
+				throw std::runtime_error("Found PageVote with invalid vote value");
+			case 1:
+				vote.type = Database::PageVote::Type::Up;
+				break;
+			case -1:
+				vote.type = Database::PageVote::Type::Down;
+				break;
+		}
+		pageVotes.push_back(vote);
+	}
+	
+	return pageVotes;
+}
+
+std::int64_t Database::countPageVotes(Database::ID id){
+	std::int64_t voteCount;
+	sql << "SELECT COALESCE(SUM(vote), 0) FROM pageVotes WHERE page=:page", use(id), into(voteCount);
+	return voteCount;
 }
 
 Database::ID Database::createPageRevision(Database::ID page, Database::PageRevision revision){

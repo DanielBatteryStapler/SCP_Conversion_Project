@@ -12,6 +12,12 @@ class Database{
 	public:
 		using ID = std::int64_t;
 		
+		struct PageVote{
+			enum class Type{Unknown, Up, Down};
+			std::optional<Database::ID> authorId;
+			Type type = Type::Unknown;
+		};
+		
 		struct PageRevision{
 			std::string title;
 			std::optional<Database::ID> authorId;
@@ -91,10 +97,16 @@ class Database{
 		
 		std::optional<std::string> getPageDiscussion(Database::ID id);
 		void setPageDiscussion(Database::ID id, std::optional<std::string> discussion);
+		
 		std::optional<std::string> getPageParent(Database::ID id);
 		void setPageParent(Database::ID id, std::optional<std::string> parent);
+		
 		std::vector<std::string> getPageTags(Database::ID id);
 		void setPageTags(Database::ID id, std::vector<std::string> tags);
+		
+		void addPageVote(Database::ID id, Database::PageVote vote);
+		std::vector<Database::PageVote> getPageVotes(Database::ID id);
+		std::int64_t countPageVotes(Database::ID id);
 		
 		Database::ID createPageRevision(Database::ID page, Database::PageRevision revision);
 		Database::PageRevision getPageRevision(Database::ID revision);

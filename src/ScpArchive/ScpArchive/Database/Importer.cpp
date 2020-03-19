@@ -260,6 +260,20 @@ namespace Importer{
 			Database::ID fileId = database->createPageFile(pageId, pageFile).value();
 			map.setFileMap(file["id"].get<std::string>(), fileId);
 		}
+		for(nlohmann::json voteJ : pageData["votes"]){
+			Database::PageVote vote;
+			if(voteJ["authorId"].get<std::string>() != "deleted"){
+                vote.authorId = map.getAuthorMap(voteJ["authorId"].get<std::string>());
+			}
+			
+			if(voteJ["voteType"].get<bool>()){
+				vote.type = Database::PageVote::Type::Up;
+			}
+			else{
+				vote.type = Database::PageVote::Type::Down;
+			}
+			database->addPageVote(pageId, vote);
+		}
 	}
 	
 	void uploadPageFilesFromFolder(Database* database, ImportMap& map, std::string pagesDirectory, std::vector<std::string> pages){

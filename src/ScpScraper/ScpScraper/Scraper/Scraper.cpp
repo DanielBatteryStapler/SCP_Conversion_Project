@@ -1442,6 +1442,9 @@ namespace Scraper{
 				for(const nlohmann::json& file : pageData["files"]){
 					output.push_back(file["authorId"].get<std::string>());
 				}
+				for(const nlohmann::json& vote : pageData["votes"]){
+					output.push_back(vote["authorId"].get<std::string>());
+				}
 			}
 		}
 		

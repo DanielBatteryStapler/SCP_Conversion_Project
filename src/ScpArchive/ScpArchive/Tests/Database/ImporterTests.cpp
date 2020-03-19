@@ -50,7 +50,20 @@ namespace Tests{
 			{"discussionId", ""},
 			{"tags", {"test", "page"}},
 			{"votes", 
-				nlohmann::json::array()
+				{
+					{
+						{"authorId", "deleted"},
+						{"voteType", true}
+					},
+					{
+						{"authorId", "deleted"},
+						{"voteType", false}
+					},
+					{
+						{"authorId", "authorAID"},
+						{"voteType", true}
+					}
+				}
 			},
 			{"files", 
 				{
@@ -245,6 +258,9 @@ namespace Tests{
 					assertEquals(map.getFileMap(exFile["id"].get<std::string>()), pageFiles[i]);
 				}
 			}
+			
+			assertEquals(3u, database->getPageVotes(pageId).size());
+			assertEquals(1, database->countPageVotes(pageId));
 			
 			Database::eraseDatabase(std::move(database));
 		});

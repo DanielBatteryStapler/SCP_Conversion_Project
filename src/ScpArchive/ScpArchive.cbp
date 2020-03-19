@@ -178,6 +178,8 @@
 		<Unit filename="ScpArchive/Tests/HTTP/HtmlEntityTests.hpp" />
 		<Unit filename="ScpArchive/Tests/HTTP/MarkupOutStreamTests.cpp" />
 		<Unit filename="ScpArchive/Tests/HTTP/MarkupOutStreamTests.hpp" />
+		<Unit filename="ScpArchive/Tests/Parser/HTMLConverterTests.cpp" />
+		<Unit filename="ScpArchive/Tests/Parser/HTMLConverterTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Parser/ParserTests.cpp" />
 		<Unit filename="ScpArchive/Tests/Parser/ParserTests.hpp" />
 		<Unit filename="ScpArchive/Tests/Parser/TemplaterTests.cpp" />
