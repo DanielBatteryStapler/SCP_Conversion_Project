@@ -116,6 +116,40 @@ body{
 	font-family:'Liberation Sans', sans-serif;
 }
 
+#tagsButton{
+    display: inline-block;
+}
+
+#tagsDropDownAnchor{
+    display: none;
+    position: relative;
+}
+
+#tagsButton:hover+#tagsDropDownAnchor{
+    display: inline-block;
+}
+
+#tagsDropDownAnchor:hover{
+    display: inline-block;
+}
+
+#tagsDropDown{
+    position: absolute;
+    width: 20rem;
+    margin-left: -10rem;
+    z-index: 1;
+    background-color: white;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    padding: 4px;
+}
+
+#tagsDropDown .tag{
+    display: inline-block;
+    padding: 4px;
+}
+
 #pageFooterBackground{
 	margin-top: 10rem;
 	background-color: #555555;

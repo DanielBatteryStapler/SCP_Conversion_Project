@@ -407,6 +407,15 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
 			reqCon.out 
 			<< "<a class='item' href='/__system/pageVotes/"_AM << pageName << "'>Ratings("_AM << ratingStr << ")</a>"_AM;
         }
+        {
+			std::vector<std::string> tags = webCon.db->getPageTags(pageId);
+			reqCon.out
+			<< "<div class='item' id='tagsButton'><a href='#'>Tags</a></div><div id='tagsDropDownAnchor'><div id='tagsDropDown'>"_AM;
+			for(const std::string tag : tags){
+				reqCon.out << "<div class='tag'>"_AM << tag << "</div>"_AM;
+			}
+			reqCon.out << "</div></div>"_AM;
+        }
         reqCon.out
         << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showSource'>Raw Source</a>"_AM
