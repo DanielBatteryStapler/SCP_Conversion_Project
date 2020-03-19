@@ -384,6 +384,21 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     {//the actual article html
         reqCon.out << "<div id='article'>"_AM
         << "<div id='articleTitle'>"_AM << revision.title << "</div>"_AM;
+        {//put the breadcrumbs on the top of the page
+			std::optional<std::string> parentPage = webCon.db->getPageParent(pageId);
+			if(parentPage){
+				std::optional<Database::ID> parentId = webCon.db->getPageId(*parentPage);
+				reqCon.out << "<p>"_AM;
+				if(parentId){
+					Database::PageRevision parentRevision = webCon.db->getLatestPageRevision(*parentId);
+					reqCon.out << "<a href='/"_AM << *parentPage << "'>"_AM << parentRevision.title << "</a> » "_AM << revision.title;
+				}
+				else{
+					reqCon.out << "[ERROR WHEN GETTING PARENT PAGE] » " << revision.title;
+				}
+				reqCon.out << "</p>"_AM;
+			}
+        }
         Parser::convertPageTreeToHtml(reqCon.out, pageTree);
         reqCon.out << "</div>"_AM;
     }
