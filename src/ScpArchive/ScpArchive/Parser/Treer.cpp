@@ -5,6 +5,26 @@
 #include <sstream>
 
 namespace Parser{
+	nlohmann::json printShownAuthor(const ShownAuthor& author){
+		nlohmann::json out;
+		switch(author.type){
+			default:
+				throw std::runtime_error("Attempted to print ShownAuthor with invalid Type");
+				break;
+			case ShownAuthor::Type::System:
+				out["type"] = "System";
+				break;
+			case ShownAuthor::Type::User:
+				out["type"] = "User";
+				break;
+			case ShownAuthor::Type::Deleted:
+				out["type"] = "Deleted";
+				break;
+		}
+		out["name"] = author.name;
+		return out;
+	}
+	
 	bool Code::operator==(const Code& code)const{
 		return contents == code.contents && type == code.type;
 	}

@@ -151,7 +151,7 @@ namespace Parser{
 	struct PageInfo{
         std::string name;
         std::vector<std::string> tags;
-        int rating;
+        std::int64_t rating;
 	};
 	
 	struct ParserParameters{

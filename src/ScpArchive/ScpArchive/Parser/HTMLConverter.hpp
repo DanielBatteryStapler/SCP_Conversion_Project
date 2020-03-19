@@ -10,6 +10,9 @@ namespace Parser{
         mutable std::size_t uniqueId;
     };
     
+    
+	void toHtmlShownAuthor(MarkupOutStream& out, const ShownAuthor& author);
+    
     void convertNodeToHtml(const HtmlContext& con, const Node& nod);
     void delegateNodeBranches(const HtmlContext& con, const Node& nod);
 	std::string getUniqueHtmlId(const HtmlContext& con);

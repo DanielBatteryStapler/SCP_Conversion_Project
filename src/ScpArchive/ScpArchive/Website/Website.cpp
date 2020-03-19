@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "../Parser/HTMLConverter.hpp"
+#include "../Parser/DatabaseUtil.hpp"
 
 void Website::run(){
 	std::string domainName = Config::getWebsiteDomainName();
@@ -94,6 +95,40 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
                     }
                 }
             }
+            else if(uri.size() == 3 && uri[1] == "pageVotes"){
+				std::optional<Database::ID> pageId = webCon.db->getPageId(uri[2]);
+                if(pageId){
+					Database::PageRevision revision = webCon.db->getLatestPageRevision(*pageId);
+					std::vector<Database::PageVote> votes = webCon.db->getPageVotes(*pageId);
+					reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+					<< "Content-Type: text/html; charset=utf-8\r\n\r\n"_AM
+					<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
+					<< "<meta charset='UTF-8'><title>"_AM
+					<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM
+					<< "<h1>Votes on \""_AM << revision.title << "\"</h1>"_AM
+					<< "<table><tbody><tr><th>User</th><th>Vote</th></tr>"_AM;
+					for(const Database::PageVote& vote : votes){
+						Parser::ShownAuthor author = Parser::getShownAuthor(webCon.db.get(), vote.authorId);
+						std::string value;
+						switch(vote.type){
+							default:
+								throw std::runtime_error("Attempted to display a vote with an invalid type");
+								break;
+							case Database::PageVote::Type::Up:
+								value = "+1";
+								break;
+							case Database::PageVote::Type::Down:
+								value = "-1";
+								break;
+						}
+						reqCon.out << "<tr><td>"_AM;
+						toHtmlShownAuthor(reqCon.out, author);
+						reqCon.out << "</td><td>"_AM << value << "</td></tr>"_AM;
+					}
+					reqCon.out << "</tbody></table></div></body></html>"_AM;
+					give404 = false;
+                }
+            }
         }
         else{
 			if(uri.size() > 1 && uri[0] == "forum"){//if they're trying to access the form, we need to translate that into the correct page they actually want
@@ -144,6 +179,7 @@ namespace{
         parserParameters.database = webCon.db.get();
         parserParameters.page.name = pageName;
         parserParameters.page.tags = webCon.db->getPageTags(pageId);
+        parserParameters.page.rating = webCon.db->countPageVotes(pageId);
         parserParameters.urlParameters = parameters;
         
         pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
@@ -353,11 +389,26 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     }
     {//footer
         reqCon.out << "<div id='articleFooter'>"_AM;
-        std::optional<std::string> discussion = webCon.db->getPageDiscussion(pageId);
-        if(discussion){
-			reqCon.out << "<a class='item' href='/forum/t-"_AM << discussion.value() << "'>Discuss</a>"_AM;
+        {
+			std::optional<std::string> discussion = webCon.db->getPageDiscussion(pageId);
+			if(discussion){
+				reqCon.out << "<a class='item' href='/forum/t-"_AM << discussion.value() << "'>Discuss</a>"_AM;
+			}
         }
-        reqCon.out << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
+        {
+			std::int64_t rating = webCon.db->countPageVotes(pageId);
+			std::string ratingStr;
+			if(rating > 0){
+				ratingStr = "+" + std::to_string(rating);
+			}
+			else{
+				ratingStr = std::to_string(rating);
+			}
+			reqCon.out 
+			<< "<a class='item' href='/__system/pageVotes/"_AM << pageName << "'>Ratings("_AM << ratingStr << ")</a>"_AM;
+        }
+        reqCon.out
+        << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showSource'>Raw Source</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showTokenJSON'>Token JSON</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showNodeJSON'>Node JSON</a>"_AM

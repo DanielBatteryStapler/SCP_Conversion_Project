@@ -15,7 +15,7 @@ namespace Parser{
         con.out
         << "<div class='page-rate-widget-box'>"_AM
         << "<span class='rate-points'>"_AM
-        << "Rating: " << ((rate.rating > 0)?"+":"") << std::to_string(rate.rating)
+        << "rating: " << ((rate.rating > 0)?"+":"") << std::to_string(rate.rating)
         << "</span>"_AM
         << "</div>"_AM;
 	}

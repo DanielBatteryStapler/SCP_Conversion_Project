@@ -7,6 +7,23 @@
 
 namespace Parser{
     
+    void toHtmlShownAuthor(MarkupOutStream& out, const ShownAuthor& author){
+		switch(author.type){
+			default:
+				throw std::runtime_error("Attempted to print ShownAuthor with invalid Type");
+				break;
+			case ShownAuthor::Type::System:
+				out << "[SYSTEM]";
+				break;
+			case ShownAuthor::Type::User:
+				out << "<a href='http://www.wikidot.com/user:info/"_AM << normalizePageName(author.name) << "'>"_AM << author.name << "</a>"_AM;
+				break;
+			case ShownAuthor::Type::Deleted:
+				out << "[DELETED]";
+				break;
+		}
+	}
+    
     void convertNodeToHtml(const HtmlContext& con, const Node& nod){
         std::vector<HtmlRule> rules = getHtmlRules();
         for(const HtmlRule& rule : rules){

@@ -31,7 +31,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--runWebsite" />
+				<Option parameters="--importFrontPage" />
 				<Compiler>
 					<Add option="-O3" />
 					<Add directory="./" />
@@ -89,6 +89,8 @@
 		<Unit filename="ScpArchive/HTTP/entities/entities.h">
 			<Option virtualFolder="ScpArchive/Tests/" />
 		</Unit>
+		<Unit filename="ScpArchive/Parser/DatabaseUtil.cpp" />
+		<Unit filename="ScpArchive/Parser/DatabaseUtil.hpp" />
 		<Unit filename="ScpArchive/Parser/HTMLConverter.cpp" />
 		<Unit filename="ScpArchive/Parser/HTMLConverter.hpp" />
 		<Unit filename="ScpArchive/Parser/Parser.cpp" />

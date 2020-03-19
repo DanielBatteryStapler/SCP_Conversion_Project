@@ -1,71 +1,9 @@
 #include "ForumRuleSet.hpp"
 
-#include "../../../Database/Database.hpp"
+#include "../../DatabaseUtil.hpp"
 #include <cmath>
 
 namespace Parser{
-	namespace{
-        ForumAuthor getForumAuthor(Database* db, std::optional<Database::ID> authorId){
-            ForumAuthor out;
-            if(authorId){
-                Database::Author author = db->getAuthor(authorId.value());
-                switch(author.type){
-                    default:
-                        throw std::runtime_error("Got Author from Database with invalid Author::Type");
-                        break;
-                    case Database::Author::Type::System:
-                        out.type = ForumAuthor::Type::System;
-                        break;
-                    case Database::Author::Type::User:
-                        out.type = ForumAuthor::Type::User;
-                        break;
-                }
-                out.name = author.name;
-            }
-            else{
-                out.type = ForumAuthor::Type::Deleted;
-            }
-            return out;
-        }
-        
-        nlohmann::json printForumAuthor(const ForumAuthor& author){
-            nlohmann::json out;
-            switch(author.type){
-                default:
-                    throw std::runtime_error("Attempted to print ForumAuthor with invalid Type");
-                    break;
-                case ForumAuthor::Type::System:
-                    out["type"] = "System";
-                    break;
-                case ForumAuthor::Type::User:
-                    out["type"] = "User";
-                    break;
-                case ForumAuthor::Type::Deleted:
-                    out["type"] = "Deleted";
-                    break;
-            }
-            out["name"] = author.name;
-            return out;
-        }
-        
-        void toHtmlForumAuthor(const HtmlContext& con, const ForumAuthor& author){
-            switch(author.type){
-                default:
-                    throw std::runtime_error("Attempted to print ForumAuthor with invalid Type");
-                    break;
-                case ForumAuthor::Type::System:
-                    con.out << "[SYSTEM]";
-                    break;
-                case ForumAuthor::Type::User:
-                    con.out << "<a href='http://www.wikidot.com/user:info/"_AM << normalizePageName(author.name) << "'>"_AM << author.name << "</a>"_AM;
-                    break;
-                case ForumAuthor::Type::Deleted:
-                    con.out << "[DELETED]";
-                    break;
-            }
-        }
-	}
-	
 	nlohmann::json printNodeForumStart(const NodeVariant& nod){
 		const ForumStart& forumStart = std::get<ForumStart>(nod);
 		nlohmann::json out;
@@ -100,7 +38,7 @@ namespace Parser{
 			nlohmann::json threadJ;
 			threadJ["id"] = i.id;
 			threadJ["title"] = i.title;
-			threadJ["author"] = printForumAuthor(i.author);
+			threadJ["author"] = printShownAuthor(i.author);
 			threadJ["description"] = i.description;
 			threadJ["timeStamp"] = i.timeStamp;
 			out["threads"].push_back(threadJ);
@@ -114,7 +52,7 @@ namespace Parser{
 		out["id"] = forumThread.id;
 		out["categoryId"] = forumThread.categoryId;
 		out["title"] = forumThread.title;
-        out["author"] = printForumAuthor(forumThread.author);
+        out["author"] = printShownAuthor(forumThread.author);
 		out["description"] = forumThread.description;
 		out["timeStamp"] = forumThread.timeStamp;
 		return out;
@@ -124,7 +62,7 @@ namespace Parser{
 		const ForumPost& forumPost = std::get<ForumPost>(nod);
 		nlohmann::json out;
 		out["title"] = forumPost.title;
-		out["author"] = printForumAuthor(forumPost.author);
+		out["author"] = printShownAuthor(forumPost.author);
 		out["content"] = forumPost.content;
 		out["timeStamp"] = forumPost.timeStamp;
 		return out;
@@ -212,7 +150,7 @@ namespace Parser{
                     thread.id = threadData.sourceId;
                     thread.timeStamp = threadData.timeStamp;
                     thread.title = threadData.title;
-                    thread.author = getForumAuthor(db, threadData.authorId);
+                    thread.author = getShownAuthor(db, threadData.authorId);
                     thread.description = threadData.description;
 				}
 				node.threads.push_back(thread);
@@ -261,7 +199,7 @@ namespace Parser{
 			thread.id = threadIdSource;
 			thread.categoryId = db->getForumCategory(threadData.parent).sourceId;
 			thread.title = threadData.title;
-            thread.author = getForumAuthor(db, threadData.authorId);
+            thread.author = getShownAuthor(db, threadData.authorId);
 			thread.description = threadData.description;
 			thread.timeStamp = threadData.timeStamp;
 			thread.currentPage = page;
@@ -284,7 +222,7 @@ namespace Parser{
 				{
                     Database::ForumPost postData = db->getForumPost(reply);
                     post.title = postData.title;
-                    post.author = getForumAuthor(db, postData.authorId);
+                    post.author = getShownAuthor(db, postData.authorId);
                     post.content = postData.content;
                     post.timeStamp = postData.timeStamp;
 				}
@@ -347,7 +285,7 @@ namespace Parser{
 		for(const ForumCategory::Thread& thread : forum.threads){
 			con.out << "<tr><td><a href='/forum/t-"_AM << thread.id << "'>"_AM << thread.title << "</td>"_AM
 			<< "<td>"_AM;
-			toHtmlForumAuthor(con, thread.author);
+			toHtmlShownAuthor(con.out, thread.author);
 			con.out << "</td>"_AM
 			<< "<td>"_AM << formatTimeStamp(thread.timeStamp) << "</td></tr>"_AM;
 		}
@@ -361,7 +299,7 @@ namespace Parser{
 		<< "<div class='threadContainer'>"_AM
 		<< "<div class='threadTitle'>"_AM << forum.title << "</div>"_AM
 		<< "<div class='threadInfo'>by "_AM;
-		toHtmlForumAuthor(con, forum.author);
+		toHtmlShownAuthor(con.out, forum.author);
 		con.out << " at "
 		<< formatTimeStamp(forum.timeStamp)
 		<< "</div>"_AM
@@ -408,7 +346,7 @@ namespace Parser{
 		<< "<div class='postHeader'>"_AM
 		<< "<div class='postTitle'>"_AM << forum.title << "</div>"_AM
 		<< "<div class='postInfo'>by "_AM;
-		toHtmlForumAuthor(con, forum.author);
+		toHtmlShownAuthor(con.out, forum.author);
 		con.out << " at "
 		<< formatTimeStamp(forum.timeStamp)
 		<< "</div>"_AM

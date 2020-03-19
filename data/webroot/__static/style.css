@@ -113,6 +113,7 @@ body{
 #articleFooter .item{
 	display: inline-block;
 	margin: 5px;
+	font-family:'Liberation Sans', sans-serif;
 }
 
 #pageFooterBackground{
@@ -306,4 +307,13 @@ input[type=checkbox]:checked~.CollapsibleShownText{display:block;}
 /*for showing the selected tab*/
 input[type=radio]:checked+.TabSection{display:block;}
 
-.rate-points{color:white;padding:4px;}ine;
+.rate-points{
+    color: white;
+    padding: 1px 8px 1px 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.heritage-rating-module .heritage-emblem {
+    top: -15px;
+}

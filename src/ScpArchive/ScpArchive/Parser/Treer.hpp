@@ -145,7 +145,7 @@ namespace Parser{
     };
     
     struct Rate{
-        int rating;
+        std::int64_t rating;
     };
     
     struct ForumStart{
@@ -162,11 +162,13 @@ namespace Parser{
 		std::vector<Group> groups;
     };
     
-    struct ForumAuthor{
+    struct ShownAuthor{
         enum class Type{User=0, System=1, Deleted=2};
         Type type;
         std::string name;
     };
+    
+	nlohmann::json printShownAuthor(const ShownAuthor& author);
     
     struct ForumCategory{
     	std::string id;
@@ -177,7 +179,7 @@ namespace Parser{
     	struct Thread{
 			std::string id;
 			std::string title;
-			ForumAuthor author;
+			ShownAuthor author;
 			std::string description;
 			TimeStamp timeStamp;
     	};
@@ -188,7 +190,7 @@ namespace Parser{
     	std::string id;
     	std::string categoryId;
     	std::string title;
-    	ForumAuthor author;
+    	ShownAuthor author;
     	std::string description;
     	TimeStamp timeStamp;
     	int currentPage;
@@ -197,7 +199,7 @@ namespace Parser{
     
     struct ForumPost{
     	std::string title;
-    	ForumAuthor author;
+    	ShownAuthor author;
     	std::string content;
     	TimeStamp timeStamp;
     };
