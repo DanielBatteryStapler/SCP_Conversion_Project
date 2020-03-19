@@ -161,6 +161,24 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		<< allowMarkup(revision.sourceCode);
         return true;
 	}
+	else if(parameters.find("articleOnly") != parameters.end()){
+		Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
+        Parser::TokenedPage pageTokens;
+        Parser::PageTree pageTree;
+        parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
+        
+		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+		<< "Content-Type: text/html; charset=utf-8\r\n\r\n"_AM
+		<< "<!DOCTYPE html><html><head>"_AM
+		<< "<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'>"_AM
+		<< "<link rel='stylesheet' type='text/css' href='/component:theme/code/1'>"_AM
+		<< "<link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
+		<< "<meta charset='UTF-8'><title>"_AM
+		<< revision.title << "</title></head><body><div id='article'>"_AM;
+		Parser::convertPageTreeToHtml(reqCon.out, pageTree);
+		reqCon.out << "</div></body></html>"_AM;
+		return true;
+	}
 	else if(parameters.find("showTokenJSON") != parameters.end()){
         Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
         Parser::TokenedPage pageTokens;
@@ -185,7 +203,8 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html; charset=utf-8\r\n\r\n"_AM
-		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/__static/style.css'><meta charset='UTF-8'><title>"_AM
+		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
+		<< "<meta charset='UTF-8'><title>"_AM
 		<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM;
 		
 		reqCon.out << "<p>"_AM;
