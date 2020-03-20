@@ -268,14 +268,14 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		<< allowMarkup(revision.sourceCode);
         return true;
 	}
-	else if(parameters.find("articleOnly") != parameters.end()){
+	else if(parameters.find("previewArticle") != parameters.end()){
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
         
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/html; charset=utf-8\r\n\r\n"_AM
-		<< "<!DOCTYPE html><html><head>"_AM
+		<< "<!DOCTYPE html><html id='articlePreviewRoot'><head>"_AM
 		<< "<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'>"_AM
 		<< "<link rel='stylesheet' type='text/css' href='/component:theme/code/1'>"_AM
 		<< "<link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
@@ -400,6 +400,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     << "<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'>"_AM
     << "<link rel='stylesheet' type='text/css' href='/component:theme/code/1'>"_AM
     << "<link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
+    << "<script type='text/javascript' src='/__static/linkPreview.js'></script>"_AM
     << "<meta charset='UTF-8'>"_AM;
     if(revision.title == ""){
 		reqCon.out << "<title>SCP Conversion Project</title>"_AM;

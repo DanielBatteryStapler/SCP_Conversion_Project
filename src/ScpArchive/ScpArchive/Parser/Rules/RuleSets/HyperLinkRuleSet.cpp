@@ -209,6 +209,6 @@ namespace Parser{
         if(url != "" && !check(url, 0, "http://") && !check(url, 0, "https://") && url[0] != '/'){
 			url = '/' + url;//make sure links are using absolute paths
         }
-        con.out << "<a href='"_AM << redirectLink(url) << "'>"_AM << node.shownText << "</a>"_AM; 
+        con.out << "<a class='previewableLink' href='"_AM << redirectLink(url) << "'>"_AM << node.shownText << "</a>"_AM;
     }
 }

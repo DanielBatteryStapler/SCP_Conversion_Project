@@ -224,9 +224,12 @@ namespace Parser{
     }
     
 	void toHtmlNodeParagraph(const HtmlContext& con, const Node& nod){
-        con.out << "<p>"_AM;
+        //in order to allow for more advanced formatting, paragraphs have to be div elements
+        con.out << "<div class='paragraph'>"_AM;
+        //con.out << "<p>"_AM;
         delegateNodeBranches(con, nod);
-        con.out << "</p>"_AM;
+        //con.out << "</p>"_AM;
+        con.out << "</div>"_AM;
 	}
 	
 	void toHtmlNodeLineBreak(const HtmlContext& con, const Node& nod){

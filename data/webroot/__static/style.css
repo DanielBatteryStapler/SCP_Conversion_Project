@@ -7,6 +7,20 @@ body{
 	margin: 0px;
 }
 
+
+p{
+    line-height:1.25;
+}
+/*wait, what? yeah, paraghraphs need to be a div in order for the footnotes to work correctly because footnotes are a block-level element and cannot normally be inserted into an inline-level element*/
+.paragraph{    
+    display: block;
+    line-height: 1.25;
+    margin: 0;
+}
+.paragraph + .paragraph{
+    margin-top: 1em;
+}
+
 #fullPageContainer{
 	background-color: white;
 }
@@ -288,7 +302,6 @@ h4{margin-bottom:0.5rem;font-size:1rem;}
 h5{margin-bottom:0.5rem;font-size:0.8rem;}
 h6{margin-bottom:0.5rem;font-size:0.7rem;}
 
-p{line-height:1.25;}
 li{line-height:1.25;}
 
 .PageClearer{display:block;clear:both;}
@@ -308,7 +321,7 @@ img{border-width:0px;}
 .ImageRight{text-align:right;}
 .ImageFloatLeft{float:left;}
 .ImageFloatRight{float:right;}
-.scp-image-block > p {
+.scp-image-block > .paragraph {
 	/*this is in order to remove a strange gap that appears below SCP images*/
 	line-height: 0;
 }
@@ -352,3 +365,80 @@ input[type=radio]:checked+.TabSection{display:block;}
 .heritage-rating-module .heritage-emblem {
     top: -15px;
 }
+
+/*for the link previews*/
+
+.previewableLink{
+    /*marks a link as possibly previewable, handled later by javascript*/
+}
+
+.linkPreviewAnchor{
+    display: inline-block;
+    position: relative;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.5s linear;
+}
+
+.previewableLink:hover+.linkPreviewAnchor{
+    visibility: visible;
+    opacity: 1;
+    transition-delay:1s;
+}
+
+.linkPreview{
+    display: block;
+    position: absolute;
+    background-color: white;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    border-radius: 10px;
+    z-index: 1;
+    margin-left: -15rem;
+    padding: 0px;
+    height: 20rem;
+    width: 30rem;
+    overflow: hidden;
+}
+
+.linkPreviewFrame{
+    display: block;
+    height: 20rem;
+    width: 30rem;
+    overflow: hidden;
+    border-style: none;
+    border-width: 0px;
+    box-sizing: border-box;
+    font-size: 0.5rem;
+}
+
+/*change some stuff around in the articlePreviews so they fix in the box nicely*/
+#articlePreviewRoot{
+    font-size: 16px;
+}
+#articlePreviewRoot img{
+    max-width: 10rem !important;
+}
+#articlePreviewRoot .scp-image-block{
+    max-width: 10rem !important;
+}
+#articlePreviewRoot .scp-image-caption{
+    max-width: 10rem !important;
+}
+#articlePreviewRoot .heritage-rating-module{
+    display: none !important;
+}
+#articlePreviewRoot .page-rate-widget-box{
+    display: none !important;
+}
+
+
+
+
+
+
+
+
+
+
