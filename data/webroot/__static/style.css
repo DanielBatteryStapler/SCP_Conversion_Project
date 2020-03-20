@@ -309,7 +309,8 @@ img{border-width:0px;}
 .ImageFloatLeft{float:left;}
 .ImageFloatRight{float:right;}
 .scp-image-block > p {
-	margin: 0px !important;
+	/*this is in order to remove a strange gap that appears below SCP images*/
+	line-height: 0;
 }
 
 table{border-collapse:collapse;margin:0.5rem;empty-cells:show;}
