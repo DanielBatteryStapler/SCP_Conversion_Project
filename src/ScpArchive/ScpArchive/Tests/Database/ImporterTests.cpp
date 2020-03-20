@@ -254,6 +254,7 @@ namespace Tests{
 					assertEquals(exFile["name"].get<std::string>(), acFile.name);
 					assertEquals(exFile["description"].get<std::string>(), acFile.description);
 					assertEquals(std::stoll(exFile["timeStamp"].get<std::string>()), acFile.timeStamp);
+					assertEquals(map.getAuthorMap(exFile["authorId"].get<std::string>()), acFile.authorId.value());
 					
 					assertEquals(map.getFileMap(exFile["id"].get<std::string>()), pageFiles[i]);
 				}
