@@ -129,6 +129,31 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
 					give404 = false;
                 }
             }
+            else if(uri.size() == 3 && uri[1] == "pageFiles"){
+				std::optional<Database::ID> pageId = webCon.db->getPageId(uri[2]);
+                if(pageId){
+					Database::PageRevision revision = webCon.db->getLatestPageRevision(*pageId);
+					std::vector<Database::ID> files = webCon.db->getPageFiles(*pageId);
+					reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+					<< "Content-Type: text/html; charset=utf-8\r\n\r\n"_AM
+					<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
+					<< "<meta charset='UTF-8'><title>"_AM
+					<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM
+					<< "<h1>Files for \""_AM << revision.title << "\"</h1>"_AM
+					<< "<table><tbody><tr><th>Author</th><th>Name</th><th>Description</th><th>Uploaded At</th></tr>"_AM;
+					for(Database::ID fileId : files){
+						Database::PageFile file = webCon.db->getPageFile(fileId);
+						Parser::ShownAuthor author = Parser::getShownAuthor(webCon.db.get(), file.authorId);
+						reqCon.out << "<tr><td>"_AM;
+						toHtmlShownAuthor(reqCon.out, author);
+						reqCon.out
+						<< "</td><td>"_AM << file.name << "</td><td>"_AM << file.description << "</td>"_AM
+						<< "<td>"_AM << Parser::formatTimeStamp(file.timeStamp) << "</td></tr>"_AM;
+					}
+					reqCon.out << "</tbody></table></div></body></html>"_AM;
+					give404 = false;
+                }
+            }
         }
         else{
 			if(uri.size() > 1 && uri[0] == "forum"){//if they're trying to access the form, we need to translate that into the correct page they actually want
@@ -432,6 +457,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
 			reqCon.out << "</div></div>"_AM;
         }
         reqCon.out
+        << "<a class='item' href='/__system/pageFiles/"_AM << pageName << "'>Files</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showSource'>Raw Source</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showTokenJSON'>Token JSON</a>"_AM
