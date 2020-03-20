@@ -130,6 +130,7 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
                 }
             }
             else if(uri.size() == 3 && uri[1] == "pageFiles"){
+				std::string pageName = uri[2];
 				std::optional<Database::ID> pageId = webCon.db->getPageId(uri[2]);
                 if(pageId){
 					Database::PageRevision revision = webCon.db->getLatestPageRevision(*pageId);
@@ -147,8 +148,36 @@ void Website::handleUri(Gateway::RequestContext& reqCon, Website::Context& webCo
 						reqCon.out << "<tr><td>"_AM;
 						toHtmlShownAuthor(reqCon.out, author);
 						reqCon.out
-						<< "</td><td>"_AM << file.name << "</td><td>"_AM << file.description << "</td>"_AM
+						<< "</td><td><a href='/__system/pageFile/"_AM << pageName << "/"_AM << file.name << "'/>"_AM << file.name << "</td>"_AM
+						<<"<td>"_AM << file.description << "</td>"_AM
 						<< "<td>"_AM << Parser::formatTimeStamp(file.timeStamp) << "</td></tr>"_AM;
+					}
+					reqCon.out << "</tbody></table></div></body></html>"_AM;
+					give404 = false;
+                }
+            }
+            else if(uri.size() == 3 && uri[1] == "pageHistory"){
+				std::string pageName = uri[2];
+				std::optional<Database::ID> pageId = webCon.db->getPageId(pageName);
+                if(pageId){
+					std::vector<Database::ID> revisions = webCon.db->getPageRevisions(*pageId);
+					reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+					<< "Content-Type: text/html; charset=utf-8\r\n\r\n"_AM
+					<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
+					<< "<meta charset='UTF-8'><title>"_AM
+					<< pageName << "</title></head><body><div id='sourceCodeBox'>"_AM
+					<< "<h1>History of \""_AM << pageName << "\"</h1>"_AM
+					<< "<table><tbody><tr><th>View</th><th>Author</th><th>Change Type</th><th>Change Message</th><th>Created At</th></tr>"_AM;
+					std::size_t num = 0;
+					for(Database::ID revisionId : revisions){
+						Database::PageRevision revision = webCon.db->getPageRevision(revisionId);
+						Parser::ShownAuthor author = Parser::getShownAuthor(webCon.db.get(), revision.authorId);
+						reqCon.out << "<tr><td><a href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(num) << "'>View</a></td><td>"_AM;
+						toHtmlShownAuthor(reqCon.out, author);
+						reqCon.out
+						<< "</td><td>"_AM << revision.changeType << "</td><td>"_AM << revision.changeMessage << "</td>"_AM
+						<< "<td>"_AM << Parser::formatTimeStamp(revision.timeStamp) << "</td></tr>"_AM;
+						num++;
 					}
 					reqCon.out << "</tbody></table></div></body></html>"_AM;
 					give404 = false;
@@ -214,16 +243,32 @@ namespace{
 
 bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
 	
+	Database::PageRevision revision;
+	if(parameters.find("useRevision") != parameters.end()){
+		std::vector<Database::ID> revisions = webCon.db->getPageRevisions(pageId);
+		std::size_t revisionNum;
+        try{
+            revisionNum = std::stoull(parameters.find("useRevision")->second);
+        }
+        catch(std::exception& e){
+            return false;
+        }
+        if(revisions.size() <= revisionNum){
+            return false;
+        }
+		revision = webCon.db->getPageRevision(revisions[revisionNum]);
+	}
+	else{
+		revision = webCon.db->getLatestPageRevision(pageId);
+	}
+	
 	if(parameters.find("showSource") != parameters.end()){
-        Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
-		
 		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
 		<< "Content-Type: text/plain; charset=utf-8\r\n\r\n"_AM
 		<< allowMarkup(revision.sourceCode);
         return true;
 	}
 	else if(parameters.find("articleOnly") != parameters.end()){
-		Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
@@ -241,7 +286,6 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		return true;
 	}
 	else if(parameters.find("showTokenJSON") != parameters.end()){
-        Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
@@ -257,7 +301,6 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         return true;
 	}
 	else if(parameters.find("showAnnotatedSource") != parameters.end()){
-		Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
@@ -275,7 +318,6 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         return true;
 	}
 	else if(parameters.find("showNodeJSON") != parameters.end()){
-		Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
@@ -287,7 +329,6 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         return true;
 	}
 	else if(parameters.find("code") != parameters.end()){
-        Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
@@ -315,7 +356,6 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		return true;
 	}
 	else if(parameters.find("css") != parameters.end()){
-        Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
@@ -338,13 +378,11 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		return true;
 	}
 	else{//if nothing special is being asked for, then just send a standard formatted article
-		return handleFormattedArticle(reqCon, webCon, pageName, pageId, parameters);
+		return handleFormattedArticle(reqCon, webCon, pageName, pageId, parameters, revision);
 	}
 }
 
-bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
-    Database::PageRevision revision = webCon.db->getLatestPageRevision(pageId);
-    
+bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters, Database::PageRevision& revision){
 	if(pageName == "forum:start"){
 		revision.sourceCode = "[[module ForumStart]]";
 		//really strange special case, idk why the page doesn't just have this in it? forum:category and forum:thread do.
@@ -458,6 +496,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         }
         reqCon.out
         << "<a class='item' href='/__system/pageFiles/"_AM << pageName << "'>Files</a>"_AM
+        << "<a class='item' href='/__system/pageHistory/"_AM << pageName << "'>History</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showSource'>Raw Source</a>"_AM
         << "<a class='item' href='/"_AM << pageName << "/showTokenJSON'>Token JSON</a>"_AM

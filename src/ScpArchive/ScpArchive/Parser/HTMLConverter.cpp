@@ -130,7 +130,7 @@ namespace Parser{
 	
 	std::string formatTimeStamp(TimeStamp timeStamp){
 		std::stringstream str;
-		str << std::put_time(std::gmtime(&timeStamp), "%A %d %B, %Y, %T") << " UTC";
+		str << std::put_time(std::gmtime(&timeStamp), "%A %d %B %Y, %T") << " UTC";
 		return str.str();
 	}
 	
