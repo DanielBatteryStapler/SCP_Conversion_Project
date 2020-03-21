@@ -30,6 +30,6 @@ namespace Config{
 	}
 	
 	std::string getScraperFolder(){
-		return "/home/daniel/File Collections/scpArchive/batchArchive/";
+		return "/home/daniel/File Collections/scpArchive/newBatchArchive/";
 	}
 }

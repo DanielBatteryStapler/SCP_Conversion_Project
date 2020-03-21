@@ -259,4 +259,21 @@ namespace Importer{
 			throw std::runtime_error("Batch has Invalid Type.");
 		}
 	}
+	
+	TimeStamp lastImportedBatchTimeStamp(std::string batchesFolder, std::string batchDataFile){
+		std::vector<TimelineEntry> timeline = getTimeline(batchesFolder, batchDataFile);
+		if(timelineHasError(timeline)){
+			return 0;
+		}
+		TimeStamp newestAppliedBatchTimeStamp = 0;
+		for(const TimelineEntry& entry : timeline){
+			if(entry.status == TimelineEntry::Applied){
+				newestAppliedBatchTimeStamp = entry.timeStamp;
+			}
+			else{
+				break;
+			}
+		}
+		return newestAppliedBatchTimeStamp;
+	}
 }

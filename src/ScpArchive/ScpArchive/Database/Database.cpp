@@ -400,6 +400,12 @@ std::int64_t Database::countPageVotes(Database::ID id){
 	return voteCount;
 }
 
+std::int64_t Database::getNumberOfPageRevisions(){
+	std::int64_t count;
+	sql << "SELECT COUNT(id) FROM revisions", into(count);
+	return count;
+}
+
 Database::ID Database::createPageRevision(Database::ID page, Database::PageRevision revision){
 	if(revision.authorId){
 		sql << "INSERT INTO revisions(page, title, authorId, timeStamp, changeMessage, changeType, sourceCode)"
@@ -598,6 +604,12 @@ std::vector<Database::ID> Database::getForumCategories(Database::ID group){
 	return categories;
 }
 
+std::int64_t Database::getNumberOfForumThreads(){
+	std::int64_t count;
+	sql << "SELECT COUNT(id) FROM forumThreads", into(count);
+	return count;
+}
+
 Database::ID Database::createForumThread(Database::ForumThread thread){
 	if(thread.authorId){
 		sql << "INSERT INTO forumThreads(parent, title, authorId, description, timeStamp, sourceId) VALUES(:parent, :title, :authorId, :description, :timeStamp, :sourceId)",
@@ -673,6 +685,12 @@ std::int64_t Database::getNumberOfForumThreads(Database::ID category){
     std::int64_t threadCount;
 	sql << "SELECT COUNT(id) FROM forumThreads WHERE parent=:category", use(category), into(threadCount);
 	return threadCount;
+}
+
+std::int64_t Database::getNumberOfForumPosts(){
+	std::int64_t count;
+	sql << "SELECT COUNT(id) FROM forumPosts", into(count);
+	return count;
 }
 
 Database::ID Database::createForumPost(Database::ForumPost post){

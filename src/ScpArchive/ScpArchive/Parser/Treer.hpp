@@ -211,6 +211,14 @@ namespace Parser{
     	TimeStamp timeStamp;
     };
     
+    struct SCPConversionProjectInfoBox{
+		TimeStamp lastUpdate;
+		int64_t pageCount;
+		int64_t revisionCount;
+		int64_t threadCount;
+		int64_t postCount;
+    };
+    
 	struct RootPage{
 	};
 	
@@ -219,21 +227,21 @@ namespace Parser{
 		"FootNote", "FootNoteBlock", "TableOfContents", "TabView", "Tab", "Collapsible", "Rate", "User", "Image", "HTML", "IFrame", "Code",
 		"QuoteBox", "Div", "Align", "List", "ListElement", "AdvList", "AdvListElement", "Paragraph", "CenterText", "Heading", "Divider",
 		"LineBreak", "PlainText", "LiteralText", "HyperLink", "StyleFormat", "Span", "Anchor", "Size", "A",
-		"ForumStart", "ForumThread", "ForumCategory", "ForumPost"};
+		"ForumStart", "ForumThread", "ForumCategory", "ForumPost", "SCPConversionProjectInfoBox"};
 		
 	enum class NodeType
 		{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
         FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, User, Image, HTML, IFrame, Code,
         QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A,
-        ForumStart, ForumThread, ForumCategory, ForumPost};
+        ForumStart, ForumThread, ForumCategory, ForumPost, SCPConversionProjectInfoBox};
         
 	using NodeVariant = std::variant
 		<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
         FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, User, Image, HTML, IFrame, Code,
         QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A,
-        ForumStart, ForumThread, ForumCategory, ForumPost>;
+        ForumStart, ForumThread, ForumCategory, ForumPost, SCPConversionProjectInfoBox>;
 	
 	struct Node{
 		using Type = NodeType;

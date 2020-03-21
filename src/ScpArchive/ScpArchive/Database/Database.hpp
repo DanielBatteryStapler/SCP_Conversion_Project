@@ -86,6 +86,7 @@ class Database{
 		std::optional<Database::ID> getIdMap(MapCategory category, std::string sourceId);
 		std::optional<std::string> getIdMapRaw(MapCategory category, Database::ID id);
 		
+		
 		int64_t getNumberOfPages();
 		
 		std::optional<Database::ID> createPage(std::string name);
@@ -108,6 +109,9 @@ class Database{
 		std::vector<Database::PageVote> getPageVotes(Database::ID id);
 		std::int64_t countPageVotes(Database::ID id);
 		
+		
+		int64_t getNumberOfPageRevisions();
+		
 		Database::ID createPageRevision(Database::ID page, Database::PageRevision revision);
 		Database::PageRevision getPageRevision(Database::ID revision);
 		Database::PageRevision getLatestPageRevision(Database::ID page);
@@ -129,12 +133,18 @@ class Database{
 		std::optional<Database::ID> getForumCategoryId(std::string sourceId);
 		std::vector<Database::ID> getForumCategories(Database::ID group);
 		
+		
+		int64_t getNumberOfForumThreads();
+		
 		Database::ID createForumThread(Database::ForumThread thread);
 		void resetForumThread(Database::ID id, Database::ForumThread thread);
 		Database::ForumThread getForumThread(Database::ID thread);
 		std::optional<Database::ID> getForumThreadId(std::string sourceId);
 		std::vector<Database::ID> getForumThreads(Database::ID category, std::int64_t count = 25, std::int64_t offset = 0);
 		std::int64_t getNumberOfForumThreads(Database::ID category);
+		
+		
+		int64_t getNumberOfForumPosts();
 		
 		Database::ID createForumPost(Database::ForumPost post);
 		Database::ForumPost getForumPost(Database::ID post);

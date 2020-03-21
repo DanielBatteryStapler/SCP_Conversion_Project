@@ -1,5 +1,7 @@
 #include "RuleSet.hpp"
 
+#include "RuleSets/SCPConversionProjectInfoBoxRuleSet.hpp"
+
 #include "RuleSets/SpanRuleSet.hpp"
 #include "RuleSets/SizeRuleSet.hpp"
 #include "RuleSets/DivRuleSet.hpp"
@@ -38,6 +40,8 @@
 
 namespace Parser{
 	const inline std::vector<RuleSet> ruleSets = {
+	    scpConversionProjectInfoBoxRuleSet,
+	    
 	    spanRuleSet,
 	    sizeRuleSet,
 	    divRuleSet,
