@@ -43,7 +43,7 @@ window.onload = function(){
                 var timer = setTimeout(function(){
                     frame.setAttribute("src", frame.getAttribute("data-src"));
                     frame.setAttribute("data-src", "loaded");
-                }, 1000);
+                }, 500);
                 frame.setAttribute("data-timer", timer);
             }
         }

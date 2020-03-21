@@ -419,8 +419,27 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     << "<img id='headerImage' src='/__static/logo.png'>"_AM
     << "<h1 id='headerTitle'><a href='/'>SCP Conversion Project</a></h1>"_AM
     << "<h2 id='headerSubtitle'>Converting and Archiving the SCP Wiki</h2>"_AM
-    << "</div></div>"_AM
-    << "<div id='pageBody'>"_AM;
+    << "</div></div>"_AM;
+    {//top bar content
+        reqCon.out << "<div id='topBar'>"_AM;
+        std::string topBarPageName = "nav:top";
+        
+        std::optional<Database::ID> topBarId = webCon.db->getPageId(topBarPageName);
+        
+        if(topBarId){
+			Database::PageRevision topBarRevision = webCon.db->getLatestPageRevision(*topBarId);
+            Parser::TokenedPage topBarTokens;
+			Parser::PageTree topBarTree;
+			parsePage(webCon, topBarPageName, {}, topBarRevision, *topBarId, topBarTokens, topBarTree);
+            
+            Parser::convertPageTreeToHtml(reqCon.out, topBarTree);
+        }
+        else{
+            reqCon.out << "Top bar content unavailable";
+        }
+        reqCon.out << "</div>"_AM;
+    }
+    reqCon.out << "<div id='pageBody'>"_AM;
     {//side bar content
         reqCon.out << "<div id='sideBar'><div id='side-bar'>"_AM;
         std::string sideBarPageName = "nav:side";
@@ -429,14 +448,9 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         
         if(sideBarId){
             Database::PageRevision sideBarRevision = webCon.db->getLatestPageRevision(*sideBarId);
-            
-            Parser::ParserParameters navSideParameters = {};
-			navSideParameters.database = webCon.db.get();
-			navSideParameters.page.name = sideBarPageName;
-			navSideParameters.page.tags = webCon.db->getPageTags(*sideBarId);
-            
-            Parser::TokenedPage sideBarTokens = Parser::tokenizePage(sideBarRevision.sourceCode, navSideParameters);
-            Parser::PageTree sideBarTree = Parser::makeTreeFromTokenedPage(sideBarTokens, navSideParameters);
+            Parser::TokenedPage sideBarTokens;
+			Parser::PageTree sideBarTree;
+			parsePage(webCon, sideBarPageName, {}, sideBarRevision, *sideBarId, sideBarTokens, sideBarTree);
             
             Parser::convertPageTreeToHtml(reqCon.out, sideBarTree);
         }

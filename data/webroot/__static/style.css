@@ -26,22 +26,23 @@ p{
 }
 
 #sourceCodeBox{
-	max-width:50rem;
-	margin-left:auto;
-	margin-right:auto;
+	max-width: 50rem;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #pageHeaderBackground{
+    display: block;
 	background-repeat: repeat-x;
 	background-image: linear-gradient(0deg, rgb(100, 46, 44) 0%, rgb(12, 12, 12) 90%, rgb(12, 12, 12));
 	width: 100%;
 }
 
 #pageHeader{
-	max-width:50rem;
-	margin-left:auto;
-	margin-right:auto;
-	padding: 1rem 0px 1rem 0px;
+	max-width: 50rem;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 1rem 0 1rem 0;
 	
 	display: grid;
 	grid-template-columns: 15px auto auto 1fr;
@@ -78,6 +79,79 @@ p{
 	margin: 0px;
 	color: rgb(240, 240, 192);
 	font-size: 0.82rem;
+}
+
+/*top bar styling*/
+#topBar{
+    display: block;
+    background-repeat: repeat-x;
+	background-image: linear-gradient(0deg, rgb(10, 10, 10) 0%, rgb(85, 85, 85) 90%);
+    min-height: 10px;
+    height: auto;
+}
+#topBar>.mobile-top-bar{
+    display: none;
+}
+#topBar>.top-bar{
+    display: block;
+    max-width: 60rem;
+	margin: 0 auto 0 auto;
+    text-align: right;
+}
+#topBar>.top-bar>ul{
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+#topBar>.top-bar>ul{
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+#topBar>.top-bar>ul>li{
+    display: inline-block;
+    padding: 4px 8px 8px 8px;
+    border-style: solid;
+    border-color: rgb(25, 25, 25);
+    border-width: 0 1px 0 1px;
+    position: relative;
+    color: #F0F0F0;
+    font-family: sans-serif;
+    font-size: 0.8rem;
+}
+#topBar>.top-bar>ul>li+li{
+    border-width: 0 1px 0 0;
+}
+#topBar>.top-bar>ul>li>ul{
+    display: none;
+}
+#topBar>.top-bar>ul>li:hover{
+    background-color: #F0F0F0;
+    color: #901;
+}
+#topBar>.top-bar>ul>li:hover>ul{
+    float: left;
+    display: block;
+    position: absolute;
+    z-index: 1;
+    color: #901;
+    background-color: #F0F0F0;
+    margin: 4px 0 0 -9px;
+    text-align: left;
+    padding: 0;
+    width: 10rem;
+    border-style: solid;
+    border-color: black;
+    border-width: 0 1px 1px 1px;
+}
+#topBar>.top-bar>ul>li>ul>li{
+    display: block;
+    list-style-type: none;
+    padding-left: 0.5rem;
+    padding-bottom: 2px;
+}
+#topBar>.top-bar>ul>li>ul>li:hover{
+    background-color: #FBFBFB;
 }
 
 #pageBody{
