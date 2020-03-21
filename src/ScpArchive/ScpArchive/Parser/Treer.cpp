@@ -21,7 +21,8 @@ namespace Parser{
 				out["type"] = "Deleted";
 				break;
 		}
-		out["name"] = author.name;
+		out["shownName"] = author.shownName;
+		out["linkName"] = author.linkName;
 		return out;
 	}
 	

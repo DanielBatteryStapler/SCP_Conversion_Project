@@ -16,7 +16,8 @@ namespace Parser{
 					out.type = ShownAuthor::Type::User;
 					break;
 			}
-			out.name = author.name;
+			out.shownName = author.name;
+			out.linkName = normalizePageName(out.shownName);
 		}
 		else{
 			out.type = ShownAuthor::Type::Deleted;

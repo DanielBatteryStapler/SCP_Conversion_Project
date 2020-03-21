@@ -120,7 +120,7 @@ namespace Parser{
 				out << "[SYSTEM]";
 				break;
 			case ShownAuthor::Type::User:
-				out << "<a href='http://www.wikidot.com/user:info/"_AM << normalizePageName(author.name) << "'>"_AM << author.name << "</a>"_AM;
+				out << "<a href='http://www.wikidot.com/user:info/"_AM << author.linkName << "'>"_AM << author.shownName << "</a>"_AM;
 				break;
 			case ShownAuthor::Type::Deleted:
 				out << "[DELETED]";

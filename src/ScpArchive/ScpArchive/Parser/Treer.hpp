@@ -148,6 +148,12 @@ namespace Parser{
         std::int64_t rating;
     };
     
+    struct User{
+		std::string shownName;
+		std::string linkName;
+		bool newWindow;
+    };
+    
     struct ForumStart{
 		struct Category{
 			std::string id;
@@ -165,7 +171,8 @@ namespace Parser{
     struct ShownAuthor{
         enum class Type{User=0, System=1, Deleted=2};
         Type type;
-        std::string name;
+        std::string shownName;
+        std::string linkName;
     };
     
 	nlohmann::json printShownAuthor(const ShownAuthor& author);
@@ -209,21 +216,21 @@ namespace Parser{
 	
 	const inline std::vector<std::string> NodeTypeNames =
 		{"Unknown", "RootPage", "Table", "TableRow", "TableElement", "AdvTable", "AdvTableRow", "AdvTableElement",
-		"FootNote", "FootNoteBlock", "TableOfContents", "TabView", "Tab", "Collapsible", "Rate", "Image", "HTML", "IFrame", "Code",
+		"FootNote", "FootNoteBlock", "TableOfContents", "TabView", "Tab", "Collapsible", "Rate", "User", "Image", "HTML", "IFrame", "Code",
 		"QuoteBox", "Div", "Align", "List", "ListElement", "AdvList", "AdvListElement", "Paragraph", "CenterText", "Heading", "Divider",
 		"LineBreak", "PlainText", "LiteralText", "HyperLink", "StyleFormat", "Span", "Anchor", "Size", "A",
 		"ForumStart", "ForumThread", "ForumCategory", "ForumPost"};
 		
 	enum class NodeType
 		{Unknown = 0, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
-        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, Image, HTML, IFrame, Code,
+        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, User, Image, HTML, IFrame, Code,
         QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A,
         ForumStart, ForumThread, ForumCategory, ForumPost};
         
 	using NodeVariant = std::variant
 		<std::monostate, RootPage, Table, TableRow, TableElement, AdvTable, AdvTableRow, AdvTableElement,
-        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, Image, HTML, IFrame, Code,
+        FootNote, FootNoteBlock, TableOfContents, TabView, Tab, Collapsible, Rate, User, Image, HTML, IFrame, Code,
         QuoteBox, Div, Align, List, ListElement, AdvList, AdvListElement, Paragraph, CenterText, Heading, Divider,
         LineBreak, PlainText, LiteralText, HyperLink, StyleFormat, Span, Anchor, Size, A,
         ForumStart, ForumThread, ForumCategory, ForumPost>;

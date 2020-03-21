@@ -32,7 +32,7 @@ namespace Parser{
 				}
 				output += ':';
 			}
-			else if(isspace(c) || c == '-' || c == '.'){
+			else if(isspace(c) || c == '-' || c == '.' || c == '_'){
 				if(output.size() == 0 || output.back() == ':' || output.back() == '-'){
 					//do nothing
 				}

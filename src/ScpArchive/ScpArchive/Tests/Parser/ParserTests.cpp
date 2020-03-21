@@ -20,6 +20,7 @@ namespace Tests{
 			assertEquals("what:c-at:pa-ge", normalizePageName("--what--: - c at - : - pa ge - "));
 			assertEquals("page#toc", normalizePageName("page#toc"));
 			assertEquals("scp-series-5-tales-edition", normalizePageName("SCP Series 5 - Tales Edition"));//from the wild
+			assertEquals("murphy-slaw", normalizePageName("murphy_slaw"));
 		});
 		
 		tester.add("Parser::getPageLinks", [](){

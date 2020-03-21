@@ -17,6 +17,7 @@
 #include "RuleSets/TableOfContentsRuleSet.hpp"
 #include "RuleSets/FootNoteRuleSet.hpp"
 #include "RuleSets/RateRuleSet.hpp"
+#include "RuleSets/UserRuleSet.hpp"
 #include "RuleSets/ARuleSet.hpp"
 #include "RuleSets/ForumRuleSet.hpp"
 
@@ -54,6 +55,7 @@ namespace Parser{
 	    tableOfContentsRuleSet,
 	    footNoteRuleSet,
 	    rateRuleSet,
+	    userRuleSet,
 	    aRuleSet,
 	    forumRuleSet,
 	    
