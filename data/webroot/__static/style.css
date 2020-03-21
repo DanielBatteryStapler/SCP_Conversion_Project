@@ -21,6 +21,13 @@ p{
     margin-top: 1em;
 }
 
+/*fix oddity with the fancy SCP class headers*/
+/*theres still other problems though, there's a lot of CSS problems in general*/
+.danger-diamond .paragraph{
+    height: 0;
+}
+/*for compatability with collapsibles*/
+
 #fullPageContainer{
 	background-color: white;
 }
@@ -381,7 +388,7 @@ li{line-height:1.25;}
 .PageClearer{display:block;clear:both;}
 .PageClearerLeft{display:block;clear:left;}
 .PageClearerRight{display:block;clear:right;}
-blockquote{border-width:1px;border-style:dashed;border-color:black;padding-left:1rem;padding-right:1rem;}
+blockquote{border-width:1px;border-style:dashed;border-color:black;padding:1rem;}
 code{display:block;border-width:1px;border-style:dashed;border-color:gray;background-color:lightgray;}
 .Monospaced{font-family:'Liberation Mono', monospace;font-size:inherit;}
 .CodeBlock{border-width:1px;border-style:solid;border-color:black;font-family:'Liberation Mono', monospace;}

@@ -56,15 +56,19 @@ namespace Parser{
         
         std::string uniqueId = getUniqueHtmlId(con);
         
-		con.out << "<div class='CollapsibleContainer'>"_AM
+		con.out << "<div class='CollapsibleContainer collapsible-block'>"_AM
 		<< "<input type='checkbox' id='"_AM << uniqueId << "' "_AM << (collapsible.defaultShow?"checked"_AM:""_AM) << ">"_AM
-		<< "<label class='CollapsibleHiddenText' for='"_AM << uniqueId << "'>"_AM
+		<< "<div class='collapsible-block-folded'>"_AM
+		<< "<label class='CollapsibleHiddenText collapsible-block-link' for='"_AM << uniqueId << "'>"_AM
 		<< collapsible.closedText
 		<< "</label>"_AM
-		<< "<label class='CollapsibleShownText' for='"_AM << uniqueId << "'>"_AM
+		<< "</div>"_AM
+		<< "<div class='collapsible-block-unfolded'>"_AM
+		<< "<label class='CollapsibleShownText collapsible-block-unfolder-link' for='"_AM << uniqueId << "'>"_AM
 		<< collapsible.openedText
 		<< "</label>"_AM
-		<< "<div class='CollapsibleContent'>"_AM;
+		<< "</div>"_AM
+		<< "<div class='CollapsibleContent collapsible-block-content'>"_AM;
 		
         delegateNodeBranches(con, nod);
         
