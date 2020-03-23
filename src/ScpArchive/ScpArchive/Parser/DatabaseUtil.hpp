@@ -6,6 +6,7 @@
 
 namespace Parser{
     ShownAuthor getShownAuthor(Database* db, std::optional<Database::ID> authorId);
+    PageInfo getPageInfo(Database* db, Database::ID pageId);
 }
 
 #endif // DATABASEUTIL_HPP

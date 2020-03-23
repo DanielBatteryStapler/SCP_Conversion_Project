@@ -142,6 +142,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/IncludeRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/InlineFormatRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/InlineFormatRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ListPagesRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ListPagesRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ListRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/ListRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/LiteralTextRuleSet.cpp" />

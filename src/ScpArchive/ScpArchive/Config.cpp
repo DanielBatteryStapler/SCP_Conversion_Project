@@ -1,5 +1,7 @@
 #include "Config.hpp"
 
+#include <ctime>
+
 namespace Config{
 	std::string getTestingDatabaseName(){
 		return "Temporary_SCP_Testing_Database";
@@ -32,4 +34,9 @@ namespace Config{
 	std::string getScraperFolder(){
 		return "/home/daniel/File Collections/scpArchive/newBatchArchive/";
 	}
+}
+
+
+TimeStamp getCurrentTime(){
+	return static_cast<TimeStamp>(std::time(nullptr));
 }

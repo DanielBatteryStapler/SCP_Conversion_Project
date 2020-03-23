@@ -20,5 +20,6 @@ namespace Config{
 }
 
 using TimeStamp = std::int64_t;
+TimeStamp getCurrentTime();
 
 #endif // CONFIG_HPP

@@ -29,4 +29,28 @@ namespace Parser{
 		}
 		return out;
 	}
+	
+    PageInfo getPageInfo(Database* db, Database::ID pageId){
+		PageInfo info;
+		{
+			Database::PageRevision latest = db->getLatestPageRevision(pageId);
+			info.title = latest.title;
+		}
+		{
+			Database::PageRevision oldest = db->getPageRevision(db->getPageRevisions(pageId).back());
+			if(oldest.authorId){
+				Database::Author author = db->getAuthor(*oldest.authorId);
+				if(author.type == Database::Author::Type::User && author.name != ""){
+					info.author = author.name;
+				}
+			}
+			info.creationTimeStamp = oldest.timeStamp;
+		}
+		info.name = db->getPageName(pageId);
+		info.parent = db->getPageParent(pageId);
+        info.tags = db->getPageTags(pageId);
+        info.rating = db->getPageRating(pageId);
+        info.votes = db->getPageVotesCount(pageId);
+		return info;
+    }
 }

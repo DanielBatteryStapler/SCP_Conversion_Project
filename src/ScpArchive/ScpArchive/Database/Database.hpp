@@ -80,6 +80,9 @@ class Database{
 		static std::unique_ptr<Database> connectToDatabase(std::string databaseName);
 		static void eraseDatabase(std::unique_ptr<Database>&& database);
 		
+		std::string escapeString(const std::string& str);
+		std::string escapeWithWildcards(const std::string& str);
+		
 		void cleanAndInitDatabase();
 		
 		void setIdMap(MapCategory category, std::string sourceId, Database::ID id);
@@ -107,8 +110,8 @@ class Database{
 		
 		void addPageVote(Database::ID id, Database::PageVote vote);
 		std::vector<Database::PageVote> getPageVotes(Database::ID id);
-		std::int64_t countPageVotes(Database::ID id);
-		
+		std::int64_t getPageRating(Database::ID id);
+		std::int64_t getPageVotesCount(Database::ID id);
 		
 		int64_t getNumberOfPageRevisions();
 		
@@ -154,6 +157,89 @@ class Database{
 		Database::ID createAuthor(Database::Author author);
 		void resetAuthor(Database::ID id, Database::Author author);
 		Database::Author getAuthor(Database::ID id);
+		
+		struct AdvancedPageQueryParameters{
+			struct CategorySelector{
+				std::vector<std::string> included;
+				std::vector<std::string> excluded;
+			};
+			std::optional<CategorySelector> categorySelect;
+			
+			struct TagSelector{
+				bool noTags;
+				std::vector<std::string> included;
+				std::vector<std::string> mustIncluded;
+				std::vector<std::string> excluded;
+			};
+			std::optional<TagSelector> tagSelect;
+			
+			struct ParentSelector{
+				enum Type{NoParent, WithParent, WithoutParent};
+				Type type;
+				std::string parent;
+			};
+			std::optional<ParentSelector> parentSelect;
+			
+			struct DateSelector{
+				enum Type{Less, Greater, LessEqual, GreaterEqual, NotEqual, WithinDay, WithinMonth, WithinYear};
+				Type type;
+				TimeStamp time; 
+			};
+			std::optional<DateSelector> dateSelect;
+			
+			struct AuthorSelector{
+				enum Type{Include,  Exclude};
+				Type type;
+				std::string author;
+			};
+			std::optional<AuthorSelector> authorSelect;
+			
+			struct RatingSelector{
+				enum Type{Less, Greater, Equal, LessEqual, GreaterEqual, NotEqual};
+				Type type;
+				std::int64_t rating;
+			};
+			std::optional<RatingSelector> ratingSelect;
+			
+			struct VoteSelector{
+				enum Type{Less, Greater, Equal, LessEqual, GreaterEqual, NotEqual};
+				Type type;
+				std::int64_t votes;
+			};
+			std::optional<VoteSelector> voteSelect;
+			
+			struct NameSelector{
+				enum Type{Name, Starting};
+				Type type;
+				std::string name;
+			};
+			std::optional<NameSelector> nameSelect;
+			
+			struct FullNameSelector{
+				std::string fullName;
+			};
+			std::optional<FullNameSelector> fullNameSelect;
+			
+			struct RangeSelector{
+				enum Type{Only, Before, After, Others};
+				Type type;
+				std::string page;
+			};
+			std::optional<RangeSelector> rangeSelect;
+			
+			struct Ordering{
+				enum Value{Name, FullName, Title, Creator, CreatedTime, UpdatedTime, Size, Rating, Votes, Revisions, Comments, Random};
+				Value value;
+				enum Order{Ascending, Descending};
+				Order order;
+			};
+			Ordering ordering;
+			
+			std::int64_t limit;
+			std::int64_t offset;
+		};
+		
+		std::vector<Database::ID> advancedPageQuery(const AdvancedPageQueryParameters& parameters);
 		
 	private:
 		soci::session sql;

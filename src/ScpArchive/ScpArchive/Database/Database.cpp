@@ -1,5 +1,7 @@
 #include "Database.hpp"
 
+#include <sstream>
+
 #include <soci/mysql/soci-mysql.h>
 
 using soci::use;
@@ -21,6 +23,31 @@ void Database::eraseDatabase(std::unique_ptr<Database>&& database){
 	database->cleanAndInitDatabase();
 	
 	database.reset();//make sure to delete the database so it is not left in an invalid state
+}
+
+std::string Database::escapeString(const std::string& text){
+    soci::mysql_session_backend* backend = static_cast<soci::mysql_session_backend*>(sql.get_backend());
+    char* escapedText = new char[2 * text.size() + 1];
+    mysql_real_escape_string(backend->conn_, escapedText, text.data(), text.size());
+    std::string output = escapedText;
+    delete[] escapedText;
+    return output;
+}
+
+std::string Database::escapeWithWildcards(const std::string& str){
+	std::stringstream out;
+	for(char c : str){
+		switch(c){
+			case '_':
+			case '%':
+			case '=':
+				out << '=';
+			default:
+				out << c;
+				break;
+		}
+	}
+	return escapeString(out.str());
 }
 
 void Database::cleanAndInitDatabase(){
@@ -394,9 +421,15 @@ std::vector<Database::PageVote> Database::getPageVotes(Database::ID id){
 	return pageVotes;
 }
 
-std::int64_t Database::countPageVotes(Database::ID id){
+std::int64_t Database::getPageRating(Database::ID id){
 	std::int64_t voteCount;
 	sql << "SELECT COALESCE(SUM(vote), 0) FROM pageVotes WHERE page=:page", use(id), into(voteCount);
+	return voteCount;
+}
+
+std::int64_t Database::getPageVotesCount(Database::ID id){
+	std::int64_t voteCount;
+	sql << "SELECT COUNT(id) FROM pageVotes WHERE page=:page", use(id), into(voteCount);
 	return voteCount;
 }
 
@@ -790,6 +823,311 @@ Database::Author Database::getAuthor(Database::ID id){
 	out.type = static_cast<Author::Type>(type);
 	return out;
 }
+
+#include <iostream>
+
+namespace{
+	inline void listWithDivider(std::stringstream& str, const std::vector<std::string>& list, const std::function<void(std::string)> func, const std::string separator, std::string before = "(", std::string after = ")"){
+		if(list.size() > 0){
+		str << "(";
+		for(std::size_t i = 0; i < list.size(); i++){
+			str << before;
+			func(list.at(i));
+			str << after;
+			if(i < (list.size() - 1)){
+				str << " " << separator << " ";
+			}
+		}
+		str << ")";
+		}
+	}
+	
+	inline void makeDividers(std::stringstream& str, std::vector<bool> active, std::size_t index, std::string begin = "(", std::string end = ")"){
+		bool anyActive = false;
+		std::for_each(active.begin(), active.end(), [&](bool a){if(a){anyActive = true;}});
+		if(anyActive){
+			if(index == 0){
+				str << begin;
+			}
+			else if(index == active.size()){
+				str << end;
+			}
+			else if(index > 0 && index < active.size() && active.at(index - 1)){
+				bool anyAfter = false;
+				std::for_each(active.begin() + index, active.end(), [&](bool a){if(a){anyAfter = true;}});
+				if(anyAfter){
+					str << " AND ";
+				}
+			}
+		}
+	}
+}
+
+std::vector<Database::ID> Database::advancedPageQuery(const AdvancedPageQueryParameters& parameters){
+	std::stringstream query;
+	{
+		query << "SELECT id FROM pages";
+		std::vector<bool> selects = {parameters.categorySelect.has_value(),
+									 parameters.tagSelect.has_value(),
+									 parameters.parentSelect.has_value(),
+									 parameters.dateSelect.has_value(),
+									 parameters.authorSelect.has_value(), 
+									 parameters.ratingSelect.has_value(),
+									 parameters.voteSelect.has_value(),
+									 parameters.nameSelect.has_value(),
+									 parameters.fullNameSelect.has_value()};
+		
+		makeDividers(query, selects, 0, " WHERE (");
+		if(parameters.categorySelect){
+			std::vector<bool> active = {parameters.categorySelect->included.size() > 0,
+										parameters.categorySelect->excluded.size() > 0};
+			
+			makeDividers(query, active, 0);
+			listWithDivider(query, parameters.categorySelect->included, [&](std::string str){
+				query << "name LIKE '" << escapeWithWildcards(str) << ":%' ESCAPE '='";
+			}, "OR");
+			makeDividers(query, active, 1);
+			listWithDivider(query, parameters.categorySelect->excluded, [&](std::string str){
+				query << "name LIKE '" << escapeWithWildcards(str) << ":%' ESCAPE '='";
+			}, "AND", "NOT(");
+			makeDividers(query, active, 2);
+		}
+		makeDividers(query, selects, 1);
+		if(parameters.tagSelect){
+			std::vector<bool> active = {parameters.tagSelect->included.size() > 0,
+										parameters.tagSelect->excluded.size() > 0,
+										parameters.tagSelect->mustIncluded.size() > 0};
+			
+			makeDividers(query, active, 0);
+			listWithDivider(query, parameters.tagSelect->included, [&](std::string str){
+				query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
+			}, "OR");
+			makeDividers(query, active, 1);
+			listWithDivider(query, parameters.tagSelect->excluded, [&](std::string str){
+				query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
+			}, "AND", "NOT(");
+			makeDividers(query, active, 2);
+			listWithDivider(query, parameters.tagSelect->mustIncluded, [&](std::string str){
+				query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
+			}, "AND");
+			makeDividers(query, active, 3);
+		}
+		makeDividers(query, selects, 2);
+		if(parameters.parentSelect){
+			query << "(";
+			switch(parameters.parentSelect->type){
+				case AdvancedPageQueryParameters::ParentSelector::NoParent:
+					query << "parent IS NULL";
+					break;
+				case AdvancedPageQueryParameters::ParentSelector::WithParent:
+					query << "parent='" << escapeString(parameters.parentSelect->parent) << "'";
+					break;
+				case AdvancedPageQueryParameters::ParentSelector::WithoutParent:
+					query << "parent!='" << escapeString(parameters.parentSelect->parent) << "'";
+					break;
+			}
+			query << ")";
+		}
+		makeDividers(query, selects, 3);
+		///TODO: DateSelector
+		const std::string creationTime = "(SELECT timeStamp FROM revisions WHERE page=pages.id ORDER BY timeStamp ASC LIMIT 1)";
+		const std::string updateTime = "(SELECT timeStamp FROM revisions WHERE page=pages.id ORDER BY timeStamp DESC LIMIT 1)";
+		if(parameters.dateSelect){
+			query << "(";
+			switch(parameters.dateSelect->type){
+				case AdvancedPageQueryParameters::DateSelector::Less:
+					query << creationTime << " < " << parameters.dateSelect->time;
+					break;
+				case AdvancedPageQueryParameters::DateSelector::Greater:
+					query << creationTime << " > " << parameters.dateSelect->time;
+					break;
+				case AdvancedPageQueryParameters::DateSelector::LessEqual:
+					query << creationTime << " <= " << parameters.dateSelect->time;
+					break;
+				case AdvancedPageQueryParameters::DateSelector::GreaterEqual:
+					query << creationTime << " >= " << parameters.dateSelect->time;
+					break;
+				case AdvancedPageQueryParameters::DateSelector::NotEqual:
+					query << creationTime << " != " << parameters.dateSelect->time;
+					break;
+				case AdvancedPageQueryParameters::DateSelector::WithinDay:
+					query << "ABS(" << creationTime << " - " << parameters.dateSelect->time << ") <= (60*60*24/2)";
+					break;
+				case AdvancedPageQueryParameters::DateSelector::WithinMonth:
+					query << "ABS(" << creationTime << " - " << parameters.dateSelect->time << ") <= (60*60*24*30/2)";
+					break;
+				case AdvancedPageQueryParameters::DateSelector::WithinYear:
+					query << "ABS(" << creationTime << " - " << parameters.dateSelect->time << ") <= (60*60*24*365/2)";
+					break;
+			}
+			query << ")";
+		}
+		makeDividers(query, selects, 4);
+		const std::string originalAuthor = "(SELECT name FROM authors WHERE id=(SELECT authorID FROM revisions WHERE page=pages.id ORDER BY timeStamp ASC LIMIT 1))";
+		if(parameters.authorSelect){
+			query << "(";
+			switch(parameters.authorSelect->type){
+				case AdvancedPageQueryParameters::AuthorSelector::Include:
+					query << originalAuthor << " = '" << escapeString(parameters.authorSelect->author) << "'";
+					break;
+				case AdvancedPageQueryParameters::AuthorSelector::Exclude:
+					query << originalAuthor << " = '" << escapeString(parameters.authorSelect->author) << "'";
+					break;
+			}
+			query << ")";
+		}
+		makeDividers(query, selects, 5);
+		const std::string pageRating = "(SELECT COALESCE(SUM(vote), 0) FROM pageVotes WHERE page=pages.id)";
+		if(parameters.ratingSelect){
+			query << "(" << pageRating;
+			switch(parameters.ratingSelect->type){
+				case AdvancedPageQueryParameters::RatingSelector::Less:
+					query << "<";
+					break;
+				case AdvancedPageQueryParameters::RatingSelector::Greater:
+					query << ">";
+					break;
+				case AdvancedPageQueryParameters::RatingSelector::Equal:
+					query << "=";
+					break;
+				case AdvancedPageQueryParameters::RatingSelector::LessEqual:
+					query << "<=";
+					break;
+				case AdvancedPageQueryParameters::RatingSelector::GreaterEqual:
+					query << ">=";
+					break;
+				case AdvancedPageQueryParameters::RatingSelector::NotEqual:
+					query << "!=";
+					break;
+			}
+			query << parameters.ratingSelect->rating << ")";
+		}
+		makeDividers(query, selects, 6);
+		const std::string pageVotes = "(SELECT COUNT(id) FROM pageVotes WHERE page=pages.id)";
+		if(parameters.voteSelect){
+			query << "(" << pageVotes;
+			switch(parameters.voteSelect->type){
+				case AdvancedPageQueryParameters::VoteSelector::Less:
+					query << "<";
+					break;
+				case AdvancedPageQueryParameters::VoteSelector::Greater:
+					query << ">";
+					break;
+				case AdvancedPageQueryParameters::VoteSelector::Equal:
+					query << "=";
+					break;
+				case AdvancedPageQueryParameters::VoteSelector::LessEqual:
+					query << "<=";
+					break;
+				case AdvancedPageQueryParameters::VoteSelector::GreaterEqual:
+					query << ">=";
+					break;
+				case AdvancedPageQueryParameters::VoteSelector::NotEqual:
+					query << "!=";
+					break;
+			}
+			query << parameters.voteSelect->votes << ")";
+		}
+		makeDividers(query, selects, 7);
+		if(parameters.nameSelect){
+			query << "(";
+			switch(parameters.nameSelect->type){
+				case AdvancedPageQueryParameters::NameSelector::Name:
+					query << "(name LIKE '%:" << escapeWithWildcards(parameters.nameSelect->name) << "' ESCAPE '=')"
+					  << " OR (name='" << escapeString(parameters.nameSelect->name) << "')";
+					break;
+				case AdvancedPageQueryParameters::NameSelector::Starting:
+					query << "(name LIKE '%:" << escapeWithWildcards(parameters.nameSelect->name) << "%' ESCAPE '=')"
+					  << " OR (name LIKE '" << escapeWithWildcards(parameters.nameSelect->name) << "%' ESCAPE '=')";
+					break;
+			}
+			query << ")";
+		}
+		makeDividers(query, selects, 8);
+		if(parameters.fullNameSelect){
+			query << "(name='" << escapeString(parameters.fullNameSelect->fullName) << "')";
+		}
+		makeDividers(query, selects, 9);
+		
+		std::string orderBy = "ORDER BY ";
+		{
+			switch(parameters.ordering.value){
+				case AdvancedPageQueryParameters::Ordering::Name:
+					orderBy += "name";//technically wrong, it shouldn't use the fragment part, but I think it's fine
+					break;
+				case AdvancedPageQueryParameters::Ordering::FullName:
+					orderBy += "name";
+					break;
+				case AdvancedPageQueryParameters::Ordering::Title:
+					orderBy += "name";//technically wrong too, but who's keeping track?
+					break;
+				case AdvancedPageQueryParameters::Ordering::Creator:
+					orderBy += originalAuthor;
+					break;
+				case AdvancedPageQueryParameters::Ordering::CreatedTime:
+					orderBy += creationTime;
+					break;
+				case AdvancedPageQueryParameters::Ordering::UpdatedTime:
+					orderBy += updateTime;
+					break;
+				case AdvancedPageQueryParameters::Ordering::Size:
+					orderBy += "(SELECT LENGTH(sourceCode) FROM revisions WHERE page=pages.id ORDER BY timeStamp DESC LIMIT 1)";
+					break;
+				case AdvancedPageQueryParameters::Ordering::Rating:
+					orderBy += pageRating;
+					break;
+				case AdvancedPageQueryParameters::Ordering::Votes:
+					orderBy += pageVotes;
+					break;
+				case AdvancedPageQueryParameters::Ordering::Revisions:
+					orderBy += "(SELECT COUNT(id) FROM revisions WHERE page=pages.id)";
+					break;
+				case AdvancedPageQueryParameters::Ordering::Comments:
+					orderBy += "(SELECT COUNT(id) FROM forumPosts WHERE parentThread=(SELECT id FROM forumThreads WHERE sourceId=pages.discussion))";
+					break;
+				case AdvancedPageQueryParameters::Ordering::Random:
+					orderBy += "RAND()";
+					break;
+			}
+			switch(parameters.ordering.order){
+				case AdvancedPageQueryParameters::Ordering::Ascending:
+					orderBy += " ASC";
+					break;
+				case AdvancedPageQueryParameters::Ordering::Descending:
+					orderBy += " DESC";
+					break;
+			}
+		}
+		
+		if(parameters.rangeSelect){
+			///TODO: RangeSelector
+			//I do not know nearly enough about mysql to know how to do this correctly, so this is gonna have to wait
+		}
+		
+		query << " " << orderBy << " LIMIT " << parameters.offset << ", " << parameters.limit;
+	}
+	Database::ID page;
+	
+	std::cout << query.str() << "\n";
+	
+	soci::statement stmt = (sql.prepare << query.str(), into(page));
+	stmt.execute();
+	
+	std::vector<Database::ID> pages;
+	while(stmt.fetch()){
+		pages.push_back(page);
+	}
+	return pages;
+}
+
+
+
+
+
+
+
+
+
 
 
 

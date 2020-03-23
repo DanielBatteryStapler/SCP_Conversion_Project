@@ -78,7 +78,7 @@ namespace Parser{
 	}
 	
 	std::ostream& operator<<(std::ostream& out, const PageTree& page){
-		out << printNode(page.pageRoot);
+		out << page.pageRoot;
 		out << "CSS{\n";
 		for(const CSS& css : page.cssData){
 			out << "    " << css.data << ",\n";

@@ -261,7 +261,7 @@ namespace Tests{
 			}
 			
 			assertEquals(3u, database->getPageVotes(pageId).size());
-			assertEquals(1, database->countPageVotes(pageId));
+			assertEquals(1, database->getPageRating(pageId));
 			
 			Database::eraseDatabase(std::move(database));
 		});

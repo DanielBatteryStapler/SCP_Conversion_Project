@@ -22,6 +22,7 @@
 #include "RuleSets/UserRuleSet.hpp"
 #include "RuleSets/ARuleSet.hpp"
 #include "RuleSets/ForumRuleSet.hpp"
+#include "RuleSets/ListPagesRuleSet.hpp"
 
 #include "RuleSets/SectionRuleSet.hpp"
 #include "RuleSets/BasicTextRuleSet.hpp"
@@ -62,6 +63,7 @@ namespace Parser{
 	    userRuleSet,
 	    aRuleSet,
 	    forumRuleSet,
+	    listPagesRuleSet,
 	    
 	    commentRuleSet,
 	    headingRuleSet,

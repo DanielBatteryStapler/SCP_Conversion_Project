@@ -231,9 +231,7 @@ namespace{
 	void parsePage(Website::Context& webCon, std::string pageName, const std::map<std::string, std::string>& parameters, const Database::PageRevision& revision, Database::ID pageId, Parser::TokenedPage& pageTokens, Parser::PageTree& pageTree){
 		Parser::ParserParameters parserParameters = {};
         parserParameters.database = webCon.db.get();
-        parserParameters.page.name = pageName;
-        parserParameters.page.tags = webCon.db->getPageTags(pageId);
-        parserParameters.page.rating = webCon.db->countPageVotes(pageId);
+        parserParameters.page = Parser::getPageInfo(webCon.db.get(), pageId);
         parserParameters.urlParameters = parameters;
         
         pageTokens = Parser::tokenizePage(revision.sourceCode, parserParameters);
@@ -489,7 +487,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
 			}
         }
         {
-			std::int64_t rating = webCon.db->countPageVotes(pageId);
+			std::int64_t rating = webCon.db->getPageRating(pageId);
 			std::string ratingStr;
 			if(rating > 0){
 				ratingStr = "+" + std::to_string(rating);
