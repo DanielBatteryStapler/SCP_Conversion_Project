@@ -360,6 +360,28 @@ namespace Tests{
 					}
 				}
 			});
+			
+			assertPageTree(
+			"**{{text**}}",
+			Node{
+				RootPage{},
+				{
+					Node{Paragraph{},
+						{
+							Node{StyleFormat{StyleFormat::Type::Bold},
+								{
+									Node{StyleFormat{StyleFormat::Type::Monospace},
+										{
+											Node{PlainText{"text"}}
+										}
+									}
+								}
+							}, 
+							Node{StyleFormat{StyleFormat::Type::Monospace}}
+						}
+					}
+				}
+			});
 		});
 		
 		tester.add("Parser::makeTreeFromPage Heading",[](){
@@ -1141,7 +1163,7 @@ namespace Tests{
 				}
 			},
 			{
-				CSS{"\n.test{color:black;}\n"}
+				CSS{".test{color:black;}\n"}
 			});
         });
         
@@ -1210,9 +1232,9 @@ namespace Tests{
                             Node{PlainText{"yeah"}}
                         }
                     },
-                    Node{Code{"\nsome code...\n"}}
+                    Node{Code{"some code...\n"}}
 				}
-			}, {}, {Code{"\nsome code...\n", "css"}});
+			}, {}, {Code{"some code...\n", "css"}});
         });
         
         tester.add("Parser::makeTreeFromPage CenterText",[](){

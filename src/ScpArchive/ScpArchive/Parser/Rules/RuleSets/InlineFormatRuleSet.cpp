@@ -236,6 +236,11 @@ namespace Parser{
 	void handleInlineFormat(TreeContext& context, const Token& token){
         const InlineFormat& tokenFormat = std::get<InlineFormat>(token.token);
         
+		//if the style we're trying to end is being held in the "styleCarry" stack,
+		//it should be put onto the real stack before being removed.
+		//makeTextAddable(...); will be called anyways and it does the above, so we'll just call it right now.
+		makeTextAddable(context);
+        
         bool alreadyInStyle = false;
         for(const Node& i : context.stack){
             if(i.getType() == Node::Type::StyleFormat){
@@ -246,6 +251,7 @@ namespace Parser{
                 }
             }
         }
+		
         if(alreadyInStyle && tokenFormat.end){
             popSingle(context, [tokenFormat](const Node& nod){
                 if(nod.getType() == Node::Type::StyleFormat){
@@ -256,7 +262,7 @@ namespace Parser{
                 }
                 return false;
             });
-            return;
+            return;//it works as an end token, no more processing
         }
         else if(!alreadyInStyle && tokenFormat.begin){
             //there needs to be a valid end token too, so let's check for that
@@ -290,7 +296,7 @@ namespace Parser{
             if(hasValidEnd){
                 makeTextAddable(context);
                 pushStack(context, Node{StyleFormat{tokenFormat.type, tokenFormat.color}});
-                return;
+                return;//it works as a begin token, no more processing
             }
         }
         //this format marker doesn't line up with starting or stopping anything, so that means it is
