@@ -41,6 +41,7 @@ namespace Parser{
         for(auto i = section.parameters.begin(); i != section.parameters.end(); i++){
             out["parameters"][i->first] = i->second;
         }
+        out["contents"] = section.contents;
         return out;
     }
     
@@ -333,6 +334,9 @@ namespace Parser{
                     pos++;
                 }
                 sectionComplete.contents = context.page.substr(contentStart, pos - contentStart);
+                if(rule.allowInline == false && check(sectionComplete.contents, 0, "\n")){//non-inline don't need that first \n
+					sectionComplete.contents.erase(sectionComplete.contents.begin());
+                }
                 if(pos + 4 < context.page.size()){
                     getSectionContent(context, pos);//go to the end of the [[/...]]
                 }
