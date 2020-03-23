@@ -18,7 +18,7 @@ namespace Parser{
             while(pos < pageContent.size()){
                 bool ruleMatched = false;
                 for(const TemplateRule& rule : rules){
-                    if(check(pageContent, pos, rule.from)){///TODO: make this case in-sensitive
+                    if(checkWithoutCase(pageContent, pos, rule.from)){///TODO: make this case in-sensitive
                         ruleMatched = true;
                         output << rule.to;
                         pos += rule.from.size();

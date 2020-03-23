@@ -1107,8 +1107,7 @@ std::vector<Database::ID> Database::advancedPageQuery(const AdvancedPageQueryPar
 		query << " " << orderBy << " LIMIT " << parameters.offset << ", " << parameters.limit;
 	}
 	Database::ID page;
-	
-	std::cout << query.str() << "\n";
+	//std::cout << "Ran query: " query.str() << "\n";
 	
 	soci::statement stmt = (sql.prepare << query.str(), into(page));
 	stmt.execute();

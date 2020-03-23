@@ -306,11 +306,11 @@ namespace Parser{
         {
         	Database::AdvancedPageQueryParameters::DateSelector dateSelect;
         	
-        	auto rawParameter = section.parameters.find("date");
+        	auto rawParameter = section.parameters.find("created_at");
         	if(rawParameter != section.parameters.end()){
 				std::string parameter = rawParameter->second;
 				trimString(parameter);
-				handleUrlParameter(parameter, "date", context);
+				handleUrlParameter(parameter, "created_at", context);
 				if(parameter == ""){
 					//don't do anything here
 				}
@@ -391,11 +391,11 @@ namespace Parser{
         {
         	Database::AdvancedPageQueryParameters::AuthorSelector authorSelect;
         	
-        	auto rawParameter = section.parameters.find("author");
+        	auto rawParameter = section.parameters.find("created_by");
         	if(rawParameter != section.parameters.end()){
 				std::string parameter = rawParameter->second;
 				trimString(parameter);
-				handleUrlParameter(parameter, "author", context);
+				handleUrlParameter(parameter, "created_by", context);
 				if(parameter == ""){
 					//don't do anything here
 				}
@@ -744,7 +744,7 @@ namespace Parser{
 			parameters.ordering = ordering;
         }
         {
-			std::int64_t limit = 25;
+			std::int64_t limit = 20;
 			
 			auto rawParameter = section.parameters.find("limit");
         	if(rawParameter != section.parameters.end()){
@@ -764,7 +764,7 @@ namespace Parser{
 				}
         	}
         	
-        	parameters.limit = std::min<std::int64_t>(limit, 25);//maximum of 25(is that enough?)
+        	parameters.limit = std::min<std::int64_t>(limit, 250);//maximum of 250(is that enough?)
         }
         {
 			std::int64_t offset = 0;
@@ -839,7 +839,7 @@ namespace Parser{
 			}
         }
         else{
-			std::string sourceCode = prependLine;
+			std::string sourceCode = prependLine + "\n";
 			for(Database::ID pageId : pageList){
 				Database::PageRevision pageRevision = db->getLatestPageRevision(pageId);
 				PageInfo pageInfo = getPageInfo(db, pageId);

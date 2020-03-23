@@ -2,6 +2,7 @@
 #define RULEFUNCTIONS_HPP
 
 #include <string>
+#include <algorithm>
 
 #include "RuleSet.hpp"
 
@@ -11,6 +12,16 @@ namespace Parser{
             return false;
         }
         std::string temp = buffer.substr(pos, text.size());
+        return text == temp;
+    }
+    
+    inline static bool checkWithoutCase(const std::string& buffer, std::size_t pos, std::string text){
+        if(pos + text.size() > buffer.size()){
+            return false;
+        }
+        std::string temp = buffer.substr(pos, text.size());
+        std::transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+        std::transform(text.begin(), text.end(), text.begin(), ::tolower);
         return text == temp;
     }
 
