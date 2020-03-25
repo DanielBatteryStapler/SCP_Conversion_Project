@@ -241,6 +241,8 @@ namespace{
 
 bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters){
 	
+	std::optional<std::size_t> revisionIndex;
+	
 	Database::PageRevision revision;
 	if(parameters.find("useRevision") != parameters.end()){
 		std::vector<Database::ID> revisions = webCon.db->getPageRevisions(pageId);
@@ -254,6 +256,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         if(revisions.size() <= revisionNum){
             return false;
         }
+        revisionIndex = revisionNum;
 		revision = webCon.db->getPageRevision(revisions[revisionNum]);
 	}
 	else{
@@ -376,11 +379,11 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		return true;
 	}
 	else{//if nothing special is being asked for, then just send a standard formatted article
-		return handleFormattedArticle(reqCon, webCon, pageName, pageId, parameters, revision);
+		return handleFormattedArticle(reqCon, webCon, pageName, pageId, parameters, revision, revisionIndex);
 	}
 }
 
-bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters, Database::PageRevision& revision){
+bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::Context& webCon, std::string pageName, Database::ID pageId, std::map<std::string, std::string> parameters, Database::PageRevision& revision, std::optional<std::size_t> revisionIndex){
 	if(pageName == "forum:start"){
 		revision.sourceCode = "[[module ForumStart]]";
 		//really strange special case, idk why the page doesn't just have this in it? forum:category and forum:thread do.
@@ -459,7 +462,13 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     }
     {//the actual article html
         reqCon.out << "<div id='article'>"_AM
-        << "<div id='articleTitle'>"_AM << revision.title << "</div>"_AM;
+		<< "<div id='articleTitle'>"_AM << revision.title << "</div>"_AM;
+		 if(revisionIndex){
+			reqCon.out << "Viewing Revision #" << *revisionIndex << " from " << Parser::formatTimeStamp(revision.timeStamp)
+			<< ", <a href='/"_AM << pageName << "'>view original</a>"_AM;
+        }
+        reqCon.out << "<div id='articleTitleDivider'></div>"_AM;
+		
         {//put the breadcrumbs on the top of the page
 			std::optional<std::string> parentPage = webCon.db->getPageParent(pageId);
 			if(parentPage){
@@ -509,11 +518,22 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         }
         reqCon.out
         << "<a class='item' href='/__system/pageFiles/"_AM << pageName << "'>Files</a>"_AM
-        << "<a class='item' href='/__system/pageHistory/"_AM << pageName << "'>History</a>"_AM
-        << "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
-        << "<a class='item' href='/"_AM << pageName << "/showSource'>Raw Source</a>"_AM
-        << "<a class='item' href='/"_AM << pageName << "/showTokenJSON'>Token JSON</a>"_AM
-        << "<a class='item' href='/"_AM << pageName << "/showNodeJSON'>Node JSON</a>"_AM
+        << "<a class='item' href='/__system/pageHistory/"_AM << pageName << "'>History</a>"_AM;
+        if(revisionIndex){
+			reqCon.out
+			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showAnnotatedSource'>Annotated Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showSource'>Raw Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showTokenJSON'>Token JSON</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showNodeJSON'>Node JSON</a>"_AM;
+        }
+        else{
+			reqCon.out
+			<< "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/showSource'>Raw Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/showTokenJSON'>Token JSON</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/showNodeJSON'>Node JSON</a>"_AM;
+        }
+        reqCon.out
         << "</div>"_AM;
     }
     reqCon.out << "</div>"_AM //id='pageBody'

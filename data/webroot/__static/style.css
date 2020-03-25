@@ -190,11 +190,15 @@ p{
 #articleTitle{
 	font-size: 2rem;
 	color: #901;
-	border-style: solid;
+	margin: 1rem 0 0 0;
+}
+
+#articleTitleDivider{
+    border-style: solid;
 	border-width: 0px 0px 2px 0px;
 	border-color: gray;
-	margin: 5px 0px 20px 0px;
-	padding-bottom: 5px;
+	margin: 0.5rem 0 2rem 0;
+	padding-bottom: 0.5rem;
 }
 
 #articleFooter{
