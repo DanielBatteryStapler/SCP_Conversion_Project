@@ -11,6 +11,7 @@ body{
 p{
     line-height:1.25;
 }
+
 /*wait, what? yeah, paraghraphs need to be a div in order for the footnotes to work correctly because footnotes are a block-level element and cannot normally be inserted into an inline-level element*/
 .paragraph{    
     display: block;
@@ -445,6 +446,10 @@ input[type=radio]:checked+.TabSection{display:block;}
 
 .heritage-rating-module .heritage-emblem {
     top: -15px;
+}
+
+.pictures4mobile{
+    display: none;
 }
 
 /*for the link previews*/

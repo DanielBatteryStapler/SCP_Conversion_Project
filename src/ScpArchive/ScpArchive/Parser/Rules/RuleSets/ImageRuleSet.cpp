@@ -134,7 +134,7 @@ namespace Parser{
         }
         
         if(image.link != ""){
-            con.out << "<a href='"_AM << image.link << "'>"_AM;
+            con.out << "<a href='"_AM << redirectLink(image.link) << "'>"_AM;
         }
         
         con.out << "<img src='"_AM << redirectLink(image.source) << "'"_AM;

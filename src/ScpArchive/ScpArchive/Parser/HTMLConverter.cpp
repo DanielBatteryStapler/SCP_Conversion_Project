@@ -135,15 +135,22 @@ namespace Parser{
 	}
 	
 	std::string redirectLink(std::string rawLink){
-		std::string output = rawLink;
+		std::string output;
 		const auto doRedirect = [&rawLink, &output](std::string oldPrefix, std::string newPrefix){
-			if(check(rawLink, 0, oldPrefix)){
+			if(output == "" && check(rawLink, 0, oldPrefix)){
 				output = newPrefix + rawLink.substr(oldPrefix.size(), rawLink.size() - oldPrefix.size());
 			}
 		};
+		doRedirect("http://www.scp-wiki.net/local--files/", "/__system/pageFile/");
 		doRedirect("http://www.scp-wiki.net/", "/");
+		doRedirect("http://scp-wiki.wikidot.com/", "/");
 		doRedirect("http://scp-wiki.wdfiles.com/local--files/", "/__system/pageFile/");
-		return output;
+		if(output == ""){
+			return rawLink;
+		}
+		else{
+			return output;
+		}
 	}
 	
 	

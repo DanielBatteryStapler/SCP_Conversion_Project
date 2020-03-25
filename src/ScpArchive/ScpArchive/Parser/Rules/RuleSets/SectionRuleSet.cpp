@@ -321,17 +321,19 @@ namespace Parser{
                 sectionComplete.parameters = section.parameters;
                 std::size_t contentStart = pos;
                 while(pos < context.page.size()){
-                    if(pos + 4 < context.page.size() && context.page[pos + 0] == '[' && context.page[pos + 1] == '[' && context.page[pos + 2] == '/'){
+                    if(check(context.page, pos, "[[/")){
                         std::size_t tempPos = pos;
                         std::string endContent = getSectionContent(context, tempPos);
-                        endContent = endContent.substr(1, endContent.size() - 1);//remove the first /
-                        trimString(endContent);
-                        toLower(endContent);
-                        if(std::find(rule.matchingNames.begin(), rule.matchingNames.end(), endContent) != rule.matchingNames.end()){
-                            break;
+                        if(check(endContent, 0, "/")){
+							endContent = endContent.substr(1, endContent.size() - 1);//remove the first /
+							trimString(endContent);
+							toLower(endContent);
+							if(endContent == section.typeString){
+								break;
+							}
                         }
                     }
-                    pos++;
+					pos++;
                 }
                 sectionComplete.contents = context.page.substr(contentStart, pos - contentStart);
                 if(rule.allowInline == false && check(sectionComplete.contents, 0, "\n")){//non-inline don't need that first \n

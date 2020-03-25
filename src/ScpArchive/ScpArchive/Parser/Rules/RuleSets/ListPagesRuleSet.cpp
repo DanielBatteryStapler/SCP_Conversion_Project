@@ -85,7 +85,6 @@ namespace{
 			int month;
 			try{
 				year = std::stoi(text.substr(0, text.find('.')));
-				std::cout << year << "\n";
 				std::string temp = text;
 				chopFront(temp, temp.find('.') + 1);
 				month = std::stoi(temp);
@@ -773,9 +772,7 @@ namespace Parser{
         	if(rawParameter != section.parameters.end()){
 				std::string parameter = rawParameter->second;
 				trimString(parameter);
-				std::cout << "OFFSET: " << parameter << " -> ";
 				handleUrlParameter(parameter, "offset", context);
-				std::cout << parameter << "\n";
 				if(parameter == ""){
 					//don't do anything here
 				}

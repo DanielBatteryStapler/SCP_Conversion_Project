@@ -175,7 +175,7 @@ namespace Parser{
 			if(tok.getType() == Token::Type::HyperLink){
 				HyperLink link = std::get<HyperLink>(tok.token);
 				if(!check(link.url, 0, "http://") && !check(link.url, 0, "https://")){
-					links.push_back(link.url);
+					links.push_back(redirectLink(link.url));
 				}
 			}
 		}

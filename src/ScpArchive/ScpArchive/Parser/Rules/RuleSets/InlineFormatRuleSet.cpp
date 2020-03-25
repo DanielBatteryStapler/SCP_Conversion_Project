@@ -217,7 +217,7 @@ namespace Parser{
                     end++;
                     break;
                 }
-                else if(pos + 1 >= context.page.size() || check(context.page, pos, "\n") || check(context.page, pos, "##") || check(context.page, pos, "|")){
+                else if(pos + 1 >= context.page.size() || check(context.page, pos, " ") || check(context.page, pos, "\n") || check(context.page, pos, "##") || check(context.page, pos, "|")){
                     end += 2;
                     token.begin = false;
                     token.end = true;
