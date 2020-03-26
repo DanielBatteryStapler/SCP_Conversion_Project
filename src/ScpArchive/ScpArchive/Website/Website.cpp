@@ -398,11 +398,12 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
     << "Content-Type: text/html; charset=utf-8\r\n\r\n"_AM
     << "<!DOCTYPE html><html><head>"_AM
+    << "<meta charset='UTF-8'>"_AM
+    << "<meta name='viewport' content='width=device-width, maximum-scale=0.75, minimum-scale=0.75, initial-scale=0.75'>"_AM
     << "<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'>"_AM
     << "<link rel='stylesheet' type='text/css' href='/component:theme/code/1'>"_AM
     << "<link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
-    << "<script type='text/javascript' src='/__static/linkPreview.js'></script>"_AM
-    << "<meta charset='UTF-8'>"_AM;
+    << "<script type='text/javascript' src='/__static/linkPreview.js'></script>"_AM;
     if(revision.title == ""){
 		reqCon.out << "<title>SCP Conversion Project</title>"_AM;
     }
@@ -489,6 +490,14 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     }
     {//footer
         reqCon.out << "<div id='articleFooter'>"_AM;
+        {//tags
+			std::vector<std::string> tags = webCon.db->getPageTags(pageId);
+			reqCon.out << "<div id='tags'>"_AM;
+			for(const std::string tag : tags){
+				reqCon.out << "<div class='tag'>"_AM << tag << "</div>"_AM;
+			}
+			reqCon.out << "</div>"_AM;
+		}
         {
 			std::optional<std::string> discussion = webCon.db->getPageDiscussion(pageId);
 			if(discussion){
@@ -506,15 +515,6 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
 			}
 			reqCon.out 
 			<< "<a class='item' href='/__system/pageVotes/"_AM << pageName << "'>Ratings("_AM << ratingStr << ")</a>"_AM;
-        }
-        {
-			std::vector<std::string> tags = webCon.db->getPageTags(pageId);
-			reqCon.out
-			<< "<div class='item' id='tagsButton'><a href='#'>Tags</a></div><div id='tagsDropDownAnchor'><div id='tagsDropDown'>"_AM;
-			for(const std::string tag : tags){
-				reqCon.out << "<div class='tag'>"_AM << tag << "</div>"_AM;
-			}
-			reqCon.out << "</div></div>"_AM;
         }
         reqCon.out
         << "<a class='item' href='/__system/pageFiles/"_AM << pageName << "'>Files</a>"_AM
@@ -542,7 +542,8 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     << "Powered by the <a href='https://github.com/danielbatterystapler/SCP_Conversion_Project'>SCP Conversion Project</a><br>"_AM
     << "</div><div id='pageFooterCopyright'>"_AM
     << "Unless otherwise stated, the content of this page is licensed under <a href='https://creativecommons.org/licenses/by-sa/3.0/'>Creative Commons Attribution-ShareAlike 3.0 License</a>"_AM
-    << "<br>The SCP Conversion Project or its creators is not affiliated with Wikidot"_AM
+    << "</div><dic id='pageFooterDisclaimer'>"_AM
+    << "The SCP Conversion Project and its contributors are not affiliated with Wikidot"_AM
     << "</div>"_AM
     << "</div></div>"_AM
     << "</div></body></html>"_AM;

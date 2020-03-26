@@ -16,6 +16,7 @@ p{
 .paragraph{    
     display: block;
     line-height: 1.25;
+    overflow-wrap: break-word;
     margin: 0;
 }
 .paragraph + .paragraph{
@@ -68,11 +69,8 @@ p{
 #headerTitle{
 	grid-area: title;
 	font-family: BauhausLTDemi, sans-serif;
-	padding: 0px;
-	padding-top: 20px;
 	font-size: 2.3rem;
-	margin: 0px;
-	margin-bottom: -35px;
+	margin: 2rem 0 -1.8rem 0;
 	color: #F0F0F0;
 }
 
@@ -147,7 +145,7 @@ p{
     margin: 4px 0 0 -9px;
     text-align: left;
     padding: 0;
-    width: 10rem;
+    max-width: 10rem;
     border-style: solid;
     border-color: black;
     border-width: 0 1px 1px 1px;
@@ -216,38 +214,13 @@ p{
 	font-family:'Liberation Sans', sans-serif;
 }
 
-#tagsButton{
+#tags{
+    display: block;
+}
+
+.tag{
     display: inline-block;
-}
-
-#tagsDropDownAnchor{
-    display: none;
-    position: relative;
-}
-
-#tagsButton:hover+#tagsDropDownAnchor{
-    display: inline-block;
-}
-
-#tagsDropDownAnchor:hover{
-    display: inline-block;
-}
-
-#tagsDropDown{
-    position: absolute;
-    width: 20rem;
-    margin-left: -10rem;
-    z-index: 1;
-    background-color: white;
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
-    padding: 4px;
-}
-
-#tagsDropDown .tag{
-    display: inline-block;
-    padding: 4px;
+    padding: 0.25rem;
 }
 
 #pageFooterBackground{
@@ -271,6 +244,9 @@ p{
 	margin: 5px;
 }
 #pageFooterCopyright{
+	margin: 5px;
+}
+#pageFooterDisclaimer{
 	margin: 5px;
 }
 
@@ -346,6 +322,8 @@ p{
 
 .footNoteBlock li{
     list-style-type: none;
+    display: block;
+    padding: 0.25rem 0 0.25rem 0;
 }
 
 .footNoteBlockLabel{
@@ -388,7 +366,7 @@ h4{margin-bottom:0.5rem;font-size:1rem;}
 h5{margin-bottom:0.5rem;font-size:0.8rem;}
 h6{margin-bottom:0.5rem;font-size:0.7rem;}
 
-li{display:block;line-height:1.25;padding:0.25rem 0 0.25rem 0;}
+li{line-height:1.25;}
 
 .PageClearer{display:block;clear:both;}
 .PageClearerLeft{display:block;clear:left;}
@@ -524,6 +502,71 @@ input[type=radio]:checked+.TabSection{display:block;}
 }
 
 
+/*mobile stuffs*/
+@media (max-device-width:960px), (max-width:960px){ /*phone*/
+    html{
+        font-size: 20px;
+    }
+    
+    #pageBody{
+        grid-template-columns: 1fr;
+	    grid-template-rows: auto auto;
+	    grid-template-areas:
+		    "article"
+		    "footer";
+    }
+    
+    #sideBar{
+        display: none;
+    }
+    
+    #pageBody{
+        margin: 0 1rem 0 1rem;
+    }
+    
+    #pageHeader{
+        grid-template-columns: 1fr auto 1fr;
+	    grid-template-rows: auto auto auto;
+	    grid-template-areas:
+		    "image image image"
+		    ". title ."
+		    ". subtitle .";
+	}
+	
+	#headerImage{
+	    margin: 0px auto 0px auto;
+	}
+	
+	#headerTitle{
+	    margin: 0 0 0 0;
+	    text-align: center;
+	}
+	
+	#headerSubtitle{
+	    text-align: center;
+	    font-size: 1rem;
+	}
+	
+	#topBar>.top-bar{
+	    text-align: center;
+	}
+	
+	.linkPreviewAnchor{
+	    display: none;
+	}
+	
+	.footNoteDropDownAnchor{
+	    display: none;
+	}
+	
+	#tagsDropDownAnchor{
+        display: none;
+    }
+    
+    img{
+        max-width: 100%;
+    }
+}
 
 
 
