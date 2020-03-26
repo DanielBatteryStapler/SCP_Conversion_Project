@@ -542,6 +542,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
     << "Powered by the <a href='https://github.com/danielbatterystapler/SCP_Conversion_Project'>SCP Conversion Project</a><br>"_AM
     << "</div><div id='pageFooterCopyright'>"_AM
     << "Unless otherwise stated, the content of this page is licensed under <a href='https://creativecommons.org/licenses/by-sa/3.0/'>Creative Commons Attribution-ShareAlike 3.0 License</a>"_AM
+    << "<br>The SCP Conversion Project or its creators is not affiliated with Wikidot"_AM
     << "</div>"_AM
     << "</div></div>"_AM
     << "</div></body></html>"_AM;
