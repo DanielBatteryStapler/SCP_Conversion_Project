@@ -86,8 +86,25 @@ namespace Parser{
 		return out;
 	}
 	
+	//#define BENCHMARKTOKENIZER
+	#ifdef BENCHMARKTOKENIZER
+}
+#include <chrono>
+#include <iomanip>
+namespace Parser{
+	#endif // BENCHMARKTOKENIZER
+	
 	namespace{
 		TokenRuleContext applyTokenizingRules(std::string&& page, std::vector<TokenRule> rules){
+			#ifdef BENCHMARKTOKENIZER
+			using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+			const auto getTime = [](){return std::chrono::high_resolution_clock::now();};
+			const auto getLength = [](TimePoint before, TimePoint after)->int64_t{return std::chrono::duration_cast<std::chrono::nanoseconds>(after - before).count();};
+			
+			std::map<std::string, int64_t> tryTokenTiming;
+			std::map<std::string, int64_t> doTokenTiming;
+			#endif // BENCHMARKTOKENIZER
+			
 			TokenRuleContext context;
 			context.page = page;
 			context.pagePos = 0;
@@ -95,10 +112,22 @@ namespace Parser{
 			for(; context.pagePos < context.page.size();){
 				bool allRulesFailed = true;
 				for(const TokenRule& rule : rules){
+					#ifdef BENCHMARKTOKENIZER
+					TimePoint startTry = getTime();
+					#endif // BENCHMARKTOKENIZER
 					if(rule.tryRule(context)){
+						#ifdef BENCHMARKTOKENIZER
+						TimePoint endTry = getTime();
+						tryTokenTiming[rule.parentRuleSet] += getLength(startTry, endTry);
+						TimePoint startDo = getTime();
+						#endif // BENCHMARKTOKENIZER
 						allRulesFailed = false;
 						
 						TokenRuleResult result = rule.doRule(context);
+						#ifdef BENCHMARKTOKENIZER
+						TimePoint endDo = getTime();
+						doTokenTiming[rule.parentRuleSet] += getLength(startDo, endDo);
+						#endif // BENCHMARKTOKENIZER
 						context.pagePos = result.newPos;
 						context.wasNewLine = result.nowNewline;
 						//make sure to merge plain text tokens together
@@ -122,12 +151,35 @@ namespace Parser{
 						
 						break;
 					}
+					#ifdef BENCHMARKTOKENIZER
+					else{
+						TimePoint endTry = getTime();
+						tryTokenTiming[rule.parentRuleSet] += getLength(startTry, endTry);
+					}	
+					#endif // BENCHMARKTOKENIZER
 				}
 				if(allRulesFailed){
 					throw std::runtime_error("All parsing rules failed, this should not be possible");
 				}
 			}
-		
+			
+			#ifdef BENCHMARKTOKENIZER
+			long double totalLength = 0;
+			for(auto i = tryTokenTiming.begin(); i != tryTokenTiming.end(); i++){
+				totalLength += i->second;
+			}
+			for(auto i = doTokenTiming.begin(); i != doTokenTiming.end(); i++){
+				totalLength += i->second;
+			}
+			for(auto i = tryTokenTiming.begin(); i != tryTokenTiming.end(); i++){
+				std::cout << "Checking for " << i->first << ": " << std::fixed << std::setprecision(4) << (i->second / totalLength * 100) << "%\n";
+				auto doToken = doTokenTiming.find(i->first);
+				if(doToken != doTokenTiming.end()){
+					std::cout << "    Doing: " << std::fixed << std::setprecision(4) << (doToken->second / totalLength * 100) << "%\n";
+				}
+			}
+			#endif // BENCHMARKTOKENIZER
+			
 			return context;
 		}
 	}

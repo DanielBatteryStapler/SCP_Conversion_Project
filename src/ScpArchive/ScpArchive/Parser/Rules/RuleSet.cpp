@@ -93,7 +93,9 @@ namespace Parser{
 			for(const RuleSet& ruleSet : ruleSets){
 				for(const RuleVariant& ruleVariant : ruleSet.rules){
 					if(getType(ruleVariant) == type){
-						output.push_back(std::get<Type>(ruleVariant));
+						Type rule = std::get<Type>(ruleVariant);
+						rule.parentRuleSet = ruleSet.name;
+						output.push_back(std::move(rule));
 					}
 				}
 			}

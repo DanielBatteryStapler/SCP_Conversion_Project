@@ -2,11 +2,13 @@
 
 #include "../Database/Database.hpp"
 #include "../Parser/Parser.hpp"
+#include "../Parser/HTMLConverter.hpp"
 #include "../Config.hpp"
 
 #include "../Database/Json.hpp"
 
 #include <fstream>
+#include <chrono>
 
 namespace UntestedUtils{
 	namespace{
@@ -15,6 +17,7 @@ namespace UntestedUtils{
 			enum class Type{Creation, Update};
 			Type type;
 			std::string name;
+			int64_t revisionIndex;
 			std::string title;
 			TimeStamp timeStamp;
 			std::vector<std::string> linkedNames;
@@ -39,7 +42,10 @@ namespace UntestedUtils{
 				std::cout << "Error on page " << name << "\n";
 			}
 			bool creation = true;
+			int64_t revisionIndex = 0;
 			for(Database::ID revisionId : revisionList){
+				std::cout << "    " << revisionIndex << "/" << revisionList.size() << "\r" << std::flush;
+
 				TimelineUpdate update;
 				if(creation){
 					update.type = TimelineUpdate::Type::Creation;
@@ -54,6 +60,8 @@ namespace UntestedUtils{
 				update.title = pageRevision.title;
 				update.timeStamp = pageRevision.timeStamp;
 				update.linkedNames = Parser::getPageLinks(pageRevision.sourceCode);
+				update.revisionIndex = revisionIndex;
+				revisionIndex++;
 				
 				timeline.push_back(update);
 			}
@@ -68,8 +76,68 @@ namespace UntestedUtils{
 			uj["title"] = update.title;
 			uj["timeStamp"] = update.timeStamp;
 			uj["linkedNames"] = update.linkedNames;
+			uj["revisionIndex"] = update.revisionIndex;
 			output.push_back(uj);
 		}
-		std::ofstream("nodeDiagramDataExport.json") << output.dump(4);
+		try{
+			std::ofstream("/home/daniel/File Collections/ScpNodeRender/nodeDiagramDataExportFinal.json") << output.dump(4);
+		}
+		catch(std::exception& e){
+			while(true){
+				std::cout << "Error Exporting!\nType out new directory:";
+				std::string file;
+				std::getline(std::cin, file);
+				try{
+					std::ofstream(file) << output.dump(4);
+					break;
+				}
+				catch(std::exception& e){
+					
+				}
+			}
+		}
+	}
+	
+	void benchmarkPageLoad(std::string pageName){
+		std::unique_ptr<Database> database = Database::connectToDatabase(Config::getProductionDatabaseName());
+		std::optional<Database::ID> pageId = database->getPageId(pageName);
+		Database::PageRevision revision = database->getLatestPageRevision(pageId.value());
+		
+		std::stringstream outputString;
+		MarkupOutStream outStream{&outputString};
+		
+		using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+		const auto getTime = [](){return std::chrono::high_resolution_clock::now();};
+		const auto timeString = [](TimePoint before, TimePoint after)->std::string{return std::to_string(std::chrono::duration_cast<std::chrono::nanoseconds>(after - before).count() / 1000000000.0);};
+		
+		TimePoint start = getTime();
+		Parser::TokenedPage pageTokens = Parser::tokenizePage(revision.sourceCode);
+		TimePoint endToken = getTime();
+		Parser::PageTree pageTree = Parser::makeTreeFromTokenedPage(pageTokens);
+		TimePoint endTree = getTime();
+		Parser::convertPageTreeToHtml(outStream, pageTree);
+		TimePoint endHtml = getTime();
+		
+		
+		std::cout << "Token Duration: " << timeString(start, endToken) << "\n";
+		std::cout << "Tree Duration: " << timeString(endToken, endTree) << "\n";
+		std::cout << "HTML Duration: " << timeString(endTree, endHtml) << "\n";
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

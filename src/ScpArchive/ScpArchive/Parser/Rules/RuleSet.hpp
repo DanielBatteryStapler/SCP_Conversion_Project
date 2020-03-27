@@ -13,16 +13,22 @@ namespace Parser{
 	struct TokenPrintRule{
         Token::Type type;
         std::function<nlohmann::json(const TokenVariant&)> print;
+        
+        std::string parentRuleSet;
 	};
 	
 	struct NodePrintRule{
         Node::Type type;
         std::function<nlohmann::json(const NodeVariant&)> print;
+        
+        std::string parentRuleSet;
 	};
 	
 	struct TokenRule{
 		std::function<bool(const TokenRuleContext&)> tryRule;
 		std::function<TokenRuleResult(const TokenRuleContext&)> doRule;
+		
+		std::string parentRuleSet;
 	};
 	
 	enum class SubnameType{None, Parameter, Module};
@@ -38,6 +44,8 @@ namespace Parser{
 		ContentType contentType;
 		ParameterType parameterType;
 		bool allowInline;
+		
+		std::string parentRuleSet;
 	};
 	
 	struct TreeRule{
@@ -48,15 +56,21 @@ namespace Parser{
         };
         TreeRuleType type;
         std::function<void(TreeContext&, const Token&)> handleRule;
+		
+		std::string parentRuleSet;
     };
 	
 	struct PostTreeRule{
         std::function<void(TreeContext&)> rule;
+		
+		std::string parentRuleSet;
 	};
 	
 	struct HtmlRule{
         Node::Type type;
         std::function<void(const HtmlContext&, const Node&)> handleRule;
+		
+		std::string parentRuleSet;
 	};
 	
 	using RuleVariant = std::variant<TokenPrintRule, NodePrintRule, TokenRule, SectionRule, TreeRule, PostTreeRule, HtmlRule>;

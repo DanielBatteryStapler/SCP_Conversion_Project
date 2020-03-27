@@ -53,7 +53,6 @@ int main(int argc, char** argv){
 		std::string batchesFolder = Config::getScraperFolder() + "batches/";
 		std::string batchDataFile = Config::getScraperFolder() + "batchData.json";
 		Importer::handleBatches(batchesFolder, batchDataFile);
-		
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--autoDoBatches"){
 		std::string batchesFolder = Config::getScraperFolder() + "batches/";
@@ -68,6 +67,9 @@ int main(int argc, char** argv){
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--exportNodeDiagramData"){
 		UntestedUtils::exportNodeDiagramData();
+	}
+	else if(argc == 2 && std::string(argv[1]) == "--runBenchmark"){
+		UntestedUtils::benchmarkPageLoad("scp-1730");
 	}
 	else{
 		std::cout << "Invalid/No Options Specified\n";
