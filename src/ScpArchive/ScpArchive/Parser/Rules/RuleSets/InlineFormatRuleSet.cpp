@@ -155,7 +155,7 @@ namespace Parser{
 	}
 	
 	bool trySubRule(const TokenRuleContext& context){
-		return !checkParagraph(context.page, context.pagePos, "''") && handleTryInlineFormatting(context, ",,");
+		return handleTryInlineFormatting(context, ",,") && !checkParagraph(context.page, context.pagePos, "''");
 	}
 	TokenRuleResult doSubRule(const TokenRuleContext& context){
 		return handleDoInlineFormatting(context, InlineFormat::Type::Sub, ",,");
