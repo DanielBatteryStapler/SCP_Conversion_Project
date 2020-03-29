@@ -226,8 +226,17 @@ namespace Parser{
 		for(const Token& tok : context.tokens){
 			if(tok.getType() == Token::Type::HyperLink){
 				HyperLink link = std::get<HyperLink>(tok.token);
+				link.url = redirectLink(link.url);
 				if(!check(link.url, 0, "http://") && !check(link.url, 0, "https://")){
-					links.push_back(redirectLink(link.url));
+					while(link.url.size() > 0 && link.url[0] == '/'){
+						link.url = link.url.substr(1, link.url.size() - 1);
+					}
+					if(link.url.find('/') != std::string::npos){
+						link.url = link.url.substr(0, link.url.find('/'));
+					}
+					if(link.url != ""){
+						links.push_back(link.url);
+					}
 				}
 			}
 		}

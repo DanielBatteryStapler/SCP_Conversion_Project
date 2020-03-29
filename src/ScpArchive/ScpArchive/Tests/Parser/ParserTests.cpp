@@ -27,8 +27,12 @@ namespace Tests{
 			assertEqualsVec({
 				"page-a",
 				"page-b",
-				"page-c"
-			}, getPageLinks("[https://google.com] https://google.com [[[https://google.com]]] [[[page-a]]] [[[page \"\"b;|link name]]] [[[*pAge\nC]]] [!--[[[page-d]]]--]"));
+				"page-c",
+				"page-d",
+				"page-e"
+			}, getPageLinks("[https://google.com] https://google.com [[[https://google.com]]] [[[page-a]]]"
+							"[[[page \"\"b;|link name]]] [[[*pAge\nC]]] [!--[[[page-g]]]--]"
+							"http://www.scp-wiki.net/page-d http://www.scp-wiki.net/page-e/offset/1"));
 		});
 		
 		tester.add("Parser::tokenizePage Basic", [](){
