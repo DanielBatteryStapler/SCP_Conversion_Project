@@ -313,7 +313,24 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
 		<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM;
 		
 		reqCon.out << "<p>"_AM;
-		Parser::convertTokenedPageToHtml(reqCon.out, pageTokens);
+		Parser::convertTokenedPageToHtmlAnnotations(reqCon.out, pageTokens);
+		reqCon.out << "</p>"_AM
+        << "</div></body></html>"_AM;
+        return true;
+	}
+	else if(parameters.find("showAnnotatedNodeSource") != parameters.end()){
+        Parser::TokenedPage pageTokens;
+        Parser::PageTree pageTree;
+        parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
+        
+		reqCon.out << "HTTP/1.1 200 OK\r\n"_AM
+		<< "Content-Type: text/html; charset=utf-8\r\n\r\n"_AM
+		<< "<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='/__static/style.css'>"_AM
+		<< "<meta charset='UTF-8'><title>"_AM
+		<< revision.title << "</title></head><body><div id='sourceCodeBox'>"_AM;
+		
+		reqCon.out << "<p>"_AM;
+		Parser::convertPageTreeToHtmlAnnotations(reqCon.out, pageTree);
 		reqCon.out << "</p>"_AM
         << "</div></body></html>"_AM;
         return true;
@@ -522,6 +539,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         if(revisionIndex){
 			reqCon.out
 			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showAnnotatedSource'>Annotated Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showAnnotatedNodeSource'>Annotated Node Source</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showSource'>Raw Source</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showTokenJSON'>Token JSON</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showNodeJSON'>Node JSON</a>"_AM;
@@ -529,6 +547,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         else{
 			reqCon.out
 			<< "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/showAnnotatedNodeSource'>Annotated Node Source</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/showSource'>Raw Source</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/showTokenJSON'>Token JSON</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/showNodeJSON'>Node JSON</a>"_AM;

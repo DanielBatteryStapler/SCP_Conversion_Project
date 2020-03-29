@@ -70,7 +70,7 @@ namespace Parser{
 		}
 	}
 	
-	void convertTokenedPageToHtml(MarkupOutStream& out, const TokenedPage& page){
+	void convertTokenedPageToHtmlAnnotations(MarkupOutStream& out, const TokenedPage& page){
 		std::size_t pos = 0; 
 		auto tok = page.tokens.begin();
 		
@@ -109,6 +109,38 @@ namespace Parser{
 			}
 		}
 		
+	}
+	
+	void convertNodeToHtmlAnnotations(MarkupOutStream& out, const Node& nod){
+		out << "<div style='border-style:solid;border-color:white;border-width:1px;padding:0.5rem;"_AM
+		<< "background-color:"_AM << getColor(nod.node.index(), false) << ";'"_AM
+		<< " onMouseOver='this.style.backgroundColor=\""_AM << getColor(nod.node.index(), true) << "\"'"_AM
+		<< " onMouseOut='this.style.backgroundColor=\""_AM << getColor(nod.node.index(), false) << "\"'"_AM
+		">"_AM << NodeTypeNames.at(nod.node.index());
+		{
+			out << "<div style='word-wrap:break-word;margin:0.5rem;border-style:solid;border-width:1px;border-color:black;'>"_AM;
+			std::string content = printNodeVariant(nod).dump(4);
+			for(char c : content){
+				if(c == '\n'){
+					out << "<br>"_AM;
+				}
+				else if(c == ' '){
+					out << "&nbsp;"_AM;
+				}
+				else{
+					out << c;
+				}
+			}
+			out << "</div>"_AM;
+		}
+		for(const Node& branch : nod.branches){
+			convertNodeToHtmlAnnotations(out, branch);
+		}
+		out << "</div>"_AM;
+	}
+	
+	void convertPageTreeToHtmlAnnotations(MarkupOutStream& out, const PageTree& page){
+		convertNodeToHtmlAnnotations(out, page.pageRoot);
 	}
 	
 	void toHtmlShownAuthor(MarkupOutStream& out, const ShownAuthor& author){
