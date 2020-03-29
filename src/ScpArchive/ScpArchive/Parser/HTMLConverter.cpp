@@ -47,7 +47,7 @@ namespace Parser{
 			"E00000", "00E000", "0000E0", "E0E000", "E000E0", "00E0E0"
 		};//just some basic colors to make the annotated html look nice
 		//thank you, https://stackoverflow.com/questions/309149/generate-distinctly-different-rgb-colors-in-graphs#309193
-		std::string getColor(int i, bool hover){
+		std::string getColor(int i, bool hover, bool opaque = false){
 			constexpr auto toNum = [](char c)->int{
 				if(std::isalpha(c)){
 					return c - 'A' + 10;
@@ -61,6 +61,9 @@ namespace Parser{
 			int r = toNum(raw[0]) * 16 + toNum(raw[1]);
 			int g = toNum(raw[2]) * 16 + toNum(raw[3]);
 			int b = toNum(raw[4]) * 16 + toNum(raw[5]);
+			if(opaque){
+				return "rgba("  + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ")";
+			}
 			if(hover){
 				return "rgba("  + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", 0.5)";
 			}
@@ -112,7 +115,7 @@ namespace Parser{
 	}
 	
 	void convertNodeToHtmlAnnotations(MarkupOutStream& out, const Node& nod){
-		out << "<div style='border-style:solid;border-color:white;border-width:1px;padding:0.5rem;"_AM
+		out << "<div style='background-color:white;'><div style='border-style:solid;border-color:white;border-width:1px;padding:0.5rem;"_AM
 		<< "background-color:"_AM << getColor(nod.node.index(), false) << ";'"_AM
 		<< " onMouseOver='this.style.backgroundColor=\""_AM << getColor(nod.node.index(), true) << "\"'"_AM
 		<< " onMouseOut='this.style.backgroundColor=\""_AM << getColor(nod.node.index(), false) << "\"'"_AM
@@ -136,7 +139,7 @@ namespace Parser{
 		for(const Node& branch : nod.branches){
 			convertNodeToHtmlAnnotations(out, branch);
 		}
-		out << "</div>"_AM;
+		out << "</div></div>"_AM;
 	}
 	
 	void convertPageTreeToHtmlAnnotations(MarkupOutStream& out, const PageTree& page){

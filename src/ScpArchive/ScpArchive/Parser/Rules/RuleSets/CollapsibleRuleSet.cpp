@@ -58,16 +58,12 @@ namespace Parser{
         
 		con.out << "<div class='CollapsibleContainer collapsible-block'>"_AM
 		<< "<input type='checkbox' id='"_AM << uniqueId << "' "_AM << (collapsible.defaultShow?"checked"_AM:""_AM) << ">"_AM
-		<< "<div class='collapsible-block-folded'>"_AM
-		<< "<label class='CollapsibleHiddenText collapsible-block-link' for='"_AM << uniqueId << "'>"_AM
+		<< "<label class='collapsible-block-folded CollapsibleHiddenText collapsible-block-link' for='"_AM << uniqueId << "'>"_AM
 		<< collapsible.closedText
 		<< "</label>"_AM
-		<< "</div>"_AM
-		<< "<div class='collapsible-block-unfolded'>"_AM
-		<< "<label class='CollapsibleShownText collapsible-block-unfolder-link' for='"_AM << uniqueId << "'>"_AM
+		<< "<label class='collapsible-block-unfolded CollapsibleShownText collapsible-block-unfolder-link' for='"_AM << uniqueId << "'>"_AM
 		<< collapsible.openedText
 		<< "</label>"_AM
-		<< "</div>"_AM
 		<< "<div class='CollapsibleContent collapsible-block-content'>"_AM;
 		
         delegateNodeBranches(con, nod);

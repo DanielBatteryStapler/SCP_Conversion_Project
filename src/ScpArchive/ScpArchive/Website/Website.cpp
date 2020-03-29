@@ -318,7 +318,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         << "</div></body></html>"_AM;
         return true;
 	}
-	else if(parameters.find("showAnnotatedNodeSource") != parameters.end()){
+	else if(parameters.find("showAnnotatedTreeSource") != parameters.end()){
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
@@ -335,7 +335,7 @@ bool Website::handlePage(Gateway::RequestContext& reqCon, Website::Context& webC
         << "</div></body></html>"_AM;
         return true;
 	}
-	else if(parameters.find("showNodeJSON") != parameters.end()){
+	else if(parameters.find("showTreeJSON") != parameters.end()){
         Parser::TokenedPage pageTokens;
         Parser::PageTree pageTree;
         parsePage(webCon, pageName, parameters, revision, pageId, pageTokens, pageTree);
@@ -538,19 +538,19 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         << "<a class='item' href='/__system/pageHistory/"_AM << pageName << "'>History</a>"_AM;
         if(revisionIndex){
 			reqCon.out
-			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showAnnotatedSource'>Annotated Source</a>"_AM
-			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showAnnotatedNodeSource'>Annotated Node Source</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showSource'>Raw Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showAnnotatedSource'>Annotated Source</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showTokenJSON'>Token JSON</a>"_AM
-			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showNodeJSON'>Node JSON</a>"_AM;
+			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showAnnotatedTreeSource'>Annotated Tree Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showTreeJSON'>Tree JSON</a>"_AM;
         }
         else{
 			reqCon.out
-			<< "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
-			<< "<a class='item' href='/"_AM << pageName << "/showAnnotatedNodeSource'>Annotated Node Source</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/showSource'>Raw Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/showAnnotatedSource'>Annotated Source</a>"_AM
 			<< "<a class='item' href='/"_AM << pageName << "/showTokenJSON'>Token JSON</a>"_AM
-			<< "<a class='item' href='/"_AM << pageName << "/showNodeJSON'>Node JSON</a>"_AM;
+			<< "<a class='item' href='/"_AM << pageName << "/showAnnotatedTreeSource'>Annotated Tree Source</a>"_AM
+			<< "<a class='item' href='/"_AM << pageName << "/showTreeJSON'>Tree JSON</a>"_AM;
         }
         reqCon.out
         << "</div>"_AM;

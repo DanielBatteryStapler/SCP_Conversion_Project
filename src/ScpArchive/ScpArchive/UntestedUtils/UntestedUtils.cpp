@@ -122,6 +122,7 @@ namespace UntestedUtils{
 		std::cout << "Token Duration: " << timeString(start, endToken) << "\n";
 		std::cout << "Tree Duration: " << timeString(endToken, endTree) << "\n";
 		std::cout << "HTML Duration: " << timeString(endTree, endHtml) << "\n";
+		std::cout << "Total Duration: " << timeString(start, endHtml) << "\n";
 	}
 }
 
