@@ -26,16 +26,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="664.46108"
-     inkscape:cy="105.52057"
+     inkscape:cx="467.5783"
+     inkscape:cy="336.4966"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      height="209mm"
-     inkscape:window-width="1920"
-     inkscape:window-height="1080"
+     inkscape:window-width="1918"
+     inkscape:window-height="1058"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="20"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata5">
@@ -45,7 +45,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -55,17 +55,21 @@
      id="layer1"
      transform="translate(0,-147)">
     <path
+       style="fill:#7587c3;fill-opacity:1;stroke:#000000;stroke-width:3.78645968;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 799.18945 222.68164 L 799.18945 241.17383 L 789.42188 241.17383 L 789.3125 241.17383 L 759.18555 241.17383 L 759.07617 241.17383 L 702.94336 241.17383 L 672.70703 241.17383 L 657.94141 241.17383 L 626.07422 241.17383 L 626.07422 231.60742 L 583.31641 256.29297 L 626.07422 280.97852 L 626.07422 271.41016 L 657.94141 271.41016 L 667.0332 271.41016 L 672.70703 271.41016 L 702.94336 271.41016 L 744.31055 271.41016 L 744.41992 271.41016 L 759.07617 271.41016 L 759.18555 271.41016 L 769.7793 271.41016 L 789.42188 271.41016 L 799.18945 271.41016 L 829.42578 271.41016 L 829.42578 267.68359 L 829.42578 252.91797 L 829.42578 242.21484 L 829.42578 222.68164 L 799.18945 222.68164 z "
+       transform="matrix(0.26458333,0,0,0.26458333,0,147)"
+       id="path876-3" />
+    <path
        style="fill:#be6e6e;fill-opacity:1;stroke:#000000;stroke-width:1.00183415;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 257.38822,237.46878 11.313,-6.53138 v 2.53163 h 28.35094 8.00004 v 8.00002 27.27682 h -8.00004 v -27.27682 h -28.35094 v 2.53112 z"
        id="rect821-7-2-5"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccccccc" />
     <path
-       style="fill:#7587c3;fill-opacity:1;stroke:#000000;stroke-width:1.00183415;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 79.375515,187.15923 -6.531382,11.31301 h 2.531628 v 14.7438 8.00003 h 8.000026 30.867593 v -8.00003 H 83.375787 v -14.7438 H 85.9069 Z"
-       id="rect821-7"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccccccccccc" />
+       style="fill:#7587c3;fill-opacity:1;stroke:#000000;stroke-width:3.78645968;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 300.00195 151.7832 L 275.31641 194.54102 L 284.88477 194.54102 L 284.88477 226.4082 L 284.88477 235.5 L 284.88477 241.17383 L 284.88477 271.41016 L 284.88477 312.77734 L 284.88477 327.54297 L 284.88477 338.24609 L 284.88477 357.7793 L 315.12109 357.7793 L 431.78516 357.7793 L 431.78516 327.54297 L 315.12109 327.54297 L 315.12109 312.77734 L 315.12109 271.41016 L 431.78516 271.41016 L 431.78516 241.17383 L 315.12109 241.17383 L 315.12109 226.4082 L 315.12109 194.54102 L 324.6875 194.54102 L 300.00195 151.7832 z "
+       transform="matrix(0.26458333,0,0,0.26458333,0,147)"
+       id="path876" />
     <rect
        style="fill:#229b36;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect815"
@@ -138,12 +142,12 @@
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777767px;line-height:6.61458349px;font-family:'liberation sans';-inkscape-font-specification:'liberation sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="81.939629"
-       y="219.10721"
+       y="239.55333"
        id="text1337-93"><tspan
          sodipodi:role="line"
          id="tspan1335-1"
          x="81.939629"
-         y="219.10721"
+         y="239.55333"
          style="font-size:5.29166651px;stroke-width:0.26458332px">static files</tspan></text>
     <rect
        style="fill:#bd0000;fill-opacity:1;stroke:#000000;stroke-width:1.00358272;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -264,17 +268,17 @@
        width="35.128761"
        height="19.921644"
        x="-152.00597"
-       y="207.21585"
+       y="227.66197"
        transform="scale(-1,1)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.11111069px;line-height:6.61458349px;font-family:'liberation sans';-inkscape-font-specification:'liberation sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="121.09792"
-       y="219.1315"
+       y="239.57762"
        id="text819-2-7-9-1-6-7"><tspan
          sodipodi:role="line"
          x="121.09792"
-         y="219.1315"
+         y="239.57762"
          style="font-size:7.05555534px;stroke-width:0.26458332px"
          id="tspan1121">__static/</tspan></text>
     <rect
@@ -409,5 +413,46 @@
          x="4.2084498"
          y="156.41919"
          style="font-size:6.3499999px;stroke-width:0.26458332">website</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777767px;line-height:6.61458349px;font-family:'liberation sans';-inkscape-font-specification:'liberation sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="85.146881"
+       y="216.70178"
+       id="text1337-93-5"><tspan
+         sodipodi:role="line"
+         id="tspan1335-1-4"
+         x="85.146881"
+         y="216.70178"
+         style="font-size:5.29166651px;stroke-width:0.26458332px">pdf files</tspan></text>
+    <rect
+       style="fill:#0086ed;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1006-2-9-3-4-7"
+       width="35.128761"
+       height="19.921644"
+       x="-152.00598"
+       y="204.81042"
+       transform="scale(-1,1)" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.11111069px;line-height:6.61458349px;font-family:'liberation sans';-inkscape-font-specification:'liberation sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="122.91776"
+       y="216.72607"
+       id="text819-2-7-9-1-6-7-6"><tspan
+         sodipodi:role="line"
+         x="122.91776"
+         y="216.72607"
+         style="font-size:7.05555534px;stroke-width:0.26458332px"
+         id="tspan1121-5">__pdfs/</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777767px;line-height:6.61458349px;font-family:'liberation sans';-inkscape-font-specification:'liberation sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="187.64819"
+       y="216.65047"
+       id="text1337-93-5-7"><tspan
+         sodipodi:role="line"
+         id="tspan1335-1-4-8"
+         x="187.64819"
+         y="216.65047"
+         style="font-size:5.29166651px;stroke-width:0.26458332px">pdf files</tspan></text>
   </g>
 </svg>
