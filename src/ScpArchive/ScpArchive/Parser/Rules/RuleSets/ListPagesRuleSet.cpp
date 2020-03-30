@@ -187,8 +187,13 @@ namespace Parser{
 					//don't do anything here
 				}
 				else if(parameter == "."){
-					categorySelect.included.push_back(getPageCategory(context.parameters.page.name));
-					parameters.categorySelect = categorySelect;
+					if(getPageCategory(context.parameters.page.name) == ""){
+						//do nothing, there are no categories to select
+					}
+					else{
+						categorySelect.included.push_back(getPageCategory(context.parameters.page.name));
+						parameters.categorySelect = categorySelect;
+					}
 				}
 				else{
 					std::vector<std::string> categories = splitString(parameter);
@@ -226,12 +231,16 @@ namespace Parser{
 				else if(parameter == "="){
 					tagSelect.noTags = false;
 					tagSelect.included = context.parameters.page.tags;
-					parameters.tagSelect = tagSelect;
+					if(tagSelect.included.size() > 0){
+						parameters.tagSelect = tagSelect;
+					}
 				}
 				else if(parameter == "=="){
 					tagSelect.noTags = false;
 					tagSelect.mustIncluded = context.parameters.page.tags;
-					parameters.tagSelect = tagSelect;
+					if(tagSelect.mustIncluded.size() > 0){
+						parameters.tagSelect = tagSelect;
+					}
 				}
 				else{
 					std::vector<std::string> tags = splitString(parameter);

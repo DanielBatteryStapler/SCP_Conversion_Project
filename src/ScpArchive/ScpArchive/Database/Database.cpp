@@ -894,23 +894,28 @@ std::vector<Database::ID> Database::advancedPageQuery(const AdvancedPageQueryPar
 		}
 		makeDividers(query, selects, 1);
 		if(parameters.tagSelect){
-			std::vector<bool> active = {parameters.tagSelect->included.size() > 0,
-										parameters.tagSelect->excluded.size() > 0,
-										parameters.tagSelect->mustIncluded.size() > 0};
-			
-			makeDividers(query, active, 0);
-			listWithDivider(query, parameters.tagSelect->included, [&](std::string str){
-				query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
-			}, "OR");
-			makeDividers(query, active, 1);
-			listWithDivider(query, parameters.tagSelect->excluded, [&](std::string str){
-				query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
-			}, "AND", "NOT(");
-			makeDividers(query, active, 2);
-			listWithDivider(query, parameters.tagSelect->mustIncluded, [&](std::string str){
-				query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
-			}, "AND");
-			makeDividers(query, active, 3);
+			if(parameters.tagSelect->noTags){
+				query << "(0 = (SELECT count(id) FROM pageTags WHERE page=pages.id))";
+			}
+			else{
+				std::vector<bool> active = {parameters.tagSelect->included.size() > 0,
+											parameters.tagSelect->excluded.size() > 0,
+											parameters.tagSelect->mustIncluded.size() > 0};
+				
+				makeDividers(query, active, 0);
+				listWithDivider(query, parameters.tagSelect->included, [&](std::string str){
+					query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
+				}, "OR");
+				makeDividers(query, active, 1);
+				listWithDivider(query, parameters.tagSelect->excluded, [&](std::string str){
+					query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
+				}, "AND", "NOT(");
+				makeDividers(query, active, 2);
+				listWithDivider(query, parameters.tagSelect->mustIncluded, [&](std::string str){
+					query << "0 < (SELECT count(id) FROM pageTags WHERE page=pages.id AND tag='" << escapeString(str) << "')";
+				}, "AND");
+				makeDividers(query, active, 3);
+			}
 		}
 		makeDividers(query, selects, 2);
 		if(parameters.parentSelect){
@@ -1107,7 +1112,7 @@ std::vector<Database::ID> Database::advancedPageQuery(const AdvancedPageQueryPar
 		query << " " << orderBy << " LIMIT " << parameters.offset << ", " << parameters.limit;
 	}
 	Database::ID page;
-	//std::cout << "Ran query: " query.str() << "\n";
+	//std::cout << "Ran query: " << query.str() << "\n";
 	
 	soci::statement stmt = (sql.prepare << query.str(), into(page));
 	stmt.execute();
