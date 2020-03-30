@@ -327,29 +327,12 @@ namespace Scraper{
 			bool keepGoing = true;
 			while(keepGoing){
 				std::cout << "Current Page of Listing:" << pageNumber << "\n";
-				curlpp::Cleanup myCleanup;
-				curlpp::Easy request;
-				request.setOpt<curlpp::options::Url>(website + "most-recently-edited/p/" + std::to_string(pageNumber));
-				
-				std::list<std::string> headers;
-				headers.push_back(userAgent);
-				headers.push_back("Accept: test/html");
-				headers.push_back("Accept-Encoding: identity");//gzip, deflate
-				headers.push_back("Accept-Language: en-US,en;q=0.9");
-				request.setOpt<curlpp::options::HttpHeader>(headers);
-				
-				std::ostringstream os;
-				curlpp::options::WriteStream ws(&os);
-				request.setOpt(ws);
-				request.perform();
-				std::string data = os.str();
+				std::string data = performAjaxRequest("changes/SiteChangesListModule", {{"all", "true"}, {"page", std::to_string(pageNumber)}})["body"].get<std::string>();
 				{
-					std::string pageListData;
-					getData(data, "<div class=\"content-type-description\"><div class=\"list-pages-box\">", "<div class=\"pager\"><span class=\"pager-no\">", 0, pageListData);
 					std::size_t start = 0;
 					while(keepGoing){
 						std::string pageName;
-						start = getData(data, "<td style=\"vertical-align: top;\"><a href=\"/", "\"", start, pageName);
+						start = getData(data, "<a href=\"/", "\"", start, pageName);
 						if(start == std::string::npos){
 							break;
 						}
