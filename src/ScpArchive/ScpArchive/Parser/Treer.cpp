@@ -416,6 +416,13 @@ namespace Parser{
 				continue;
 			}
 			
+			if(token.getType() == Token::Type::LineBreak){
+				if(context.tokenedPage.tokens.size() > context.tokenPos + 1){
+					handleQuoteBoxNesting(context, context.tokenPos + 1);
+					handleListNesting(context, context.tokenPos + 1);
+				}
+			}
+			
 			if(isInside(context, Node::Type::Paragraph)){
 				if(context.newlines == 1 && isTextType(token)){
 					addAsText(context, Node{LineBreak{}});

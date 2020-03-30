@@ -891,6 +891,24 @@ namespace Tests{
 					}
 				}
 			});
+			assertPageTree(
+			"> Quote Box _\n> Second Line",
+			Node{
+				RootPage{},
+				{
+					Node{QuoteBox{},
+						{
+							Node{Paragraph{},
+								{
+									Node{PlainText{"Quote Box"}},
+									Node{LineBreak{}},
+									Node{PlainText{"Second Line"}}
+								}
+							}
+						}
+					}
+				}
+			});
 		});
 		
 		tester.add("Parser::makeTreeFromPage List",[](){
