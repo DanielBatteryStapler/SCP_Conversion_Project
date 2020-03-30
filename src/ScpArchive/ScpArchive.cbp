@@ -158,6 +158,8 @@
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/QuoteBoxRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/RateRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/RateRuleSet.hpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/RedirectRuleSet.cpp" />
+		<Unit filename="ScpArchive/Parser/Rules/RuleSets/RedirectRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SCPConversionProjectInfoBoxRuleSet.cpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SCPConversionProjectInfoBoxRuleSet.hpp" />
 		<Unit filename="ScpArchive/Parser/Rules/RuleSets/SectionRuleSet.cpp" />

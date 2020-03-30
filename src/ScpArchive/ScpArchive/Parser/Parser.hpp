@@ -22,7 +22,7 @@ namespace Parser{
 	enum class SectionType{Unknown, Module, FootNote, FootNoteBlock, TableOfContents, AdvTable, AdvTableRow, AdvTableElement, 
         HTML, IFrame, Iftags, Include, Image, TabView, Tab, Collapsible, Span, Size, Anchor, Align, Div, Code, A,
         AdvList, AdvListElement, User, SCPConversionProjectInfoBox};
-	enum class ModuleType{Unknown, CSS, Rate, ForumStart, ForumCategory, ForumThread, ListPages};
+	enum class ModuleType{Unknown, CSS, Rate, ForumStart, ForumCategory, ForumThread, ListPages, Redirect};
 	
 	struct Section{
 		SectionType type = SectionType::Unknown;
