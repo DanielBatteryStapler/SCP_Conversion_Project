@@ -535,7 +535,8 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         }
         reqCon.out
         << "<a class='item' href='/__system/pageFiles/"_AM << pageName << "'>Files</a>"_AM
-        << "<a class='item' href='/__system/pageHistory/"_AM << pageName << "'>History</a>"_AM;
+        << "<a class='item' href='/__system/pageHistory/"_AM << pageName << "'>History</a>"_AM
+        << "<a class='item' href='/__pdfs/collection/"_AM << pageName << ".pdf'>PDF</a>"_AM;
         if(revisionIndex){
 			reqCon.out
 			<< "<a class='item' href='/"_AM << pageName << "/useRevision/"_AM << std::to_string(*revisionIndex) << "/showSource'>Raw Source</a>"_AM

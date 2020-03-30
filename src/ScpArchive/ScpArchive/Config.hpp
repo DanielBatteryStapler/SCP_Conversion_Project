@@ -17,6 +17,8 @@ namespace Config{
 	std::string getDatabasePassword();
 	
 	std::string getScraperFolder();
+	std::string getPDFFolder();
+	std::string getWebRootStaticFolder();
 }
 
 using TimeStamp = std::int64_t;

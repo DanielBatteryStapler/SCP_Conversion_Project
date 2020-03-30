@@ -18,6 +18,8 @@
 
 #include "Database/Json.hpp"
 
+#include "PDF/PDFConverter.hpp"
+
 int main(int argc, char** argv){
 	
     if(argc == 2 && std::string(argv[1]) == "--printRuleSet"){
@@ -69,7 +71,10 @@ int main(int argc, char** argv){
 		UntestedUtils::exportNodeDiagramData();
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--runBenchmark"){
-		UntestedUtils::benchmarkPageLoad("scp-1730");
+		UntestedUtils::benchmarkPageLoad("attribution-metadata");
+	}
+	else if(argc == 2 && std::string(argv[1]) == "--updatePDFs"){
+		PDF::updatePDFs();
 	}
 	else{
 		std::cout << "Invalid/No Options Specified\n";

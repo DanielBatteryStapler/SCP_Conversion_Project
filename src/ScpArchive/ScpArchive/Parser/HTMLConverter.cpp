@@ -30,8 +30,8 @@ namespace Parser{
         return "unique-id-" + std::to_string(uniqueId);
 	}
 	
-	void convertPageTreeToHtml(MarkupOutStream& out, const PageTree& tree){
-		HtmlContext context{out, 0};
+	void convertPageTreeToHtml(MarkupOutStream& out, const PageTree& tree, bool linkImagesLocally){
+		HtmlContext context{out, 0, linkImagesLocally};
 		convertNodeToHtml(context, tree.pageRoot);
 	}
 	

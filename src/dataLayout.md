@@ -1,4 +1,18 @@
 
+# PDF File Map:
+- pdfData.json
+- collection
+  - <pageName>.pdf
+  - ...
+- temp
+  - ...
+# PDF File Layouts:
+## pdfData.json
+- pages
+  - 0
+    - pageName: <pageName>
+    - revisionIndex: <revisionIndex>
+  - ...
 
 # MySQL Database Map:
 full table definitions can be found in src/ScpArchive/Database/Database.cpp
@@ -147,9 +161,6 @@ notice the lack of timestamp, as this does not have an impact on the timeline of
   - id: <authorId>
   - name: <authorName>
 - ...
-
-
-
 
 
 

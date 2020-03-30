@@ -8,12 +8,13 @@ namespace Parser{
     struct HtmlContext{
         MarkupOutStream& out;
         mutable std::size_t uniqueId;
+        bool linkImagesLocally = false;
     };
     
     void convertNodeToHtml(const HtmlContext& con, const Node& nod);
     void delegateNodeBranches(const HtmlContext& con, const Node& nod);
 	std::string getUniqueHtmlId(const HtmlContext& con);
-	void convertPageTreeToHtml(MarkupOutStream& out, const PageTree& tree);
+	void convertPageTreeToHtml(MarkupOutStream& out, const PageTree& tree, bool linkImagesLocally = false);
 	
 	void convertTokenedPageToHtmlAnnotations(MarkupOutStream& out, const TokenedPage& page);
 	void convertNodeToHtmlAnnotations(MarkupOutStream& out, const Node& nod);

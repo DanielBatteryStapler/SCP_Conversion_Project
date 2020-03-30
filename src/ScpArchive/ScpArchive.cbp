@@ -24,6 +24,7 @@
 					<Add directory="ScpArchive/Parser/Rules" />
 					<Add directory="ScpArchive/Parser/Rules/RuleSets" />
 					<Add directory="ScpArchive/Database" />
+					<Add directory="ScpArchive/PDF" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -31,7 +32,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--importFrontPage" />
+				<Option parameters="--runWebsite" />
 				<Compiler>
 					<Add option="-O3" />
 					<Add directory="./" />
@@ -43,6 +44,7 @@
 					<Add directory="ScpArchive/Parser/Rules" />
 					<Add directory="ScpArchive/Parser/Rules/RuleSets" />
 					<Add directory="ScpArchive/Database" />
+					<Add directory="ScpArchive/PDF" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -89,6 +91,8 @@
 		<Unit filename="ScpArchive/HTTP/entities/entities.h">
 			<Option virtualFolder="ScpArchive/Tests/" />
 		</Unit>
+		<Unit filename="ScpArchive/PDF/PDFConverter.cpp" />
+		<Unit filename="ScpArchive/PDF/PDFConverter.hpp" />
 		<Unit filename="ScpArchive/Parser/DatabaseUtil.cpp" />
 		<Unit filename="ScpArchive/Parser/DatabaseUtil.hpp" />
 		<Unit filename="ScpArchive/Parser/HTMLConverter.cpp" />

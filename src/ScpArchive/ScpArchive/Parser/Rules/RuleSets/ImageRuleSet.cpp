@@ -137,7 +137,14 @@ namespace Parser{
             con.out << "<a href='"_AM << redirectLink(image.link) << "'>"_AM;
         }
         
-        con.out << "<img src='"_AM << redirectLink(image.source) << "'"_AM;
+        std::string imageSource = redirectLink(image.source);
+        if(con.linkImagesLocally && check(imageSource, 0, "/__system/pageFile/")){
+			//convert links to be local, i.e. link to something in the same folder
+			imageSource = imageSource.substr(imageSource.rfind('/'), imageSource.size() - imageSource.rfind('/'));
+			imageSource = "files" + imageSource;
+        }
+        con.out << "<img src='"_AM << imageSource << "'"_AM;
+        
         if(image.alt != ""){
             con.out << " alt='"_AM << image.alt << "'"_AM;
         }

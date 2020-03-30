@@ -1,0 +1,23 @@
+.footer-wikiwalk-nav{display:none;}
+a{text-decoration:inherit;color:inherit;}
+.CollapsibleContent{display:block;}
+.CollapsibleHiddenText{display:block;}
+.CollapsibleShownText{display:block;}
+.heritage-rating-module{display:none;}
+.page-rate-widget-box{display:none;}
+.info-container{display:none;}
+
+body{font-size:20px;}
+*{
+page-break-inside: avoid;
+page-break-after: avoid;
+page-break-before: avoid;
+}
+
+.TabViewButtons{display:none;}
+.TabSectionTitle{margin-bottom:0.5rem;font-size:1.3rem;}
+.TabSection{display:block;padding:0;border-style:none;}
+
+h1{color:black;
+blockquote{background-color:white !important;}
+.scp-image-caption{background-color:white !important;}
