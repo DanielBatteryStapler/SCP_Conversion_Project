@@ -289,8 +289,8 @@ namespace Parser{
 			con.out << "</td>"_AM
 			<< "<td>"_AM << formatTimeStamp(thread.timeStamp) << "</td></tr>"_AM;
 		}
-		makePageSelect();
 		con.out << "</tbody></table>"_AM;
+		makePageSelect();
 	}
 
 	void toHtmlNodeForumThread(const HtmlContext& con, const Node& nod){
