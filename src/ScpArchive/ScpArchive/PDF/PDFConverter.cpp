@@ -58,7 +58,7 @@ namespace PDF{
 		///this is calling std::system, but this code is never called by the Website, it can only be called if you tell the program to call it
 		//everything will probably be fine, probably
 		
-		std::system(("wkhtmltopdf -T 10mm -R 10mm -B 10mm -L 10mm --zoom 1.10 \"" + tempHTMLFile + "\" \"" + tempPDFFile + "\"").c_str());
+		std::system(("wkhtmltopdf -n -T 10mm -R 10mm -B 10mm -L 10mm --zoom 1.10 \"" + tempHTMLFile + "\" \"" + tempPDFFile + "\"").c_str());
 		
 		boost::filesystem::rename(tempPDFFile, finishedPdfFile);
 		boost::filesystem::remove_all(tempPageFolder);
@@ -70,7 +70,7 @@ namespace PDF{
 		boost::filesystem::remove_all(tempZipFile);
 		
 		std::cout << "Making ZIP Archive...\n";
-		std::system(("7z a \"" + tempZipFile + "\" \"" + pdfCollectionFolder + "*.zip\"").c_str());
+		std::system(("7z a -r \"" + tempZipFile + "\" \"" + pdfCollectionFolder + "\"").c_str());
 		boost::filesystem::remove_all(zipArchiveFile);
 		boost::filesystem::rename(tempZipFile, zipArchiveFile);
 		std::cout << "ZIP Archive complete.\n";
