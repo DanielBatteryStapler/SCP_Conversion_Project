@@ -32,6 +32,7 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 		else{
 			std::vector<std::string> uri = splitUri(context.getUriString());
 			
+			/*
 			std::cout << "Request for URI = [";
 			for(std::size_t i = 0; i < uri.size(); i++){
 				std::cout << uri[i];
@@ -40,8 +41,14 @@ void Website::threadProcess(Gateway::ThreadContext threadContext){
 				}
 			}
 			std::cout << "]\n";
+			*/
 			
-			handleUri(context, websiteContext, uri);
+			try{
+				handleUri(context, websiteContext, uri);
+			}
+			catch(std::exception& e){
+				std::cout << "Got exception when handling URI \"" << context.getUriString() << "\" e.what()=\"" << e.what() << "\"\n";
+			}
 			
 			threadContext.finishRequest(std::move(context));
 		}
@@ -482,7 +489,7 @@ bool Website::handleFormattedArticle(Gateway::RequestContext& reqCon, Website::C
         reqCon.out << "<div id='article'>"_AM
 		<< "<div id='articleTitle'>"_AM << revision.title << "</div>"_AM;
 		 if(revisionIndex){
-			reqCon.out << "Viewing Revision #" << *revisionIndex << " from " << Parser::formatTimeStamp(revision.timeStamp)
+			reqCon.out << "Viewing Revision #" << std::to_string(*revisionIndex) << " from " << Parser::formatTimeStamp(revision.timeStamp)
 			<< ", <a href='/"_AM << pageName << "'>view original</a>"_AM;
         }
         reqCon.out << "<div id='articleTitleDivider'></div>"_AM;
