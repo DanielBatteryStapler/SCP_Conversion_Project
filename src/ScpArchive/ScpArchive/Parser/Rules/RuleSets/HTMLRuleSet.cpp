@@ -15,7 +15,18 @@ namespace Parser{
 	
 	void toHtmlNodeHTML(const HtmlContext& con, const Node& nod){
         const HTML& html = std::get<HTML>(nod.node);
-        con.out << "<iframe style='width:100%;height:auto;' frameborder='0' src='data:text/html,"_AM << "<!DOCTYPE html><html><body>" << html.contents << "</body></html>" << "'></iframe>"_AM;
-        //con.out << allowMarkup(html.contents);
+        con.out << "<iframe style='width:100%;height:auto;' frameborder='0' src='data:text/html,"_AM << "<!DOCTYPE html><html><body>";
+        
+        for(char c : html.contents){
+			switch(c){
+				default:
+					con.out << c;
+					break;
+				case '#':
+					con.out << "%23";
+					break;
+			}
+        }
+        con.out << "</body></html>" << "'></iframe>"_AM;
 	}
 }
