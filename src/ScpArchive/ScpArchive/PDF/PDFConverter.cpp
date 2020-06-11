@@ -60,7 +60,9 @@ namespace PDF{
 		
 		std::system(("wkhtmltopdf -n -T 10mm -R 10mm -B 10mm -L 10mm --zoom 1.10 \"" + tempHTMLFile + "\" \"" + tempPDFFile + "\"").c_str());
 		
-		boost::filesystem::rename(tempPDFFile, finishedPdfFile);
+		if(boost::filesystem::exists(tempPDFFile)){
+			boost::filesystem::rename(tempPDFFile, finishedPdfFile);
+		}
 		boost::filesystem::remove_all(tempPageFolder);
 	}
 	
