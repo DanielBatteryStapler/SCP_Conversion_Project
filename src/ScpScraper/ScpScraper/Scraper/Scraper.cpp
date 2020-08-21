@@ -27,41 +27,61 @@ namespace Scraper{
 		const std::string noRedirect = "/noredirect/true";
 		
 		nlohmann::json performAjaxRequest(std::string moduleName, std::map<std::string, std::string> parameters){
-			curlpp::Cleanup myCleanup;
-			curlpp::Easy request;
-			request.setOpt<curlpp::options::Url>(website + "ajax-module-connector.php");
+			int tryNum = 0;
 			
-			//request.setOpt<curlpp::options::Verbose>(true);
-			
-			std::list<std::string> headers;
-			headers.push_back("X-Requested-With: XMLHttpRequest");
-			headers.push_back(userAgent);
-			headers.push_back("Content-Type: application/x-www-form-urlencoded; charset=UTF-8");
-			headers.push_back("Accept: application/json");
-			headers.push_back("Accept-Encoding: identity");
-			headers.push_back("Accept-Language: en-US,en;q=0.9");
-			headers.push_back("Cookie: wikidot_token7=" + percentEncode(token7));
-			request.setOpt<curlpp::options::HttpHeader>(headers);
-			
-			std::string body = "moduleName=" + percentEncode(moduleName);
-			
-			parameters["wikidot_token7"] = token7;//just automatically set the token 7
-			
-			for(auto i = parameters.begin(); i != parameters.end(); i++){
-				body += "&" + percentEncode(i->first) + "=" + percentEncode(i->second);
+			while(tryNum < 5){
+				try{
+					curlpp::Cleanup myCleanup;
+					curlpp::Easy request;
+					request.setOpt<curlpp::options::Url>(website + "ajax-module-connector.php");
+					
+					//request.setOpt<curlpp::options::Verbose>(true);
+					
+					std::list<std::string> headers;
+					headers.push_back("X-Requested-With: XMLHttpRequest");
+					headers.push_back(userAgent);
+					headers.push_back("Content-Type: application/x-www-form-urlencoded; charset=UTF-8");
+					headers.push_back("Accept: application/json");
+					headers.push_back("Accept-Encoding: identity");
+					headers.push_back("Accept-Language: en-US,en;q=0.9");
+					headers.push_back("Cookie: wikidot_token7=" + percentEncode(token7));
+					request.setOpt<curlpp::options::HttpHeader>(headers);
+					
+					std::string body = "moduleName=" + percentEncode(moduleName);
+					
+					parameters["wikidot_token7"] = token7;//just automatically set the token 7
+					
+					for(auto i = parameters.begin(); i != parameters.end(); i++){
+						body += "&" + percentEncode(i->first) + "=" + percentEncode(i->second);
+					}
+					
+					request.setOpt<curlpp::options::PostFields>(body);
+					request.setOpt<curlpp::options::PostFieldSize>(body.length());
+					
+					std::ostringstream os;
+					curlpp::options::WriteStream ws(&os);
+					request.setOpt(ws);
+					request.perform();
+					std::string data = os.str();
+					
+					nlohmann::json page = nlohmann::json::parse(data);
+					if(tryNum > 0){
+						std::cout << "Successful on try #" << (tryNum + 1) << ".\n";
+					}
+					return page;
+				}
+				catch(std::exception& e){
+					std::cout << "AJAX error:\"" << e.what() << "\".\n";
+					tryNum++;
+					if(tryNum < 5){
+						std::cout << "retrying...\n";
+					}
+					else{
+						std::cout << "already retried, aborting.\n";
+						throw e;
+					}
+				}
 			}
-			
-			request.setOpt<curlpp::options::PostFields>(body);
-			request.setOpt<curlpp::options::PostFieldSize>(body.length());
-			
-			std::ostringstream os;
-			curlpp::options::WriteStream ws(&os);
-			request.setOpt(ws);
-			request.perform();
-			std::string data = os.str();
-			
-			nlohmann::json page = nlohmann::json::parse(data);
-			return page;
 		}
 	}
 	
@@ -227,6 +247,7 @@ namespace Scraper{
 			std::cout << "Checking for Missing Author Data...\n";
 			bool errorFound = false;
 			if(!boost::filesystem::exists(authorsFile) || boost::filesystem::is_directory(authorsFile)){
+				std::cout << "\"authors.json\" file is missing.\n";
 				errorFound = true;
 			}
 			if(!errorFound){
