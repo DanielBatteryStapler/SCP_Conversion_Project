@@ -13,6 +13,7 @@ namespace Config{
 	std::string getFastCGISocket();
 	std::string getWebsiteDomainName();
 	
+	std::string getDatabaseHost();
 	std::string getDatabaseUser();
 	std::string getDatabasePassword();
 	

@@ -20,7 +20,11 @@ namespace Config{
 	}
 	
 	std::string getWebsiteDomainName(){
-		return "website.cloud.karagory.com";
+		return "scp.karagory.com";
+	}
+	
+	std::string getDatabaseHost(){
+		return "scp-database";
 	}
 	
 	std::string getDatabaseUser(){
@@ -32,15 +36,15 @@ namespace Config{
 	}
 	
 	std::string getScraperFolder(){
-		return "/home/daniel/File Collections/scpArchive/newBatchArchive/";
+		return "/scp_conversion_project/batchArchive/";
 	}
 
 	std::string getPDFFolder(){
-		return "/home/daniel/File Collections/scpArchive/pdfs/";
+		return "/scp_conversion_project/webRoot/__pdfs/";
 	}
 	
 	std::string getWebRootStaticFolder(){
-		return "/home/daniel/Projects/SCP_Conversion_Project/data/webroot/__static/";
+		return "/scp_conversion_project/webRoot/__static/";
 	}
 }
 

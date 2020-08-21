@@ -15,7 +15,7 @@ Database::~Database(){
 
 std::unique_ptr<Database> Database::connectToDatabase(std::string databaseName){
 	std::unique_ptr<Database> output{new Database{}};
-	output->sql.open(soci::mysql, "dbname=" + databaseName + " user='" + Config::getDatabaseUser() + "' password='" + Config::getDatabasePassword() + "'");
+	output->sql.open(soci::mysql, "host='" + Config::getDatabaseHost() + "' dbname=" + databaseName + " user='" + Config::getDatabaseUser() + "' password='" + Config::getDatabasePassword() + "'");
 	return output;
 }
 
