@@ -21,7 +21,7 @@
 
 namespace Scraper{
 	namespace{
-		const std::string website = "http://www.scp-wiki.net/";
+		const std::string website = "http://www.scpwiki.com/";
 		const std::string userAgent = "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36";
 		const std::string token7 = "666656";
 		const std::string noRedirect = "/noredirect/true";
