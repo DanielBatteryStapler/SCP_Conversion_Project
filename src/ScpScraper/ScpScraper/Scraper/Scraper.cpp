@@ -74,10 +74,11 @@ namespace Scraper{
 					std::cout << "AJAX error:\"" << e.what() << "\".\n";
 					tryNum++;
 					if(tryNum < 5){
-						std::cout << "retrying...\n";
+						std::cout << "retrying for a " << tryNum << "st time...\n";
+						std::this_thread::sleep_for(std::chrono::seconds(1));
 					}
 					else{
-						std::cout << "already retried, aborting.\n";
+						std::cout << "already retried " << (tryNum + 1) << " times, aborting.\n";
 						throw e;
 					}
 				}
