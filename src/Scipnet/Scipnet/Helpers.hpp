@@ -11,9 +11,13 @@ static std::string redirectLink(std::string rawLink){
 		}
 	};
 	doRedirect("http://www.scp-wiki.net/local--files/", "/__system/pageFile/");
+	doRedirect("https://www.scp-wiki.net/local--files/", "/__system/pageFile/");
 	doRedirect("http://www.scp-wiki.net/", "/");
+	doRedirect("https://www.scp-wiki.net/", "/");
 	doRedirect("http://scp-wiki.wikidot.com/", "/");
+	doRedirect("https://scp-wiki.wikidot.com/", "/");
 	doRedirect("http://scp-wiki.wdfiles.com/local--files/", "/__system/pageFile/");
+	doRedirect("https://scp-wiki.wdfiles.com/local--files/", "/__system/pageFile/");
 	if(output == ""){
 		return rawLink;
 	}
