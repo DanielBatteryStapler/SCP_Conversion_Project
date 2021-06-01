@@ -199,6 +199,8 @@ namespace Parser{
 		//just to save myself some headaches, lets replace all nonbreaking spaces with normal spaces
 		//this might be refactored out in the future if the token rules are updated to deal with nonbreaking spaces more correctly
 		page = replaceAll(page, {static_cast<char>(0b11000010), static_cast<char>(0b10100000)}, " ");
+		//replace tabs as well
+		page = replaceAll(page, "\t", " ");
 		
 		page = applyIncludeParameters(page, parameters.includeParameters);
 		

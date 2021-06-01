@@ -5,7 +5,7 @@
 #include <boost/filesystem.hpp>
 
 int main(int argc, char** argv){
-	std::string dataFolder = "/home/daniel/File Collections/scpArchive/newBatchArchive/";
+	std::string dataFolder = "/scp_conversion_project/batchArchive/";
 	std::string batchDataFile = dataFolder + "batchData.json";
 	std::string batchesFolder = dataFolder + "batches/";
 	
@@ -28,6 +28,9 @@ int main(int argc, char** argv){
 	}
 	else if(argc == 2 && std::string(argv[1]) == "--checkAllBatchDownloads"){
 		Scraper::checkAllBatchDownloads(batchesFolder, batchDataFile);
+	}
+	else if(argc == 2 && std::string(argv[1]) == "--checkLastBatchDownload"){
+		Scraper::checkLastBatchDownload(batchesFolder, batchDataFile);
 	}
 	else{
 		std::cout << "Invalid/No Options Specified\n";

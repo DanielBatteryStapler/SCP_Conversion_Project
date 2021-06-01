@@ -169,7 +169,7 @@ namespace Importer{
 			choice = 1;
 		}
 		
-		try{
+		//try{
 			switch(choice){
 				case 0:
 					{
@@ -215,18 +215,18 @@ namespace Importer{
 					}
 					break;
 			}
-		}
-		catch(std::exception& e){
-			nlohmann::json batchData = Json::loadJsonFromFile(batchDataFile);
-			nlohmann::json error;
-			std::cout << "Exception Error: " << e.what() << "\n";
-			error["error"] = e.what();
-			error["batchId"] = nextImport;
-			batchData["batchErrors"].push_back(error);
-			Json::saveJsonToFile(batchDataFile, batchData);
-			
-			throw e;
-		}
+		//}
+		//catch(std::exception& e){
+		//	nlohmann::json batchData = Json::loadJsonFromFile(batchDataFile);
+		//	nlohmann::json error;
+		//	std::cout << "Exception Error: " << e.what() << "\n";
+		//	error["error"] = e.what();
+		//	error["batchId"] = nextImport;
+		//	batchData["batchErrors"].push_back(error);
+		//	Json::saveJsonToFile(batchDataFile, batchData);
+		//	
+		//	throw e;
+		//}
 	}
 	
 	void importBatch(std::string batchFolder){

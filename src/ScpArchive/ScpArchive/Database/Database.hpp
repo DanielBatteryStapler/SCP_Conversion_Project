@@ -1,6 +1,8 @@
 #ifndef DATABASE_HPP
 #define DATABASE_HPP
 
+#define SOCI_HAVE_CXX11
+
 #include <memory>
 #include <optional>
 #include <vector>

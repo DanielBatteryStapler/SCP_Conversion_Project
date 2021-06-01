@@ -15,6 +15,7 @@ namespace Scraper{
 	void downloadBatchData(std::string batchFolder);
 	void checkBatchDownloads(std::string batchesFolder, std::string batchDataFile, std::string batchFolder);
 	void checkAllBatchDownloads(std::string batchesFolder, std::string batchDataFile);
+	void checkLastBatchDownload(std::string batchesFolder, std::string batchDataFile);
 	
 	std::vector<std::string> getFullPageList();
 	std::vector<std::string> getUpdatedPageList(std::int64_t startTime);

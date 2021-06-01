@@ -260,6 +260,7 @@ namespace Importer{
 			if(file["authorId"].get<std::string>() != "deleted"){
                 pageFile.authorId = map.getAuthorMap(file["authorId"].get<std::string>());
 			}
+			
 			Database::ID fileId = database->createPageFile(pageId, pageFile).value();
 			map.setFileMap(file["id"].get<std::string>(), fileId);
 		}

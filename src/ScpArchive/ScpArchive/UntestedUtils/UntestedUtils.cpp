@@ -80,7 +80,7 @@ namespace UntestedUtils{
 			output.push_back(uj);
 		}
 		try{
-			std::ofstream("/home/daniel/File Collections/ScpNodeRender/nodeDiagramDataExportFinal.json") << output.dump(4);
+			std::ofstream("/scp_conversion_project/nodeDiagramDataExportFinal.json") << output.dump(4);
 		}
 		catch(std::exception& e){
 			while(true){

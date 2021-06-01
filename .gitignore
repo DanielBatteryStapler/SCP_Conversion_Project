@@ -31,6 +31,8 @@
 *.out
 *.app
 
-src/*/bin/*/*
+src/*/bin/
+src/*/obj/
 src/*/*.depend
 src/*/*.layout
+

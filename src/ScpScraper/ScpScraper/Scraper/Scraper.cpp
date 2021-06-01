@@ -282,6 +282,18 @@ namespace Scraper{
 		}
 	}
 	
+	void checkLastBatchDownload(std::string batchesFolder, std::string batchDataFile){
+		nlohmann::json batchData = loadJsonFromFile(batchDataFile);
+		if(batchData["batchErrors"].size() > 0){
+            throw std::runtime_error("Cannot check last batch downloads, Timeline File has errors");
+		}
+		std::string last;
+		for(std::string batch : batchData["availableBatches"]){
+			last = batch;
+		}
+		checkBatchDownloads(batchesFolder, batchDataFile, batchesFolder + last + "/");
+	}
+	
 	std::vector<std::string> getFullPageList(){
 		
 		//this is very ugly code but it works so it's all fine
@@ -400,7 +412,7 @@ namespace Scraper{
 			std::stack<std::function<void(void)>> work;
 			//std::atomic<std::size_t> workItems{0};
 			std::atomic<bool> keepRunning{true};
-			static constexpr int threadCount = 15;//15 + main thread for a nice round 16
+			static constexpr int threadCount = 3;//3 + main thread for a nice round 4
 			
 			std::function<void(void)> getWork(){
 				std::lock_guard<std::mutex> lock(threadLock);

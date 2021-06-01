@@ -16,6 +16,7 @@ Database::~Database(){
 std::unique_ptr<Database> Database::connectToDatabase(std::string databaseName){
 	std::unique_ptr<Database> output{new Database{}};
 	output->sql.open(soci::mysql, "host='" + Config::getDatabaseHost() + "' dbname=" + databaseName + " user='" + Config::getDatabaseUser() + "' password='" + Config::getDatabasePassword() + "'");
+	output->sql << "SET NAMES 'utf8mb4'";
 	return output;
 }
 
@@ -72,7 +73,7 @@ void Database::cleanAndInitDatabase(){
 			"PRIMARY KEY (id), \n"
 		"type TINYINT NOT NULL, \n"
 		"name TEXT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE forumGroups( \n"
@@ -80,7 +81,7 @@ void Database::cleanAndInitDatabase(){
 			"PRIMARY KEY (id), \n"
 		"title TEXT NOT NULL, \n"
 		"description TEXT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE forumCategories( \n"
@@ -92,7 +93,7 @@ void Database::cleanAndInitDatabase(){
 			"FOREIGN KEY (parent) REFERENCES forumGroups(id) ON DELETE CASCADE, \n"
 		"title TEXT NOT NULL, \n"
 		"description TEXT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE forumThreads( \n"
@@ -107,7 +108,7 @@ void Database::cleanAndInitDatabase(){
 			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
 		"description TEXT NOT NULL, \n"
 		"timeStamp BIGINT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE forumPosts( \n"
@@ -122,7 +123,7 @@ void Database::cleanAndInitDatabase(){
 			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
 		"content TEXT NOT NULL, \n"
 		"timeStamp BIGINT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE pages( \n"
@@ -132,7 +133,7 @@ void Database::cleanAndInitDatabase(){
 			"UNIQUE (name(255)), \n"
 		"parent TEXT DEFAULT NULL, \n"
 		"discussion TEXT DEFAULT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE pageTags( \n"
@@ -141,7 +142,7 @@ void Database::cleanAndInitDatabase(){
 		"page BIGINT NOT NULL, \n"
 			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
 		"tag TEXT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE pageVotes( \n"
@@ -152,7 +153,7 @@ void Database::cleanAndInitDatabase(){
 		"authorId BIGINT, \n"
 			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
 		"vote TINYINT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE pageFiles( \n"
@@ -160,13 +161,13 @@ void Database::cleanAndInitDatabase(){
 			"PRIMARY KEY (id), \n"
 		"page BIGINT NOT NULL, \n"
 			"FOREIGN KEY (page) REFERENCES pages(id) ON DELETE CASCADE, \n"
-		"name TEXT NOT NULL COLLATE utf8_bin, \n"
+		"name TEXT NOT NULL COLLATE utf8mb4_bin, \n"
 			"UNIQUE (page, name(255)), \n"
 		"authorId BIGINT, \n"
 			"FOREIGN KEY (authorId) REFERENCES authors(id) ON DELETE RESTRICT, \n"
 		"description TEXT NOT NULL, \n"
 		"timeStamp BIGINT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE pageFileData( \n"
@@ -174,7 +175,7 @@ void Database::cleanAndInitDatabase(){
 			"PRIMARY KEY (pageFile), \n"
 			"FOREIGN KEY (pageFile) REFERENCES pageFiles(id) ON DELETE CASCADE, \n"
 		"data LONGBLOB NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql <<
 	"CREATE TABLE revisions( \n"
@@ -189,7 +190,7 @@ void Database::cleanAndInitDatabase(){
 		"changeMessage TEXT NOT NULL, \n"
 		"changeType TEXT NOT NULL, \n"
 		"sourceCode LONGTEXT NOT NULL \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	sql << 
 	"CREATE TABLE idMap( \n"
@@ -198,7 +199,7 @@ void Database::cleanAndInitDatabase(){
 			"PRIMARY KEY (category, id), \n"
 		"sourceId TEXT NOT NULL, \n"
 			"UNIQUE (category, sourceId(255)) \n"
-	")ENGINE=InnoDB CHARSET=utf8";
+	")ENGINE=InnoDB CHARSET=utf8mb4";
 	
 	
 	{

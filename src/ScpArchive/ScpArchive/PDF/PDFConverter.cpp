@@ -58,7 +58,7 @@ namespace PDF{
 		///this is calling std::system, but this code is never called by the Website, it can only be called if you tell the program to call it
 		//everything will probably be fine, probably
 		
-		std::system(("wkhtmltopdf -n -T 10mm -R 10mm -B 10mm -L 10mm --zoom 1.10 \"" + tempHTMLFile + "\" \"" + tempPDFFile + "\"").c_str());
+		std::system(("wkhtmltopdf --enable-local-file-access -n -T 10mm -R 10mm -B 10mm -L 10mm --zoom 1.10 \"" + tempHTMLFile + "\" \"" + tempPDFFile + "\"").c_str());
 		
 		if(boost::filesystem::exists(tempPDFFile)){
 			boost::filesystem::rename(tempPDFFile, finishedPdfFile);
