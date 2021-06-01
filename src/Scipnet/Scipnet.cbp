@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Scipnet" />
+		<Option pch_mode="2" />
+		<Option compiler="clang" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Scipnet" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="clang" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="./" />
+					<Add directory="Scpinet" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Scipnet" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="clang" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="./" />
+					<Add directory="Scpinet" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=c++17" />
+			<Add option="$\(GraphicsMagick++-config --cppflags --cxxflags\)" />
+		</Compiler>
+		<Linker>
+			<Add option="-lcurlpp" />
+			<Add option="-lcurl" />
+			<Add option="-lncursesw" />
+			<Add option="$\(GraphicsMagick++-config --ldflags --libs\)" />
+		</Linker>
+		<Unit filename="Scipnet/Cli.cpp" />
+		<Unit filename="Scipnet/Cli.hpp" />
+		<Unit filename="Scipnet/ColorTable.cpp" />
+		<Unit filename="Scipnet/ColorTable.hpp" />
+		<Unit filename="Scipnet/Converter.cpp" />
+		<Unit filename="Scipnet/Converter.hpp" />
+		<Unit filename="Scipnet/Database.cpp" />
+		<Unit filename="Scipnet/Database.hpp" />
+		<Unit filename="Scipnet/Emscript.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Scipnet/Helpers.hpp" />
+		<Unit filename="Scipnet/Ncurses.cpp" />
+		<Unit filename="Scipnet/Ncurses.hpp" />
+		<Unit filename="Scipnet/layout/Layout.cpp" />
+		<Unit filename="Scipnet/layout/Layout.hpp" />
+		<Unit filename="Scipnet/main.cpp" />
+		<Unit filename="scipnet.html" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

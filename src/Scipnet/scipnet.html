@@ -1,0 +1,535 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>SCP Conversion Project - SCiPNET</title>
+	</head>
+	<script>
+		
+		function singleNumberToHex(number){
+			switch(number){
+			case 0: return "0";
+			case 1: return "1";
+			case 2: return "2";
+			case 3: return "3";
+			case 4: return "4";
+			case 5: return "5";
+			case 6: return "6";
+			case 7: return "7";
+			case 8: return "8";
+			case 9: return "9";
+			case 10: return "A";
+			case 11: return "B";
+			case 12: return "C";
+			case 13: return "D";
+			case 14: return "E";
+			case 15: return "F";
+			}
+		}
+		
+		function doubleNumberToHex(number){
+			return singleNumberToHex(Math.floor(number / 16)) + singleNumberToHex(number % 16);
+		}
+		
+		var Module = {
+			onRuntimeInitialized: function() {
+				String.prototype.replaceAt = function(index, replacement) {
+					return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+				}
+				
+				var characterSize = document.getElementById("characterSize");
+				var characterWidth = characterSize.getBoundingClientRect().width;
+				var characterHeight = characterSize.getBoundingClientRect().height;
+				
+				var terminal = document.getElementById("terminal");
+				var terminalTableBody = document.getElementById("terminalTableBody");
+				var terminalTableBodyAlternate = null;
+				
+				var currentWidth = 0;
+				var currentHeight = 0;
+				var currentTerminalX = 0;
+				var currentTerminalY = 0;
+				
+				function handleTerminalResize(){
+					var height = Math.floor(terminal.clientHeight / characterHeight);
+					var width = Math.floor(terminal.clientWidth / characterWidth);
+					
+					var toResize = terminalTableBody;
+					if(terminalTableBodyAlternate !== null){
+						toResize = terminalTableBodyAlternate;
+						
+						if(height != currentHeight){
+							if(height > currentHeight){
+								for(i = 0; i < (height - currentHeight); i++){
+									var newRow = document.createElement("tr");
+									var child = document.createElement("td");
+									newRow.appendChild(child);
+									terminalTableBody.appendChild(newRow);
+								}
+							}
+							else{
+								for(i = 0; i < (currentHeight - height); i++){
+									terminalTableBody.removeChild(terminalTableBody.lastChild);
+								}
+							}
+						}
+					}
+					
+					if(height != currentHeight){
+						if(height > currentHeight){
+							for(i = 0; i < (height - currentHeight); i++){
+								var newRow = document.createElement("tr");
+								for(x = 0; x < currentWidth; x++){
+									var child = document.createElement("td");
+									child.textContent = " ";
+									newRow.appendChild(child);
+								}
+								toResize.appendChild(newRow);
+							}
+						}
+						else{
+							for(i = 0; i < (currentHeight - height); i++){
+								toResize.removeChild(toResize.lastChild);
+							}
+						}
+					}
+					
+					if(width != currentWidth){
+						if(width > currentWidth){
+							for(i = 0; i < toResize.childNodes.length; i++){
+								for(x = 0; x < (width - currentWidth); x++){
+									var child = document.createElement("td");
+									child.textContent = " ";
+									toResize.childNodes[i].appendChild(child);
+								}
+							}
+						}
+						else{
+							for(i = 0; i < toResize.childNodes.length; i++){
+								for(x = 0; x < (currentWidth - width); x++){
+									toResize.childNodes[i].removeChild(toResize.childNodes[i].lastChild);
+								}
+							}
+						}
+					}
+					
+					if(currentTerminalX >= width){
+						currentTerminalX = width - 1;
+					}
+					if(currentTerminalY >= height){
+						currentTerminalY = height - 1;
+					}
+					
+					currentHeight = height;
+					currentWidth = width;
+					
+					console.log("resize to " + width + "x" + height);
+					
+					callCli({"type":"size","width":width,"height":height});
+				}
+				
+				function handleTerminalPrint(text){
+					for(let c of text){
+						if(c == "\b"){
+							currentTerminalX--;
+						}
+						else if(c == "\n"){
+							currentTerminalX = 0;
+							currentTerminalY++;
+						}
+						else{
+							terminalTableBody.childNodes[currentTerminalY].childNodes[currentTerminalX].textContent = c;
+							currentTerminalX++;
+						}
+						
+						if(currentTerminalX >= currentWidth){
+							currentTerminalX = 0;
+							currentTerminalY++;
+						}
+						if(currentTerminalY >= currentHeight){
+							terminalTableBody.removeChild(terminalTableBody.firstChild);
+							var newRow = document.createElement("tr");
+							for(x = 0; x < currentWidth; x++){
+								var child = document.createElement("td");
+								child.textContent = " ";
+								newRow.appendChild(child);
+							}
+							terminalTableBody.appendChild(newRow);
+							currentTerminalY = currentHeight - 1;
+						}
+					}
+					
+					var previousSelectedGrid = document.getElementById("selectedGrid");
+					if(previousSelectedGrid){
+						previousSelectedGrid.id = "";
+					}
+					var selectedGrid = terminalTableBody.childNodes[currentTerminalY].childNodes[currentTerminalX];
+					selectedGrid.id = "selectedGrid";
+				}
+				
+				function handleTerminalFullscreenPrint(printObject){
+					for(var y = 0; y < currentHeight; y++){
+						terminalTableBody.childNodes[y].firstChild.innerHTML = "";
+					}
+					
+					var x = 0;
+					var y = 0;
+					for(var i = 0; i < printObject["grid"].length; i++){
+						var j = printObject["grid"][i];
+						
+						var classes = "";
+						if(j["bold"]){
+							classes += "bold ";
+						}
+						if(j["italic"]){
+							classes += "italic ";
+						}
+						if(j["underline"]){
+							classes += "underline ";
+						}
+						var color = "";
+						if(j["colorSet"]){
+							color = "rgb(" + j["red"] + "," + j["green"] + "," + j["blue"] + ")";
+						}
+						
+						var span = document.createElement("span");
+						span.className = classes;
+						span.style.color = color;
+						
+						var collect = "";
+						
+						for(let c of j["glyphs"]){
+							if(x == printObject.cursorX && y == printObject.cursorY){
+								if(collect != ""){
+									var newSpan = span.cloneNode(true);
+									newSpan.textContent = collect;
+									terminalTableBody.childNodes[y].firstChild.appendChild(newSpan);
+									collect = "";
+								}
+								var newSpan = span.cloneNode(true);
+								newSpan.id = "selectedGrid";
+								newSpan.textContent = c;
+								terminalTableBody.childNodes[y].firstChild.appendChild(newSpan);
+							}
+							else{
+								collect += c;
+							}
+							
+							x++;
+							if(x >= currentWidth){
+								if(collect != ""){
+									var newSpan = span.cloneNode(true);
+									newSpan.textContent = collect;
+									terminalTableBody.childNodes[y].firstChild.appendChild(newSpan);
+									collect = "";
+								}
+								x = 0;
+								y++;
+							}
+						}
+						if(collect != ""){
+							span.textContent = collect;
+							terminalTableBody.childNodes[y].firstChild.appendChild(span);
+							collect = "";
+						}
+					}
+				}
+				
+				function callCli(input){
+					//console.log(input);
+					var output = JSON.parse(Module.processCliString(JSON.stringify(input)));
+					for(var i = 0; i < output.length; i++){
+						var type = output[i]["type"]
+						if(type == "print"){
+							handleTerminalPrint(output[i]["text"]);
+						}
+						else if(type == "loadArticle"){
+						    var articleUrl = output[i]["articleUrl"];
+							var oReq = new XMLHttpRequest();
+							oReq.onreadystatechange = function() {
+								if (this.readyState == 4 && this.status == 200) {
+									try{
+									    var articleData = JSON.parse(this.responseText);
+									    var loadingData = {"articleData":articleData,"imagesLeft":0};
+									    
+									    function finishLoading(loadingData){
+										    if(loadingData.imagesLeft == 0){
+											    //console.log("last image loaded, doing callCli");
+											    callCli({"type":"loadedArticle","articleJson":{"pageTree":loadingData.articleData}});
+										    }
+										    else{
+											    //console.log("not last image, skipping callCli");
+										    }
+									    }
+									    
+									    function handleImages(node){
+										    if(node["type"] == "Image"){
+											    loadingData.imagesLeft++;
+											    
+											    imageLoad = new Image();
+											    imageLoad.crossOrigin = "anonymous";
+											    imageLoad.crossorigin = "anonymous";
+											    imageLoad.onload = function(){						
+												    var rows = this.height;
+												    var columns = this.width;
+												    
+												    if(rows == 0 || columns == 0){
+													    node["imageData"] = {
+														    "valid": false
+													    };
+												    }
+												    else{
+													    var maximumDimension = 256;
+													    
+													    if(Math.max(rows, columns) > maximumDimension){
+														    if(rows > columns){
+															    columns = Math.floor(columns * maximumDimension/rows);
+															    rows = maximumDimension;
+														    }
+														    else{
+															    rows = Math.floor(rows * maximumDimension/columns);	
+															    columns = maximumDimension;
+														    }
+													    }
+													    
+													    var canvas = document.createElement('canvas');
+													    var ctx = canvas.getContext('2d');
+													    ctx.canvas.width = columns;
+													    ctx.canvas.height = rows;
+													    ctx.drawImage(this, 0, 0, this.width, this.height, 0, 0, columns, rows);
+													    //console.log("imagedata:" + columns + "x" + rows);
+													    var imageData = ctx.getImageData(0, 0, columns, rows);
+													    
+													    var imageDataString = "";
+													    for(var i = 0; i < (rows * columns * 4); i += 4){
+														    imageDataString += doubleNumberToHex(imageData.data[i]) + doubleNumberToHex(imageData.data[i + 1]) + doubleNumberToHex(imageData.data[i + 2]);
+													    }
+													    
+													    node["imageData"] = {
+														    "valid": true,
+														    "pixels": imageDataString,
+														    "height": rows,
+														    "width": columns
+													    };
+												    }
+												    
+												    loadingData.imagesLeft--;
+												    finishLoading(loadingData);
+											    }
+											    imageLoad.src = Module.redirectLink(node["data"]["source"]);
+										    }
+										    
+										    for(var i = 0; i < node["branches"].length; i++){
+											    handleImages(node["branches"][i]);
+										    }
+									    }
+									    handleImages(articleData);
+									    
+									    //console.log(loadingData.imagesLeft + " images to load");
+									    
+									    finishLoading(loadingData);
+									}
+									catch(err){
+									    callCli({
+									        "type": "loadedArticle",
+									        "articleJson": {
+									            "pageTree": {
+				                                    "type": "RootPage",
+				                                    "data": null,
+				                                    "branches": [
+					                                    {
+						                                    "type": "Paragraph",
+						                                    "data": null,
+						                                    "branches": [
+							                                    {
+								                                    "type": "PlainText",
+								                                    "data": "Error while loading page '" + articleUrl + "'",
+								                                    "branches": []
+							                                    }
+						                                    ]
+					                                    }
+				                                    ]
+			                                    }
+									        }
+									    });
+									}
+								}
+							};
+							oReq.open("GET", "https://scp.karagory.com/" + articleUrl + "/showTreeJSON", true);
+							oReq.send();
+						}
+						else if(type == "startFullscreen"){
+							terminalTableBodyAlternate = terminalTableBody.cloneNode(true);
+							for(var y = 0; y < currentHeight; y++){
+								for(var x = 0; x < currentWidth - 1; x++){
+									terminalTableBody.childNodes[y].removeChild(terminalTableBody.childNodes[y].firstChild);
+								}
+							}
+						}
+						else if(type == "stopFullscreen"){
+							terminalTableBody.parentNode.replaceChild(terminalTableBodyAlternate, terminalTableBody);
+							terminalTableBody = terminalTableBodyAlternate;
+							terminalTableBodyAlternate = null;
+						}
+						else if(type == "fullscreenPrint"){
+							handleTerminalFullscreenPrint(output[i]);
+						}
+						else{
+							console.log("Unknown output type");
+							console.log(output[i]);
+						}
+					}
+				}
+				
+				function handleTerminalType(event){
+					var input = event.key;
+					switch(input){
+					case "Enter":
+						input = "\n";
+						break;
+					case "ArrowRight":
+						input = "right";
+						break;
+					case "ArrowLeft":
+						input = "left";
+						break;
+					case "ArrowUp":
+						input = "up";
+						break;
+					case "ArrowDown":
+						input = "down";
+						break;
+					case "Backspace":
+						input = "\b";
+						break;
+					default:
+						if(input.length != 1){
+							input = "";
+						}
+						break;
+					}
+					if(input != ""){
+						callCli({"type":"input","input":input});
+					}
+				}
+				
+				while(terminalTableBody.hasChildNodes()){
+				  terminalTableBody.removeChild(terminalTableBody.childNodes[0]);
+				} 
+				handleTerminalResize();
+				window.addEventListener("resize", handleTerminalResize);
+				window.addEventListener("keydown", handleTerminalType);
+				
+				callCli({"type":"startup"});
+			}
+		};
+	</script>
+	<script src="/__static/scipnet/scipnet.js"></script>
+	
+	<style>
+		html{
+			padding: 0;
+			margin: 0;
+		}
+		
+		body{
+			padding: 0;
+			margin: 0;
+		}
+		
+		#characterSizeTable{
+			position: absolute;
+			top: -100px;
+			font-family: "Courier New";
+			font-size: 0.8rem;
+			padding: 0;
+			margin: 0;
+		}
+		
+		#characterSize{
+			
+		}
+		
+		#terminal{
+			height: 100vh;
+			width: 100vw;
+			color: white;
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+		
+		.terminalTable{
+			font-family: "Courier New";
+			font-size: 0.8rem;
+			background-color: black;
+		}
+		
+		.terminalTable table{
+			margin: 0;
+			padding: 0;
+			border: 0;
+			letter-spacing: 0;
+			border-collapse: collapse;
+		}
+		
+		.terminalTable tbody{
+			margin: 0;
+			padding: 0;
+			border: 0;
+			letter-spacing: 0;
+			border-collapse: collapse;
+		}
+		
+		.terminalTable tr{
+			margin: 0;
+			padding: 0;
+			border: 0;
+			letter-spacing: 0;
+			border-collapse: collapse;
+		}
+		
+		.terminalTable td{
+			margin: 0;
+			padding: 0;
+			border: 0;
+			letter-spacing: 0;
+			border-collapse: collapse;
+			white-space: pre;
+		}
+		
+		#selectedGrid{
+			background-color: white;
+			color: black;
+		}
+		
+		.bold{
+			font-weight: bold;
+		}
+		.italic{
+			font-style: italic;
+		}
+		.underline{
+			text-decoration: underline;
+		}
+	</style>
+	
+	<body id="body">
+		<div id="characterSizeTable" class="terminalTable">
+			<table>
+				<tbody>
+					<tr>
+						<td id='characterSize'> </td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div role="application" id="terminal" class="terminalTable">
+			<table>
+				<tbody id="terminalTableBody">
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>
+
