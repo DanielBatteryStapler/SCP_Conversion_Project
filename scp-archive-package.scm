@@ -1,0 +1,35 @@
+(use-modules (guix packages)
+	(guix gexp)
+	((guix licenses) #:prefix license:)
+	(guix build-system meson)
+	(gnu packages pkg-config)
+	(gnu packages cmake)
+	(gnu packages cpp)
+	(gnu packages web)
+	(gnu packages boost)
+	(gnu packages databases)
+	(gnu packages compression))
+
+(package
+	(name "ScpArchive")
+	(version "0.0")
+	(inputs 
+		`(("json-modern-cxx" ,json-modern-cxx)
+		("fcgi" ,fcgi)
+		("cgicc" ,(load "cgicc-package.scm"))
+		("boost" ,boost)
+		("soci" ,(load "soci-package.scm"))
+		("mariadb:dev" ,mariadb "dev")
+		("zlib" ,zlib)))
+	(native-inputs
+		`(("pkg-config" ,pkg-config)
+		("cmake" ,cmake)))
+	(propagated-inputs '())
+	(source (local-file "./src/ScpArchive" #:recursive? #t))
+	(build-system meson-build-system)
+	(synopsis "ScpArchive: Web-Backend for the SCP Conversion Project")
+	(description
+		"Web-Backend for the SCP Conversion Project configured as an FCGI-gateway")
+	(home-page "https://github.com/danielbatterystapler/SCP_Conversion_Project")
+	(license license:gpl3))
+

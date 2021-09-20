@@ -8,13 +8,13 @@
 
 #include "Config.hpp"
 
-#include "UntestedUtils.hpp"
+#include "UntestedUtils/UntestedUtils.hpp"
 
 #include "Parser/Parser.hpp"
 #include "Parser/Treer.hpp"
 #include "Parser/HTMLConverter.hpp"
 
-#include "RuleSet.hpp"
+#include "Parser/Rules/RuleSet.hpp"
 
 #include "Database/Json.hpp"
 

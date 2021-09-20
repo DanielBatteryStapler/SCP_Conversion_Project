@@ -12,6 +12,10 @@
 #include <curl/curl.h>
 #include "Helpers.hpp"
 
+constexpr unsigned int MaxRGBValue = 65535;
+//should really be defined off of the "QuantumRange" macro exported by ImageMagick, but doing so gives a compiler error
+//for some reaosn, and this number is really just not going to change much
+
 namespace Database{
 	nlohmann::json getPageTree(std::string name){
 		curlpp::Cleanup myCleanup;
@@ -132,7 +136,7 @@ namespace Database{
 					for(unsigned int y = 0; y < rows; y++){
 						for(unsigned int x = 0; x < columns; x++){
 							const Magick::PixelPacket* pixel = (pixel_cache+y*columns+x);
-							unsigned int depthCorrection = MaxRGB / 255;
+							unsigned int depthCorrection = MaxRGBValue / 255;
 							std::stringstream singlePixel;
 							singlePixel << toHex(pixel->red / depthCorrection) << toHex(pixel->green / depthCorrection) << toHex(pixel->blue / depthCorrection);
 							if(singlePixel.str().size() != 6){

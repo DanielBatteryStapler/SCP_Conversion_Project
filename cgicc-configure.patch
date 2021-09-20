@@ -1,0 +1,11 @@
+--- cgicc-3.2.19/configure	2017-06-27 15:38:18.000000000 -0400
++++ cgicc-3.2.19/configure-new	2021-08-04 23:12:01.918533135 -0400
+@@ -15979,7 +15979,7 @@
+   done
+ IFS=$as_save_IFS
+ 
+-  test -z "$ac_cv_prog_DOXYGEN" && ac_cv_prog_DOXYGEN="/bin/echo"
++  test -z "$ac_cv_prog_DOXYGEN" && ac_cv_prog_DOXYGEN="echo"
+ fi
+ fi
+ DOXYGEN=$ac_cv_prog_DOXYGEN

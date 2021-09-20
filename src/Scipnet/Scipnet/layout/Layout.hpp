@@ -705,7 +705,7 @@ struct QuoteBox : public Element{
 	}
 
 	virtual void calculateBoundingGeometry(std::vector<Rect> parentFloatBounds){
-		adjustParentFloatsBounds(parentFloatBounds, 1, 0);
+		adjustParentFloatsBounds(parentFloatBounds, 1, 1);
 		bounds.width = widthLimit;
 		int dontCareWidth;
 		calculateBoundingGeometryAsBlockParent(bounds.height, dontCareWidth, widthLimit - 2, parentFloatBounds, branches);
